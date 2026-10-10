@@ -41,6 +41,53 @@ button{transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
 .worker-report{margin-top:17px;padding:18px;border:1px solid #e9e5d8;border-radius:16px;background:linear-gradient(120deg,#fffefa,#fff9eb)}.worker-report h3{margin:0 0 4px}.worker-report p{margin:0 0 13px;color:#748197;font-size:.85rem}.report-controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.report-controls .field{min-width:170px}.report-total{font-size:.85rem;font-weight:750;color:#334155;padding:9px 0}.report-controls button{white-space:nowrap}
 @media(max-width:700px){.top .brand h1{font-size:1.03rem}.report-controls{align-items:stretch}.report-controls .field{width:100%}}
 .apt-details{margin:10px 0;padding:11px 13px;border-radius:12px;background:#f6f9fd;border:1px solid #e8eef5}.apt-details p{margin:4px 0!important;font-size:.85rem}.map-link{display:inline-flex;align-items:center;padding:7px 12px;margin:5px 0;border-radius:9px;background:#fff4cf;color:#765200;text-decoration:none;font-weight:700;font-size:.82rem}.map-link:hover{background:#ffe49a}
+
+/* AMA Company — ergonomie smartphone */
+@media(max-width:700px){
+ html{scroll-padding-bottom:95px}
+ body{font-size:14px}
+ .wrap{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+ .sidebar{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:12;width:100%;height:auto;min-height:0;padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e7eaf1;box-shadow:0 -7px 26px #14223813}
+ .nav{display:flex;flex-direction:row;overflow-x:auto;gap:3px;scrollbar-width:none;justify-content:space-around}
+ .nav::-webkit-scrollbar{display:none}
+ .nav button{flex:1 0 0;min-width:0;max-width:125px;padding:10px 3px 8px;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;font-size:11px;line-height:1.25;white-space:normal;border-radius:12px}
+ .nav button.active{box-shadow:inset 0 3px #f3bd2e;background:#fff4d7}
+ .workspace{padding:13px 12px 18px;width:100%;overflow:hidden}
+ .top{padding:4px 0 13px;margin-bottom:12px;flex-wrap:wrap}
+ .top .brand h1{font-size:1rem}
+ .top-actions{margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+ .top-actions button{padding:8px 10px;font-size:12px}
+ .hero{padding:16px!important;border-radius:16px;margin-bottom:13px;align-items:flex-start}
+ .hero h2{font-size:1.35rem!important}
+ .hero p{font-size:.82rem}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:13px}
+ .stat{padding:13px;min-height:102px;border-radius:15px}
+ .stat .value{font-size:1.5rem}
+ .stat .label{font-size:.76rem}
+ .stat .sub{font-size:.71rem}
+ .card{padding:15px;border-radius:16px;margin-bottom:12px}
+ .dashboard-grid,.grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .section-title{flex-wrap:wrap}
+ .section-title .actions{width:100%}
+ .mission{flex-direction:column;gap:9px;padding:13px;border-radius:13px}
+ .mission .right{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start}
+ .mission .right button,.mission .right a{min-height:42px}
+ .mission h4{font-size:1rem}
+ .mission p{overflow-wrap:anywhere}
+ .actions button,.inline button{min-height:40px}
+ .field input,.field select,.field textarea{font-size:16px;min-height:44px}
+ .formgrid{grid-template-columns:minmax(0,1fr)}
+ .formgrid button.primary{min-height:46px}
+ .tablewrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ table{min-width:560px}
+ .dash-head,.dash-row{grid-template-columns:1fr 1.2fr .65fr}
+ .report-controls{flex-direction:column;align-items:stretch}
+ .report-controls .field,.report-controls button{width:100%}
+ .login-screen{padding:14px}
+ .login{padding:23px 19px;border-radius:19px}
+ .login .ama-logo{max-width:100%}
+}
+@media(max-width:380px){.nav button{font-size:10px;padding-left:1px;padding-right:1px}.top .brand h1{font-size:.9rem}.pill{font-size:.7rem}}
 </style>
 </head>
 <body>
@@ -59,7 +106,6 @@ button{transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
     <div class="top-actions"><span class="pill" id="rolePill">Administrateur</span><button class="ghost" id="logoutBtn">↪ Déconnexion</button></div>
   </header>
   <section class="hero"><div><h2 id="welcomeTitle">Bonjour 👋</h2><p id="welcomeText">Organisez vos missions et suivez leur réalisation.</p></div><div class="date" id="todayLabel"></div></section>
-  <div class="notice" id="storageNotice">Mode local : les données sont enregistrées sur cet appareil uniquement. Pour partager les mêmes plannings entre téléphones et ordinateurs, il faudra connecter une base de données en ligne (par exemple Supabase).</div>
   <section class="stats" id="stats">
     <div class="stat"><div class="label">Missions aujourd'hui</div><div class="value" id="statToday">0</div><div class="sub">Toutes les missions planifiées</div></div>
     <div class="stat"><div class="label">À réaliser</div><div class="value" id="statPending">0</div><div class="sub">Missions en attente</div></div>
