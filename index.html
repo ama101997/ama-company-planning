@@ -239,9 +239,9 @@ const uid=()=>crypto.randomUUID();
 let lastSnapshot={users:[],apartments:[],missions:[]},busy=false;
 const normalizeUser=u=>({id:u.id,name:u.full_name||'Utilisateur',email:u.email||'',role:u.role==='admin'?'admin':'worker',active:u.active!==false});
 const normalizeApartment=a=>({id:a.id,name:a.name,address:a.address||'',access:a.access_code||'',beds:a.beds||0,duration:Number(a.duration||0),active:a.active!==false});
-const normalizeMission=m=>({id:m.id,date:m.mission_date,workerId:m.intervenant_id,apartmentId:m.apartment_id,hours:Number(m.hours||0),status:m.status||'planned',notes:m.notes||'',createdAt:m.created_at||null,completedAt:m.completed_at||null,completedBy:m.completed_by||null});
+const normalizeMission=m=>({id:m.id,date:m.mission_date,workerId:m.intervenant_id,apartmentId:m.apartment_id,hours:Number(m.hours||0),status:m.status||'planned',notes:m.notes||'',createdAt:m.created_at||null,completedAt:m.completed_at||null,completedBy:m.completed_by||null,prolonged:m.prolonged===true});
 const encodeApartment=a=>({id:a.id,name:a.name,address:a.address||'',access_code:a.access||'',beds:Number(a.beds||0),duration:Number(a.duration||0),active:a.active!==false});
-const encodeMission=m=>({id:m.id,mission_date:m.date,intervenant_id:m.workerId,apartment_id:m.apartmentId,hours:Number(m.hours||0),status:m.status,notes:m.notes||''});
+const encodeMission=m=>({id:m.id,mission_date:m.date,intervenant_id:m.workerId,apartment_id:m.apartmentId,hours:Number(m.hours||0),status:m.status,notes:m.notes||'',prolonged:m.prolonged===true});
 async function reload(){
  if(!client)throw Error('Impossible de charger Supabase. Vérifiez la connexion Internet.');
  const [p,a,m]=await Promise.all([client.from('profiles').select('*'),client.from('apartments').select('*'),client.from('missions').select('*')]);
@@ -320,10 +320,11 @@ async function startSession(authUser){
 async function logout(){await client?.auth.signOut();session=null;$('#app').hidden=true;$('#loginScreen').classList.remove('hidden');$('#loginPin').value='';$('#loginEmail').value='';}
 function canSee(m){return session.role==='admin'||m.workerId===session.id}
 function getVisibleMissions(){return data.missions.filter(canSee).filter(m=>session.role!=='worker'||m.workerId===session.id)}
+function missionBadge(m){return m.prolonged?'<span class="badge cancelled">↗ Prolongation du séjour</span>':statusBadge(m.status)}
 function statusBadge(s){return s==='done'?'<span class="badge done">✓ Réalisée</span>':s==='cancelled'?'<span class="badge cancelled">Annulée</span>':'<span class="badge planned">À réaliser</span>'}
 function renderStats(){
  const ms=getVisibleMissions(),todayM=ms.filter(m=>m.date===today()),monthM=ms.filter(m=>m.date?.startsWith(monthNow()));
- $('#statToday').textContent=todayM.length;$('#statPending').textContent=ms.filter(m=>m.status==='planned').length;
+ $('#statToday').textContent=todayM.length;$('#statPending').textContent=ms.filter(m=>m.status==='planned'&&!m.prolonged).length;
  $('#statDone').textContent=monthM.filter(m=>m.status==='done').length;
  $('#statHours').textContent=hours(monthM.filter(m=>m.status==='done').reduce((s,m)=>s+Number(m.hours||0),0));
  $('#todayLabel').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -342,7 +343,7 @@ function clearApartmentEditor(){
 function renderPlanning(){
  let ms=getVisibleMissions();
  // Le planning admin affiche les missions encore à traiter ; l'historique conserve les missions validées.
- if(session.role==='admin')ms=ms.filter(m=>m.status!=='done');
+ if(session.role==='admin')ms=ms.filter(m=>m.status!=='done'||m.prolonged);
  const d=$('#planningDate').value,w=$('#planningWorkerFilter').value;
  if(d)ms=ms.filter(m=>m.date===d);
  if(session.role==='admin'&&w)ms=ms.filter(m=>m.workerId===w);
@@ -356,8 +357,9 @@ function renderPlanning(){
   return a.date.localeCompare(b.date)||String(a.workerName).localeCompare(String(b.workerName));
  });
  $('#missionList').innerHTML=ms.length?ms.map(m=>{
- const isMine=m.workerId===session.id,canValidate=session.role==='worker'&&isMine&&m.status==='planned';
- return `<article class="mission"><div><h4>${esc(m.apartmentName||'Logement')}</h4><p>📅 ${dateFr(m.date)} · 👤 ${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</p><p>⏱ ${hours(m.hours)}</p>${m.notes?`<div class="mission-note" role="note"><strong>📌 Consignes importantes pour cette mission</strong><div class="note-body">${esc(m.notes)}</div></div>`:''}${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${statusBadge(m.status)}${canValidate?`<button class="primary mini" data-action="complete" data-id="${esc(m.id)}">✓ Valider la mission</button>`:''}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
+ const isMine=m.workerId===session.id,canValidate=session.role==='worker'&&isMine&&m.status==='planned'&&!m.prolonged;
+  const workerActions=session.role==='worker'&&isMine&&m.status==='planned'?`<button class="soft mini" data-action="prolong" data-id="${esc(m.id)}">${m.prolonged?'↶ Annuler le signalement':'↗ Voyageur a prolongé'}</button>${!m.prolonged?`<button class="soft mini" data-action="transfer" data-id="${esc(m.id)}">⇄ Passer à un collègue</button>`:''}`:'';
+ return `<article class="mission"><div><h4>${esc(m.apartmentName||'Logement')}</h4><p>📅 ${dateFr(m.date)} · 👤 ${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</p><p>⏱ ${hours(m.hours)}</p>${m.notes?`<div class="mission-note" role="note"><strong>📌 Consignes importantes pour cette mission</strong><div class="note-body">${esc(m.notes)}</div></div>`:''}${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${missionBadge(m)}${workerActions}${canValidate?`<button class="primary mini" data-action="complete" data-id="${esc(m.id)}">✓ Valider la mission</button>`:''}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
  }).join(''):'<div class="empty">Aucune mission à afficher pour ce filtre. Les missions terminées restent dans l’historique.</div>';
  $('#planningTitle').textContent=session.role==='admin'?'Planning des équipes · missions à traiter':'Mon planning';
 }
@@ -365,7 +367,7 @@ function renderHistory(){
  let ms=getVisibleMissions(),mon=$('#historyMonth').value,w=$('#historyWorker').value;
  if(mon)ms=ms.filter(m=>m.date?.startsWith(mon));if(session.role==='admin'&&w)ms=ms.filter(m=>m.workerId===w);
  ms.sort((a,b)=>b.date.localeCompare(a.date));
- $('#historyBody').innerHTML=ms.length?ms.map(m=>`<tr><td>${dateFr(m.date)}</td><td>${esc(m.workerName||userById(m.workerId)?.name||'—')}</td><td>${esc(m.apartmentName||'—')}</td><td>${hours(m.hours)}</td><td>${statusBadge(m.status)}</td><td>${m.completedAt?`${dateFr(m.completedAt.slice(0,10))} · ${esc(m.completedBy||'')}`:'—'}</td></tr>`).join(''):'<tr><td colspan="6" class="muted" style="text-align:center;padding:24px">Aucune intervention pour cette période.</td></tr>';
+ $('#historyBody').innerHTML=ms.length?ms.map(m=>`<tr><td>${dateFr(m.date)}</td><td>${esc(m.workerName||userById(m.workerId)?.name||'—')}</td><td>${esc(m.apartmentName||'—')}</td><td>${hours(m.hours)}</td><td>${missionBadge(m)}</td><td>${m.completedAt?`${dateFr(m.completedAt.slice(0,10))} · ${esc(m.completedBy||'')}`:'—'}</td></tr>`).join(''):'<tr><td colspan="6" class="muted" style="text-align:center;padding:24px">Aucune intervention pour cette période.</td></tr>';
 }
 function renderAdmin(){
  $('#workerList').innerHTML=activeWorkers().length?activeWorkers().map(u=>`<div class="mission"><div><strong>${esc(u.name)}</strong><p>${esc(u.email||'E-mail à renseigner')} · ${u.active===false?'Compte désactivé':'Compte actif'}</p></div><div class="inline"><button class="soft mini" data-action="pin" data-id="${esc(u.id)}">Réinitialiser accès</button><button class="danger mini" data-action="worker-delete" data-id="${esc(u.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun intervenant enregistré.</div>';
@@ -373,7 +375,7 @@ function renderAdmin(){
 }
 function render(){refreshReportWorkers();fillSelects();renderStats();renderPlanning();renderHistory();renderDashboard();renderWeek();if(session.role==='admin')renderAdmin();reportTotal()}
 function renderDashboard(){
- const ms=getVisibleMissions(),future=ms.filter(m=>m.status==='planned').sort((a,b)=>{
+ const ms=getVisibleMissions(),future=ms.filter(m=>m.status==='planned'&&!m.prolonged).sort((a,b)=>{
   if(session.role==='worker'){
    const an=Boolean(String(a.notes||'').trim()),bn=Boolean(String(b.notes||'').trim());
    if(an!==bn)return an?-1:1;
@@ -381,7 +383,7 @@ function renderDashboard(){
   return a.date.localeCompare(b.date);
  }).slice(0,6);
  $('#dashMissions').innerHTML=future.length?'<div class="dash-table"><div class="dash-head"><span>Date</span><span>Logement</span><span>Durée</span><span>Statut</span></div>'+future.map(m=>`<div class="dash-row"><span>📅 ${dateFr(m.date)}</span><span><strong>${esc(m.apartmentName||'Logement')}</strong><small>${esc(m.workerName||'')}</small>${session.role==='worker'&&String(m.notes||'').trim()?`<small class="priority-label">📌 Consignes à lire</small>`:''}</span><span>◷ ${hours(m.hours)}</span><span>${statusBadge(m.status)}</span></div>`).join('')+'</div>':'<div class="empty">Aucune intervention à venir. Vous pouvez en programmer depuis « Mon planning ».</div>';
- const month=ms.filter(m=>m.date?.startsWith(monthNow())),done=month.filter(m=>m.status==='done'),pending=month.filter(m=>m.status==='planned');
+ const month=ms.filter(m=>m.date?.startsWith(monthNow())),done=month.filter(m=>m.status==='done'),pending=month.filter(m=>m.status==='planned'&&!m.prolonged);
  $('#dashHours').textContent=hours(done.reduce((s,m)=>s+Number(m.hours||0),0));$('#dashSummary').textContent=`${done.length} terminées · ${pending.length} à venir`;
  $('#dashProgress').style.width=(month.length?Math.round(done.length/month.length*100):0)+'%';
 }
@@ -393,9 +395,9 @@ function renderWeek(){
  const start=weekStart(),end=new Date(start);end.setDate(end.getDate()+6);
  const fmt=d=>d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
  $('#weekRange').textContent=`${fmt(start)} – ${fmt(end)}`;
- const ms=getVisibleMissions().filter(m=>m.status!=='cancelled');
+ const ms=getVisibleMissions().filter(m=>m.status!=='cancelled'&&!m.prolonged);
  let planned=0,done=0,doneHours=0;
- const days=Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(d.getDate()+i);const date=localISO(d);const items=ms.filter(m=>m.date===date);const p=items.filter(m=>m.status==='planned').length;const r=items.filter(m=>m.status==='done');planned+=p;done+=r.length;doneHours+=r.reduce((sum,m)=>sum+Number(m.hours||0),0);return {date,d,p,done:r.length,total:p+r.length}});
+ const days=Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(d.getDate()+i);const date=localISO(d);const items=ms.filter(m=>m.date===date);const p=items.filter(m=>m.status==='planned'&&!m.prolonged).length;const r=items.filter(m=>m.status==='done');planned+=p;done+=r.length;doneHours+=r.reduce((sum,m)=>sum+Number(m.hours||0),0);return {date,d,p,done:r.length,total:p+r.length}});
  const max=Math.max(1,...days.map(d=>d.total));
  $('#weekMetrics').innerHTML=`<span><strong>${planned+done}</strong> missions</span><span><strong>${planned}</strong> à réaliser</span><span><strong>${done}</strong> réalisées</span><span><strong>${hours(doneHours)}</strong> validées</span>`;
  $('#weekBars').innerHTML=days.map(d=>{const h1=d.p?Math.max(6,Math.round(d.p/max*76)):0,h2=d.done?Math.max(6,Math.round(d.done/max*76)):0;const label=d.d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','');return `<button type="button" class="week-day ${d.date===today()?'is-today':''}" data-week-date="${d.date}" aria-label="Voir les missions du ${dateFr(d.date)}"><span class="wd-label">${label}</span><span class="wd-date">${d.d.getDate()}</span><span class="wd-plot">${h1?`<span class="wd-bar" style="height:${h1}px"></span>`:''}${h2?`<span class="wd-bar done-bar" style="height:${h2}px"></span>`:''}</span><span class="wd-count">${d.total} mission${d.total>1?'s':''}</span></button>`}).join('');
@@ -466,12 +468,31 @@ $('#missionForm').addEventListener('submit',e=>{e.preventDefault();if(session.ro
  if(!u||!a||!h||h<=0)return alert('Vérifiez l’intervenant, le logement et la durée.');
  const s=$('#missionStatus').value;data.missions.push({id:uid(),date:$('#missionDate').value,workerId:u.id,workerName:u.name,apartmentId:a.id,apartmentName:a.name,hours:h,notes:$('#missionNotes').value.trim(),status:s,createdAt:new Date().toISOString(),completedAt:s==='done'?new Date().toISOString():null,completedBy:s==='done'?session.name:null});
  save();$('#missionNotes').value='';render();});
-$('#missionList').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const m=data.missions.find(x=>x.id===b.dataset.id);if(!m)return;
+$('#missionList').addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b)return;const m=data.missions.find(x=>x.id===b.dataset.id);if(!m)return;
+ if(b.dataset.action==='prolong'&&session.role==='worker'&&m.workerId===session.id&&m.status==='planned'){
+  const target=!m.prolonged;
+  if(!confirm(target?'Signaler que le voyageur a prolongé son séjour ? La mission ne sera pas comptabilisée.':'Annuler le signalement de prolongation ?'))return;
+  const r=await client.rpc('worker_manage_mission',{p_mission_id:m.id,p_action:target?'prolong':'unprolong',p_new_worker:null});
+  if(r.error)return alert('Action refusée : '+r.error.message);
+  await reload();render();return;
+ }
+ if(b.dataset.action==='transfer'&&session.role==='worker'&&m.workerId===session.id&&m.status==='planned'&&!m.prolonged){
+  const colleagues=activeWorkers().filter(u=>u.id!==session.id);
+  if(!colleagues.length)return alert('Aucun autre intervenant actif.');
+  const answer=prompt('À quel intervenant transmettre la mission ?\n'+colleagues.map((u,i)=>`${i+1}. ${u.name}`).join('\n')+'\n\nSaisir le numéro :');
+  if(answer===null)return;
+  const idx=Number(answer)-1,target=colleagues[idx];
+  if(!Number.isInteger(idx)||!target)return alert('Choix invalide.');
+  if(!confirm(`Transférer la mission ${m.apartmentName} à ${target.name} ?`))return;
+  const r=await client.rpc('worker_manage_mission',{p_mission_id:m.id,p_action:'transfer',p_new_worker:target.id});
+  if(r.error)return alert('Transfert refusé : '+r.error.message);
+  await reload();render();return;
+ }
  if(b.dataset.action==='complete'){if(!confirm(`Confirmer que la mission « ${m.apartmentName} » est terminée ?`))return;m.status='done';m.completedAt=new Date().toISOString();m.completedBy=session.name;save();render();}
  if(b.dataset.action==='delete'&&session.role==='admin'&&confirm('Supprimer définitivement cette mission ?')){data.missions=data.missions.filter(x=>x.id!==m.id);save();render()}
  if(b.dataset.action==='edit'&&session.role==='admin'){const h=prompt('Modifier la durée en heures :',m.hours);if(h===null)return;const n=Number(h);if(!n||n<=0)return alert('Durée invalide.');m.hours=n;const note=prompt('Modifier les consignes (laisser vide pour aucune) :',m.notes||'');if(note!==null)m.notes=note;const date=prompt('Modifier la date (AAAA-MM-JJ) :',m.date);if(date&&/^\d{4}-\d{2}-\d{2}$/.test(date))m.date=date;save();render()}
 });
-$('#workerForm').addEventListener('submit',e=>{e.preventDefault();alert('Pour créer un intervenant : Supabase → Authentication → Users → Add user, puis ajouter son UID dans public.profiles (full_name, role=worker, email). Ne stockez jamais de mot de passe dans cette application.');});
+$('#workerForm').addEventListener('submit',e=>{e.preventDefault();alert('Pour créer un intervenant : Supabase → Authentication → Users → Add user, puis ajouter son UID dans public.profiles (full_name, role=intervenant, email). Ne stockez jamais de mot de passe dans cette application.');});
 $('#apartmentForm').addEventListener('submit',e=>{
  e.preventDefault();if(session.role!=='admin')return;
  const id=$('#apartmentEditId').value,name=$('#apartmentName').value.trim(),duration=Number($('#apartmentDuration').value)||0;
