@@ -123,6 +123,9 @@ button{transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
 .mission-note .note-body{white-space:pre-wrap;font-weight:550;line-height:1.5}
 button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){button,.stat,.card,.mission{animation:none!important;transition:none!important}}
+
+/* Indicateur discret pour les missions prioritaires */
+.priority-label{display:inline-block!important;color:#916300!important;background:#fff4d4;border:1px solid #f2d78c;border-radius:7px;padding:3px 7px;margin-top:5px;font-weight:750}
 </style>
 </head>
 <body>
@@ -335,7 +338,15 @@ function renderPlanning(){
  const d=$('#planningDate').value,w=$('#planningWorkerFilter').value;
  if(d)ms=ms.filter(m=>m.date===d);
  if(session.role==='admin'&&w)ms=ms.filter(m=>m.workerId===w);
- ms.sort((a,b)=>a.date.localeCompare(b.date)||String(a.workerName).localeCompare(String(b.workerName)));
+ ms.sort((a,b)=>{
+  // Pour l'intervenant, les missions avec consignes passent en premier.
+  if(session.role==='worker'){
+    const aPriority=a.status==='planned'&&Boolean(String(a.notes||'').trim());
+    const bPriority=b.status==='planned'&&Boolean(String(b.notes||'').trim());
+    if(aPriority!==bPriority)return aPriority?-1:1;
+  }
+  return a.date.localeCompare(b.date)||String(a.workerName).localeCompare(String(b.workerName));
+ });
  $('#missionList').innerHTML=ms.length?ms.map(m=>{
  const isMine=m.workerId===session.id,canValidate=session.role==='worker'&&isMine&&m.status==='planned';
  return `<article class="mission"><div><h4>${esc(m.apartmentName||'Logement')}</h4><p>📅 ${dateFr(m.date)} · 👤 ${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</p><p>⏱ ${hours(m.hours)}</p>${m.notes?`<div class="mission-note" role="note"><strong>📌 Consignes importantes pour cette mission</strong><div class="note-body">${esc(m.notes)}</div></div>`:''}${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${statusBadge(m.status)}${canValidate?`<button class="primary mini" data-action="complete" data-id="${esc(m.id)}">✓ Valider la mission</button>`:''}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
@@ -354,8 +365,14 @@ function renderAdmin(){
 }
 function render(){refreshReportWorkers();fillSelects();renderStats();renderPlanning();renderHistory();renderDashboard();renderWeek();if(session.role==='admin')renderAdmin();reportTotal()}
 function renderDashboard(){
- const ms=getVisibleMissions(),future=ms.filter(m=>m.status==='planned').sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
- $('#dashMissions').innerHTML=future.length?'<div class="dash-table"><div class="dash-head"><span>Date</span><span>Logement</span><span>Durée</span><span>Statut</span></div>'+future.map(m=>`<div class="dash-row"><span>📅 ${dateFr(m.date)}</span><span><strong>${esc(m.apartmentName||'Logement')}</strong><small>${esc(m.workerName||'')}</small></span><span>◷ ${hours(m.hours)}</span><span>${statusBadge(m.status)}</span></div>`).join('')+'</div>':'<div class="empty">Aucune intervention à venir. Vous pouvez en programmer depuis « Mon planning ».</div>';
+ const ms=getVisibleMissions(),future=ms.filter(m=>m.status==='planned').sort((a,b)=>{
+  if(session.role==='worker'){
+   const an=Boolean(String(a.notes||'').trim()),bn=Boolean(String(b.notes||'').trim());
+   if(an!==bn)return an?-1:1;
+  }
+  return a.date.localeCompare(b.date);
+ }).slice(0,6);
+ $('#dashMissions').innerHTML=future.length?'<div class="dash-table"><div class="dash-head"><span>Date</span><span>Logement</span><span>Durée</span><span>Statut</span></div>'+future.map(m=>`<div class="dash-row"><span>📅 ${dateFr(m.date)}</span><span><strong>${esc(m.apartmentName||'Logement')}</strong><small>${esc(m.workerName||'')}</small>${session.role==='worker'&&String(m.notes||'').trim()?`<small class="priority-label">📌 Consignes à lire</small>`:''}</span><span>◷ ${hours(m.hours)}</span><span>${statusBadge(m.status)}</span></div>`).join('')+'</div>':'<div class="empty">Aucune intervention à venir. Vous pouvez en programmer depuis « Mon planning ».</div>';
  const month=ms.filter(m=>m.date?.startsWith(monthNow())),done=month.filter(m=>m.status==='done'),pending=month.filter(m=>m.status==='planned');
  $('#dashHours').textContent=hours(done.reduce((s,m)=>s+Number(m.hours||0),0));$('#dashSummary').textContent=`${done.length} terminées · ${pending.length} à venir`;
  $('#dashProgress').style.width=(month.length?Math.round(done.length/month.length*100):0)+'%';
