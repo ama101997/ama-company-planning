@@ -106,6 +106,23 @@ button{transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
  .mobile-menu-backdrop{display:none;position:fixed;inset:0;z-index:14;background:#0b1b2a52}.mobile-menu-backdrop.is-open{display:block}
  .weekly-card{padding:14px!important}.weekly-header{align-items:flex-start}.weekly-controls{width:100%;justify-content:space-between}.weekly-range{min-width:0}.week-bars{gap:4px}.week-day{min-height:150px;padding:8px 1px 7px;border-radius:9px;gap:5px}.week-day .wd-label{font-size:.68rem}.week-day .wd-date{font-size:.66rem}.week-day .wd-plot{height:73px;gap:2px}.week-day .wd-bar{width:12px}.week-day .wd-count{font-size:.65rem}.weekly-metrics{gap:8px 15px}
 }
+
+/* AMA · finitions visuelles, accessibles et discrètes */
+@keyframes amaReveal{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes amaNoteGlow{0%,100%{box-shadow:0 0 0 0 rgba(228,167,17,0)}50%{box-shadow:0 0 0 5px rgba(228,167,17,.12)}}
+@media(prefers-reduced-motion:no-preference){
+ .card,.stat,.mission{animation:amaReveal .34s ease-out both}
+ .mission:nth-child(2){animation-delay:.045s}.mission:nth-child(3){animation-delay:.09s}.mission:nth-child(4){animation-delay:.135s}
+ .stat,.card,.mission{transition:box-shadow .22s ease,transform .22s ease,border-color .22s ease}
+ .mission:hover{border-color:#f0d890;box-shadow:0 9px 24px #1e355015}
+ .stat:hover{transform:translateY(-2px);box-shadow:0 12px 28px #1e355012}
+ .mission-note{animation:amaNoteGlow 2.6s ease-in-out 1}
+}
+.mission-note{margin:12px 0 7px;padding:12px 14px;border:1px solid #edcf78;border-left:4px solid #e3ab17;border-radius:12px;background:#fff8e4;color:#62480c;overflow-wrap:anywhere}
+.mission-note strong{display:block;margin-bottom:4px;font-size:.84rem}
+.mission-note .note-body{white-space:pre-wrap;font-weight:550;line-height:1.5}
+button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){button,.stat,.card,.mission{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -313,15 +330,17 @@ function clearApartmentEditor(){
 }
 function renderPlanning(){
  let ms=getVisibleMissions();
+ // Le planning admin affiche les missions encore à traiter ; l'historique conserve les missions validées.
+ if(session.role==='admin')ms=ms.filter(m=>m.status!=='done');
  const d=$('#planningDate').value,w=$('#planningWorkerFilter').value;
  if(d)ms=ms.filter(m=>m.date===d);
  if(session.role==='admin'&&w)ms=ms.filter(m=>m.workerId===w);
  ms.sort((a,b)=>a.date.localeCompare(b.date)||String(a.workerName).localeCompare(String(b.workerName)));
  $('#missionList').innerHTML=ms.length?ms.map(m=>{
  const isMine=m.workerId===session.id,canValidate=session.role==='worker'&&isMine&&m.status==='planned';
- return `<article class="mission"><div><h4>${esc(m.apartmentName||'Logement')}</h4><p>📅 ${dateFr(m.date)} · 👤 ${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</p><p>⏱ ${hours(m.hours)} ${m.notes?`· ${esc(m.notes)}`:''}</p>${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${statusBadge(m.status)}${canValidate?`<button class="primary mini" data-action="complete" data-id="${esc(m.id)}">✓ Valider la mission</button>`:''}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
- }).join(''):'<div class="empty">Aucune mission pour ce filtre. Les nouvelles missions apparaîtront ici.</div>';
- $('#planningTitle').textContent=session.role==='admin'?'Planning des équipes':'Mon planning';
+ return `<article class="mission"><div><h4>${esc(m.apartmentName||'Logement')}</h4><p>📅 ${dateFr(m.date)} · 👤 ${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</p><p>⏱ ${hours(m.hours)}</p>${m.notes?`<div class="mission-note" role="note"><strong>📌 Consignes importantes pour cette mission</strong><div class="note-body">${esc(m.notes)}</div></div>`:''}${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${statusBadge(m.status)}${canValidate?`<button class="primary mini" data-action="complete" data-id="${esc(m.id)}">✓ Valider la mission</button>`:''}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
+ }).join(''):'<div class="empty">Aucune mission à afficher pour ce filtre. Les missions terminées restent dans l’historique.</div>';
+ $('#planningTitle').textContent=session.role==='admin'?'Planning des équipes · missions à traiter':'Mon planning';
 }
 function renderHistory(){
  let ms=getVisibleMissions(),mon=$('#historyMonth').value,w=$('#historyWorker').value;
