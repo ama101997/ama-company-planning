@@ -134,6 +134,11 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
 
 /* Indicateur discret pour les missions prioritaires */
 .priority-label{display:inline-block!important;color:#916300!important;background:#fff4d4;border:1px solid #f2d78c;border-radius:7px;padding:3px 7px;margin-top:5px;font-weight:750}
+/* AMA · commandes communes */
+.ama-top-btn{padding:9px 12px;white-space:nowrap}
+.finance-period-row{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
+.finance-period-row .field{min-width:155px;flex:1}
+@media(max-width:700px){.top-actions .ama-top-btn{font-size:15px;padding:8px 9px}.top-actions .ama-top-btn span{display:none}}
 </style>
 </head>
 <body>
@@ -150,7 +155,7 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
   <header class="top">
     <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav">☰ <span>Menu</span></button>
     <div class="brand"><div><h1>AMA Company</h1><p>Gestion des plannings et interventions</p></div></div>
-    <div class="top-actions"><span class="pill" id="rolePill">Administrateur</span><button class="ghost" id="logoutBtn">↪ Déconnexion</button></div>
+    <div class="top-actions"><button class="ghost ama-top-btn" id="backBtn" type="button" title="Retour à la vue précédente">← <span>Retour</span></button><button class="soft ama-top-btn" id="refreshBtn" type="button" title="Actualiser les données">↻ <span>Actualiser</span></button><span class="pill" id="rolePill">Administrateur</span><button class="ghost" id="logoutBtn">↪ Déconnexion</button></div>
   </header>
   <section class="hero"><div><h2 id="welcomeTitle">Bonjour 👋</h2><p id="welcomeText">Organisez vos missions et suivez leur réalisation.</p></div><div class="date" id="todayLabel"></div></section>
   <section class="stats" id="stats">
@@ -170,7 +175,7 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
       <div class="week-legend"><i></i>À réaliser <i class="green"></i>Réalisées · Touchez un jour pour voir ses missions</div>
     </div>
     <div class="card hidden" id="adminDashboardRevenue" style="border:1px solid #f1e1b3;background:linear-gradient(115deg,#fff,#fffaf0)">
-      <div class="section-title"><div><h3>💶 Chiffre d’affaires · Tous les appartements</h3><p class="desc">Vue privée administrateur · missions réalisées, hors prolongations</p></div><div class="field" style="min-width:165px"><label for="dashRevenueMonth">Mois</label><input type="month" id="dashRevenueMonth"></div></div>
+      <div class="section-title"><div><h3>💶 Chiffre d’affaires · Tous les appartements</h3><p class="desc">Vue privée administrateur · missions réalisées, hors prolongations</p></div><div class="finance-period-row"><div class="field"><label for="dashRevenuePeriod">Période</label><select id="dashRevenuePeriod"><option value="month">Mensuel</option><option value="day">Quotidien</option><option value="week">Hebdomadaire</option><option value="year">Annuel</option></select></div><div class="field"><label for="dashRevenueMonth">Date / période</label><input type="month" id="dashRevenueMonth"></div></div></div>
       <div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr));margin:10px 0 15px"><div class="stat"><div class="label">CA estimé total</div><div class="value" id="dashRevenueTotal">0 €</div><div class="sub">Tous les logements réunis</div></div><div class="stat"><div class="label">Missions réalisées valorisées</div><div class="value" id="dashRevenueMissions">0</div><div class="sub">Hors prolongations</div></div></div>
       <div class="tablewrap"><table><thead><tr><th>Appartement</th><th>Missions</th><th>Heures de référence</th><th>Chiffre d’affaires</th></tr></thead><tbody id="dashRevenueRows"></tbody></table></div>
       <p class="desc" id="dashRevenueNotice" style="margin:12px 0 0"></p>
@@ -234,7 +239,7 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
       </div>
     </div>
     <div class="card" id="financePanel"><div class="section-title"><div><h3>💶 Chiffre d’affaires estimé</h3><p class="desc">Réservé à l’administrateur · missions réalisées, hors prolongations. Montants calculés à partir des heures de référence et tarifs enregistrés par mission.</p></div></div>
-      <div class="formgrid" style="margin:12px 0"><div class="field"><label for="financeMonth">Mois</label><input type="month" id="financeMonth"></div><div class="field"><label for="financeApartment">Logement</label><select id="financeApartment"><option value="">Tous les logements</option></select></div></div>
+      <div class="formgrid" style="margin:12px 0"><div class="field"><label for="financePeriod">Période</label><select id="financePeriod"><option value="month">Mensuel</option><option value="day">Quotidien</option><option value="week">Hebdomadaire</option><option value="year">Annuel</option></select></div><div class="field"><label for="financeMonth">Date / période</label><input type="month" id="financeMonth"></div><div class="field"><label for="financeApartment">Logement</label><select id="financeApartment"><option value="">Tous les logements</option></select></div></div>
       <div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><div class="label">CA estimé · missions réalisées</div><div class="value" id="financeRevenue">0 €</div></div><div class="stat"><div class="label">Missions réalisées valorisées</div><div class="value" id="financeCount">0</div></div></div>
       <div class="tablewrap"><table><thead><tr><th>Logement</th><th>Missions</th><th>Heures de référence</th><th>CA estimé</th></tr></thead><tbody id="financeRows"></tbody></table></div><p class="desc" id="financeNotice" style="margin-top:12px">Les anciennes missions sans historique financier ne sont pas valorisées automatiquement.</p>
     </div>
@@ -339,7 +344,7 @@ async function startSession(authUser){
  $('#adminTab').classList.toggle('hidden',u.role!=='admin');$('#createMissionCard').classList.toggle('hidden',u.role!=='admin');
  $('#planningWorkerFilterWrap').classList.toggle('hidden',u.role!=='admin');$('#historyWorkerWrap').classList.toggle('hidden',u.role!=='admin');
  if(u.role==='worker'){$('#planningWorkerFilter').value=u.id;$('#historyWorker').value=u.id}
- render();setTab('dashboard');
+ amaTabHistory=[];render();setTab('dashboard',true);
 }
 async function logout(){await client?.auth.signOut();session=null;$('#app').hidden=true;$('#loginScreen').classList.remove('hidden');$('#loginPin').value='';$('#loginEmail').value='';}
 function canSee(m){return session.role==='admin'||m.workerId===session.id}
@@ -381,8 +386,8 @@ function renderPlanning(){
   return a.date.localeCompare(b.date)||String(a.workerName).localeCompare(String(b.workerName));
  });
  $('#missionList').innerHTML=ms.length?ms.map(m=>{
- const isMine=m.workerId===session.id,canValidate=session.role==='worker'&&isMine&&m.status==='planned'&&!m.prolonged;
-  const workerActions=session.role==='worker'&&isMine&&m.status==='planned'?`<button class="soft mini" data-action="prolong" data-id="${esc(m.id)}">${m.prolonged?'↶ Annuler le signalement':'↗ Voyageur a prolongé'}</button>${!m.prolonged?`<button class="soft mini" data-action="transfer" data-id="${esc(m.id)}">⇄ Passer à un collègue</button>`:''}`:'';
+ const isMine=m.workerId===session.id,canValidate=(session.role==='admin'||(session.role==='worker'&&isMine))&&m.status==='planned'&&!m.prolonged;
+  const workerActions=session.role==='worker'&&isMine&&m.status==='planned'?`<button class="soft mini" data-action="prolong" data-id="${esc(m.id)}">${m.prolonged?'↶ Annuler le signalement':'↗ Voyageur a prolongé'}</button>${!m.prolonged?`<button class="soft mini" data-action="reschedule" data-id="${esc(m.id)}">📅 Reporter</button><button class="soft mini" data-action="transfer" data-id="${esc(m.id)}">⇄ Passer à un collègue</button>`:''}`:'';
  return `<article class="mission"><div><h4>${esc(m.apartmentName||'Logement')}</h4><p>📅 ${dateFr(m.date)} · 👤 ${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</p><p>⏱ ${hours(m.hours)}</p>${m.notes?`<div class="mission-note" role="note"><strong>📌 Consignes importantes pour cette mission</strong><div class="note-body">${esc(m.notes)}</div></div>`:''}${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${missionBadge(m)}${workerActions}${canValidate?`<button class="primary mini" data-action="complete" data-id="${esc(m.id)}">✓ Valider la mission</button>`:''}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
  }).join(''):'<div class="empty">Aucune mission à afficher pour ce filtre. Les missions terminées restent dans l’historique.</div>';
  $('#planningTitle').textContent=session.role==='admin'?'Planning des équipes · missions à traiter':'Mon planning';
@@ -398,12 +403,32 @@ function renderAdmin(){
    $('#apartmentList').innerHTML=activeApartments().length?activeApartments().map(a=>`<div class="mission"><div><strong>${esc(a.name)}</strong><p>⏱ ${hours(a.duration)} intervenant · 📊 ${hours(apartmentFinances.get(a.id)?.reference_hours??a.duration)} référence · ${euro(apartmentFinances.get(a.id)?.hourly_rate??0)}/h · 🛏️ ${Number(a.beds||0)} couchage(s)</p>${a.address?`<p>📍 ${esc(a.address)}</p>`:''}${a.access?`<p>🔑 ${esc(a.access)}</p>`:''}</div><div class="right"><button class="soft mini" data-action="apt-edit" data-id="${esc(a.id)}">✎ Modifier</button><button class="danger mini" data-action="apt-delete" data-id="${esc(a.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun logement enregistré.</div>';
 }
 function render(){refreshReportWorkers();fillSelects();renderStats();renderPlanning();renderHistory();renderDashboard();renderAdminDashboardRevenue();renderWeek();if(session.role==='admin'){renderAdmin();renderFinances()}reportTotal()}
+function isoWeekMonday(dateStr){
+ const d=new Date(dateStr+'T12:00:00');if(Number.isNaN(d.getTime()))return '';
+ const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function financeDateMatches(date,period,selected){
+ if(!date||!selected)return false;
+ if(period==='day')return date===selected;
+ if(period==='week')return isoWeekMonday(date)===isoWeekMonday(selected);
+ if(period==='year')return date.slice(0,4)===selected;
+ return date.startsWith(selected);
+}
+function setFinanceInputType(inputId,periodId){
+ const input=$('#'+inputId),period=$('#'+periodId).value;
+ const old=input.value;
+ input.type=period==='day'||period==='week'?'date':period==='year'?'number':'month';
+ if(period==='year'){input.min='2000';input.max='2100';input.step='1';input.value=old.slice(0,4)||today().slice(0,4)}
+ else if(period==='month'){input.removeAttribute('min');input.removeAttribute('max');input.removeAttribute('step');input.value=old.length>=7?old.slice(0,7):monthNow()}
+ else{input.removeAttribute('min');input.removeAttribute('max');input.removeAttribute('step');input.value=old.length===10?old:today()}
+}
 function renderFinances(){
  const select=$('#financeApartment'),prev=select.value;
  select.innerHTML='<option value="">Tous les logements</option>'+data.apartments.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
  if(data.apartments.some(a=>a.id===prev))select.value=prev;
- const month=$('#financeMonth').value||monthNow(),apartment=select.value;
- const missions=data.missions.filter(m=>m.date?.startsWith(month)&&m.status==='done'&&!m.prolonged&&(!apartment||m.apartmentId===apartment));
+ const period=$('#financePeriod').value,month=$('#financeMonth').value||monthNow(),apartment=select.value;
+ const missions=data.missions.filter(m=>financeDateMatches(m.date,period,month)&&m.status==='done'&&!m.prolonged&&(!apartment||m.apartmentId===apartment));
  const groups=new Map();let revenue=0,count=0,missing=0;
  for(const m of missions){
   const f=missionFinances.get(m.id);if(!f){missing++;continue;}
@@ -415,16 +440,16 @@ function renderFinances(){
  $('#financeRows').innerHTML=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'fr')).map(g=>`<tr><td>${esc(g.name)}</td><td>${g.count}</td><td>${hours(g.hours)}</td><td><strong>${euro(g.revenue)}</strong></td></tr>`).join('')||'<tr><td colspan="4">Aucune mission réalisée avec données financières pour ce mois.</td></tr>';
  $('#financeNotice').textContent=missing?`${missing} mission(s) réalisée(s) sans historique financier : exclue(s) du total. Les missions anciennes ne sont pas valorisées automatiquement.`:'Montants estimés, avant charges et impôts. Les prolongations sont exclues.';
 }
-$('#financeMonth').addEventListener('change',renderFinances);
+$('#financeMonth').addEventListener('change',renderFinances);$('#financePeriod').addEventListener('change',()=>{setFinanceInputType('financeMonth','financePeriod');renderFinances()});
 $('#financeApartment').addEventListener('change',renderFinances);
 function renderAdminDashboardRevenue(){
  const panel=$('#adminDashboardRevenue');
  if(!session||session.role!=='admin'){panel.classList.add('hidden');return;}
  panel.classList.remove('hidden');
- const month=$('#dashRevenueMonth').value||monthNow();
+ const period=$('#dashRevenuePeriod').value,month=$('#dashRevenueMonth').value||monthNow();
  const groups=new Map();let total=0,count=0,missing=0;
  for(const m of data.missions){
-  if(!m.date?.startsWith(month)||m.status!=='done'||m.prolonged)continue;
+  if(!financeDateMatches(m.date,period,month)||m.status!=='done'||m.prolonged)continue;
   const f=missionFinances.get(m.id);
   if(!f){missing++;continue;}
   const amount=Number(f.revenue??(Number(f.reference_hours||0)*Number(f.hourly_rate||0)));
@@ -437,7 +462,7 @@ function renderAdminDashboardRevenue(){
  $('#dashRevenueRows').innerHTML=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'fr')).map(g=>`<tr><td>${esc(g.name)}</td><td>${g.count}</td><td>${hours(g.hours)}</td><td><strong>${euro(g.revenue)}</strong></td></tr>`).join('')||'<tr><td colspan="4">Aucune mission réalisée valorisée pour ce mois.</td></tr>';
  $('#dashRevenueNotice').textContent=missing?`${missing} mission(s) sans historique financier non comptabilisée(s).`:'CA estimé avant charges et impôts. Les prolongations sont exclues.';
 }
-$('#dashRevenueMonth').addEventListener('change',renderAdminDashboardRevenue);
+$('#dashRevenueMonth').addEventListener('change',renderAdminDashboardRevenue);$('#dashRevenuePeriod').addEventListener('change',()=>{setFinanceInputType('dashRevenueMonth','dashRevenuePeriod');renderAdminDashboardRevenue()});
 function renderDashboard(){
  const ms=getVisibleMissions(),future=ms.filter(m=>m.status==='planned'&&!m.prolonged).sort((a,b)=>{
   if(session.role==='worker'){
@@ -474,7 +499,8 @@ $('#weekPrev').addEventListener('click',()=>{weekOffset--;renderWeek()});
 $('#weekNext').addEventListener('click',()=>{weekOffset++;renderWeek()});
 $('#weekCurrent').addEventListener('click',()=>{weekOffset=0;renderWeek()});
 $('#weekBars').addEventListener('click',e=>{const day=e.target.closest('[data-week-date]');if(!day)return;$('#planningDate').value=day.dataset.weekDate;renderPlanning();setTab('planning')});
-function setTab(t){closeMobileMenu();if(t==='admin'&&session.role!=='admin')t='planning';tab=t;$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));['dashboard','planning','history','admin'].forEach(x=>$('#tab-'+x).classList.toggle('hidden',x!==t));}
+let amaTabHistory=[];
+function setTab(t,fromBack=false){if(session&&!fromBack&&tab!==t)amaTabHistory.push(tab);closeMobileMenu();if(t==='admin'&&session.role!=='admin')t='planning';tab=t;$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));['dashboard','planning','history','admin'].forEach(x=>$('#tab-'+x).classList.toggle('hidden',x!==t));}
 
 function refreshReportWorkers(){
  const sel=$('#reportWorker'),previous=sel.value;
@@ -521,6 +547,8 @@ $('#downloadHoursExcel').addEventListener('click',excelReport);
 $('#downloadHoursPdf').addEventListener('click',pdfReport);
 $('#reportMonth').addEventListener('change',reportTotal);
 $('#reportWorker').addEventListener('change',reportTotal);
+$('#backBtn').addEventListener('click',()=>{if(!session)return;setTab(amaTabHistory.pop()||'dashboard',true)});
+$('#refreshBtn').addEventListener('click',async()=>{if(!session)return;const b=$('#refreshBtn');b.disabled=true;try{await reload();render()}catch(e){alert('Actualisation impossible : '+e.message)}finally{b.disabled=false}});
 $('#loginForm').addEventListener('submit',e=>{e.preventDefault();login()});$('#logoutBtn').addEventListener('click',logout);
 document.querySelector('#tab-dashboard').addEventListener('click',e=>{if(e.target.closest('[data-jump]'))setTab('planning')});
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)setTab(b.dataset.tab)});
@@ -533,6 +561,16 @@ $('#missionForm').addEventListener('submit',e=>{e.preventDefault();if(session.ro
  const s=$('#missionStatus').value;data.missions.push({id:uid(),date:$('#missionDate').value,workerId:u.id,workerName:u.name,apartmentId:a.id,apartmentName:a.name,hours:h,notes:$('#missionNotes').value.trim(),status:s,createdAt:new Date().toISOString(),completedAt:s==='done'?new Date().toISOString():null,completedBy:s==='done'?session.name:null});
  save();$('#missionNotes').value='';render();});
 $('#missionList').addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b)return;const m=data.missions.find(x=>x.id===b.dataset.id);if(!m)return;
+ if(b.dataset.action==='reschedule'&&session.role==='worker'&&m.workerId===session.id&&m.status==='planned'&&!m.prolonged){
+  const next=prompt('Nouvelle date de l’intervention (AAAA-MM-JJ) :',m.date);
+  if(next===null)return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(next)||Number.isNaN(new Date(next+'T12:00:00').getTime())||new Date(next+'T12:00:00').toISOString().slice(0,10)!==next)return alert('Date invalide. Format attendu : AAAA-MM-JJ.');
+  if(next===m.date)return;
+  if(!confirm(`Reporter « ${m.apartmentName} » du ${dateFr(m.date)} au ${dateFr(next)} ?`))return;
+  const r=await client.rpc('worker_reschedule_mission',{p_mission_id:m.id,p_new_date:next});
+  if(r.error)return alert('Report refusé : '+r.error.message);
+  await reload();render();return;
+ }
  if(b.dataset.action==='prolong'&&session.role==='worker'&&m.workerId===session.id&&m.status==='planned'){
   const target=!m.prolonged;
   if(!confirm(target?'Signaler que le voyageur a prolongé son séjour ? La mission ne sera pas comptabilisée.':'Annuler le signalement de prolongation ?'))return;
@@ -552,7 +590,7 @@ $('#missionList').addEventListener('click',async e=>{const b=e.target.closest('[
   if(r.error)return alert('Transfert refusé : '+r.error.message);
   await reload();render();return;
  }
- if(b.dataset.action==='complete'){if(!confirm(`Confirmer que la mission « ${m.apartmentName} » est terminée ?`))return;m.status='done';m.completedAt=new Date().toISOString();m.completedBy=session.name;save();render();}
+ if(b.dataset.action==='complete'&&m.status==='planned'&&!m.prolonged&&(session.role==='admin'||m.workerId===session.id)){if(!confirm(`Confirmer que la mission « ${m.apartmentName} » est terminée ?`))return;m.status='done';m.completedAt=new Date().toISOString();m.completedBy=session.name;save();render();}
  if(b.dataset.action==='delete'&&session.role==='admin'&&confirm('Supprimer définitivement cette mission ?')){data.missions=data.missions.filter(x=>x.id!==m.id);save();render()}
  if(b.dataset.action==='edit'&&session.role==='admin'){const h=prompt('Modifier la durée en heures :',m.hours);if(h===null)return;const n=Number(h);if(!n||n<=0)return alert('Durée invalide.');m.hours=n;const note=prompt('Modifier les consignes (laisser vide pour aucune) :',m.notes||'');if(note!==null)m.notes=note;const date=prompt('Modifier la date (AAAA-MM-JJ) :',m.date);if(date&&/^\d{4}-\d{2}-\d{2}$/.test(date))m.date=date;save();render()}
 });
