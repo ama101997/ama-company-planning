@@ -237,14 +237,24 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
         <form id="workerForm" class="formgrid"><div class="field"><label for="workerName">Nom complet *</label><input id="workerName" required placeholder="Ex. : Hafida"></div><div class="field"><label for="workerEmail">Adresse e-mail *</label><input id="workerEmail" type="email" required placeholder="intervenant@exemple.fr"></div><div class="field"><label for="workerPin">Mot de passe (géré dans Supabase) *</label><input id="workerPin" type="password" required minlength="4" maxlength="72" placeholder="4 caractères minimum"></div><div class="full"><button class="primary">＋ Ajouter l'intervenant</button></div></form>
         <div id="workerList" style="margin-top:15px"></div>
       </div>
-      <div class="card"><h3>🏠 Logements et durées</h3><p class="desc">La durée sert de valeur proposée lors de la programmation.</p>
+      <div class="card"><h3>🏢 Donneurs d’ordre</h3><p class="desc">Fiches clients privées, accessibles uniquement à l’administrateur.</p>
+<form id="clientForm" class="formgrid">
+<input type="hidden" id="clientEditId">
+<div class="field full"><label for="clientName">Nom / société *</label><input id="clientName" required></div>
+<div class="field full"><label for="clientAddress">Adresse de facturation</label><textarea id="clientAddress" rows="2"></textarea></div>
+<div class="field"><label for="clientEmail">E-mail</label><input id="clientEmail" type="email"></div>
+<div class="field"><label for="clientPhone">Téléphone</label><input id="clientPhone"></div>
+<div class="field full"><label for="clientSiret">SIRET (facultatif)</label><input id="clientSiret" maxlength="14" inputmode="numeric"></div>
+<div class="full actions"><button class="primary" type="submit" id="clientSaveBtn">＋ Ajouter le donneur d’ordre</button><button class="ghost hidden" type="button" id="clientCancelBtn">Annuler</button></div>
+</form><div id="clientList" style="margin-top:15px"></div></div>
+<div class="card"><h3>🏠 Logements et durées</h3><p class="desc">La durée sert de valeur proposée lors de la programmation.</p>
         <form id="apartmentForm" class="formgrid">
 <input type="hidden" id="apartmentEditId">
 <div class="field"><label for="apartmentName">Nom du logement *</label><input id="apartmentName" required placeholder="Ex. : Appartement Diderot"></div>
 <div class="field"><label for="apartmentDuration">Durée standard (heures)</label><input id="apartmentDuration" type="number" min="0" step=".25" value="1"></div>
 <div class="field"><label for="apartmentReferenceHours">Heures de référence client (admin uniquement)</label><input id="apartmentReferenceHours" type="number" min="0" step=".25" value="1"></div>
 <div class="field"><label for="apartmentHourlyRate">Tarif client (€/h, admin uniquement)</label><input id="apartmentHourlyRate" type="number" min="0" step=".01" value="0"></div>
-<div class="field full"><label for="apartmentAddress">Adresse complète</label><input id="apartmentAddress" placeholder="N°, rue, code postal, ville"></div>
+<div class="field full"><label for="apartmentClient">Donneur d’ordre (admin uniquement)</label><select id="apartmentClient"><option value="">Non attribué</option></select></div><div class="field full"><label for="apartmentAddress">Adresse complète</label><input id="apartmentAddress" placeholder="N°, rue, code postal, ville"></div>
 <div class="field"><label for="apartmentAccess">Code d’accès / instructions d’entrée</label><textarea id="apartmentAccess" rows="2" placeholder="Digicode, boîte à clés, étage…"></textarea></div>
 <div class="field"><label for="apartmentBeds">Nombre de couchages</label><input id="apartmentBeds" type="number" min="0" step="1" value="0"></div>
 <div class="full actions"><button class="primary" id="apartmentSaveBtn" type="submit">＋ Ajouter le logement</button><button class="ghost hidden" id="apartmentCancelBtn" type="button">Annuler la modification</button></div>
@@ -269,20 +279,21 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const client=window.supabase?.createClient('https://bleixaoiyoxvatsimkrw.supabase.co','sb_publishable_cUhSkP5GpURWVSme6GMVzA_6L3Gl9tm');
 const uid=()=>crypto.randomUUID();
 let lastSnapshot={users:[],apartments:[],missions:[]},busy=false;
-let apartmentFinances=new Map(),missionFinances=new Map();
+let apartmentFinances=new Map(),missionFinances=new Map(),orderClients=[];
 const euro=n=>Number(n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
 async function loadFinances(){
  if(!session||session.role!=='admin'){apartmentFinances.clear();missionFinances.clear();return;}
- const [a,m]=await Promise.all([client.from('apartment_finances').select('apartment_id,reference_hours,hourly_rate'),client.from('mission_finances').select('mission_id,reference_hours,hourly_rate,revenue')]);
- if(a.error||m.error)throw (a.error||m.error);
+ const [a,m,c]=await Promise.all([client.from('apartment_finances').select('apartment_id,reference_hours,hourly_rate'),client.from('mission_finances').select('mission_id,reference_hours,hourly_rate,revenue'),client.from('order_clients').select('*').order('name')]);
+ if(a.error||m.error||c.error)throw (a.error||m.error||c.error);
+ orderClients=c.data||[];
  apartmentFinances=new Map((a.data||[]).map(x=>[x.apartment_id,x]));
  missionFinances=new Map((m.data||[]).map(x=>[x.mission_id,x]));
 }
 
 const normalizeUser=u=>({id:u.id,name:u.full_name||'Utilisateur',email:u.email||'',role:u.role==='admin'?'admin':'worker',active:u.active!==false});
-const normalizeApartment=a=>({id:a.id,name:a.name,address:a.address||'',access:a.access_code||'',beds:a.beds||0,duration:Number(a.duration||0),active:a.active!==false});
+const normalizeApartment=a=>({id:a.id,name:a.name,address:a.address||'',access:a.access_code||'',beds:a.beds||0,duration:Number(a.duration||0),clientId:a.client_id||null,active:a.active!==false});
 const normalizeMission=m=>({id:m.id,date:m.mission_date,workerId:m.intervenant_id,apartmentId:m.apartment_id,hours:Number(m.hours||0),status:m.status||'planned',notes:m.notes||'',createdAt:m.created_at||null,completedAt:m.completed_at||null,completedBy:m.completed_by||null,prolonged:m.prolonged===true});
-const encodeApartment=a=>({id:a.id,name:a.name,address:a.address||'',access_code:a.access||'',beds:Number(a.beds||0),duration:Number(a.duration||0),active:a.active!==false});
+const encodeApartment=a=>({id:a.id,name:a.name,address:a.address||'',access_code:a.access||'',beds:Number(a.beds||0),duration:Number(a.duration||0),client_id:a.clientId||null,active:a.active!==false});
 const encodeMission=m=>({id:m.id,mission_date:m.date,intervenant_id:m.workerId,apartment_id:m.apartmentId,hours:Number(m.hours||0),status:m.status,notes:m.notes||'',prolonged:m.prolonged===true});
 async function reload(){
  if(!client)throw Error('Impossible de charger Supabase. Vérifiez la connexion Internet.');
@@ -413,9 +424,16 @@ function renderHistory(){
  ms.sort((a,b)=>b.date.localeCompare(a.date));
  $('#historyBody').innerHTML=ms.length?ms.map(m=>`<tr><td>${dateFr(m.date)}</td><td>${esc(m.workerName||userById(m.workerId)?.name||'—')}</td><td>${esc(m.apartmentName||'—')}</td><td>${hours(m.hours)}</td><td>${missionBadge(m)}</td><td>${m.completedAt?`${dateFr(m.completedAt.slice(0,10))} · ${esc(m.completedBy||'')}`:'—'}</td><td>${session.role==='admin'?`<button type="button" class="danger mini" data-history-delete="${esc(m.id)}" aria-label="Supprimer cette intervention">🗑 Supprimer</button>`:'—'}</td></tr>`).join(''):'<tr><td colspan="7" class="muted" style="text-align:center;padding:24px">Aucune intervention pour cette période.</td></tr>';
 }
-function renderAdmin(){
+function renderOrderClients(){
+ if(session.role!=='admin')return;
+ const sel=$('#apartmentClient'),current=sel.value;
+ sel.innerHTML='<option value="">Non attribué</option>'+orderClients.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+ sel.value=orderClients.some(c=>c.id===current)?current:'';
+ $('#clientList').innerHTML=orderClients.length?orderClients.map(c=>`<div class="mission"><div><strong>${esc(c.name)}</strong><p>${esc(c.billing_address||'Adresse non renseignée')}</p><p>${esc(c.email||'')}</p></div><div class="right"><button class="soft mini" data-client-edit="${esc(c.id)}">Modifier</button></div></div>`).join(''):'<div class="empty">Aucun donneur d’ordre enregistré.</div>';
+}
+function renderAdmin(){renderOrderClients();
  $('#workerList').innerHTML=activeWorkers().length?activeWorkers().map(u=>`<div class="mission"><div><strong>${esc(u.name)}</strong><p>${esc(u.email||'E-mail à renseigner')} · ${u.active===false?'Compte désactivé':'Compte actif'}</p></div><div class="inline"><button class="soft mini" data-action="pin" data-id="${esc(u.id)}">Réinitialiser accès</button><button class="danger mini" data-action="worker-delete" data-id="${esc(u.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun intervenant enregistré.</div>';
-   $('#apartmentList').innerHTML=activeApartments().length?activeApartments().map(a=>`<div class="mission"><div><strong>${esc(a.name)}</strong><p>⏱ ${hours(a.duration)} intervenant · 📊 ${hours(apartmentFinances.get(a.id)?.reference_hours??a.duration)} référence · ${euro(apartmentFinances.get(a.id)?.hourly_rate??0)}/h · 🛏️ ${Number(a.beds||0)} couchage(s)</p>${a.address?`<p>📍 ${esc(a.address)}</p>`:''}${a.access?`<p>🔑 ${esc(a.access)}</p>`:''}</div><div class="right"><button class="soft mini" data-action="apt-edit" data-id="${esc(a.id)}">✎ Modifier</button><button class="danger mini" data-action="apt-delete" data-id="${esc(a.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun logement enregistré.</div>';
+   $('#apartmentList').innerHTML=activeApartments().length?activeApartments().map(a=>`<div class="mission"><div><strong>${esc(a.name)}</strong><p>⏱ ${hours(a.duration)} intervenant · 🏢 ${esc(orderClients.find(c=>c.id===a.clientId)?.name||'Client non attribué')} · 📊 ${hours(apartmentFinances.get(a.id)?.reference_hours??a.duration)} référence · ${euro(apartmentFinances.get(a.id)?.hourly_rate??0)}/h · 🛏️ ${Number(a.beds||0)} couchage(s)</p>${a.address?`<p>📍 ${esc(a.address)}</p>`:''}${a.access?`<p>🔑 ${esc(a.access)}</p>`:''}</div><div class="right"><button class="soft mini" data-action="apt-edit" data-id="${esc(a.id)}">✎ Modifier</button><button class="danger mini" data-action="apt-delete" data-id="${esc(a.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun logement enregistré.</div>';
 }
 function render(){refreshReportWorkers();fillSelects();renderStats();renderPlanning();renderHistory();renderDashboard();renderAdminDashboardRevenue();renderWeek();if(session.role==='admin'){renderAdmin();renderFinances()}reportTotal()}
 function isoWeekMonday(dateStr){
@@ -632,7 +650,7 @@ $('#apartmentForm').addEventListener('submit',async e=>{
  if(data.apartments.some(a=>a.id!==id&&a.name.toLowerCase()===name.toLowerCase()&&a.active!==false))return alert('Ce logement existe déjà.');
  const apartmentId=id||uid();
  try{
-  const payload={id:apartmentId,name,address,access_code:access,beds,duration,active:true};
+  const payload={id:apartmentId,name,address,access_code:access,beds,duration,client_id:$('#apartmentClient').value||null,active:true};
   const r=id?await client.from('apartments').update(payload).eq('id',id):await client.from('apartments').insert(payload);
   if(r.error)throw r.error;
   const f=await client.from('apartment_finances').upsert({apartment_id:apartmentId,reference_hours:referenceHours,hourly_rate:hourlyRate},{onConflict:'apartment_id'});
@@ -640,13 +658,38 @@ $('#apartmentForm').addEventListener('submit',async e=>{
   await reload();clearApartmentEditor();render();alert('Logement et paramètres financiers enregistrés.');
  }catch(err){alert('Enregistrement refusé : '+err.message);try{await reload();render()}catch(e){console.error(e)}}
 });
+function clearClientEditor(){
+ $('#clientForm').reset();$('#clientEditId').value='';
+ $('#clientSaveBtn').textContent='＋ Ajouter le donneur d’ordre';$('#clientCancelBtn').classList.add('hidden');
+}
+$('#clientCancelBtn').addEventListener('click',clearClientEditor);
+$('#clientList').addEventListener('click',e=>{
+ const btn=e.target.closest('[data-client-edit]');if(!btn||session.role!=='admin')return;
+ const c=orderClients.find(x=>x.id===btn.dataset.clientEdit);if(!c)return;
+ $('#clientEditId').value=c.id;$('#clientName').value=c.name||'';
+ $('#clientAddress').value=c.billing_address||'';$('#clientEmail').value=c.email||'';
+ $('#clientPhone').value=c.phone||'';$('#clientSiret').value=c.siret||'';
+ $('#clientSaveBtn').textContent='✓ Enregistrer les modifications';$('#clientCancelBtn').classList.remove('hidden');
+ $('#clientForm').scrollIntoView({behavior:'smooth',block:'center'});
+});
+$('#clientForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(session.role!=='admin')return;
+ const id=$('#clientEditId').value;
+ const payload={name:$('#clientName').value.trim(),billing_address:$('#clientAddress').value.trim(),
+ email:$('#clientEmail').value.trim()||null,phone:$('#clientPhone').value.trim()||null,siret:$('#clientSiret').value.trim()||null};
+ if(!payload.name)return alert('Nom du donneur d’ordre obligatoire.');
+ if(payload.siret&&!/^\\d{14}$/.test(payload.siret))return alert('Le SIRET doit contenir 14 chiffres.');
+ const r=id?await client.from('order_clients').update(payload).eq('id',id):await client.from('order_clients').insert(payload);
+ if(r.error)return alert('Enregistrement refusé : '+r.error.message);
+ await reload();clearClientEditor();render();alert('Donneur d’ordre enregistré.');
+});
 $('#apartmentCancelBtn').addEventListener('click',clearApartmentEditor);
 $('#tab-admin').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const u=userById(b.dataset.id),a=data.apartments.find(x=>x.id===b.dataset.id);
  if(b.dataset.action==='pin'&&u){alert('Le mot de passe se modifie via le lien « Mot de passe oublié ? » ou dans Supabase Authentication.');}
  if(b.dataset.action==='worker-delete'&&u&&confirm(`Désactiver le compte de ${u.name} ? Son historique sera conservé.`)){u.active=false;save();render()}
  if(b.dataset.action==='apt-edit'&&a&&session.role==='admin'){
    $('#apartmentEditId').value=a.id;$('#apartmentName').value=a.name||'';$('#apartmentDuration').value=a.duration??1;$('#apartmentReferenceHours').value=apartmentFinances.get(a.id)?.reference_hours??a.duration??0;$('#apartmentHourlyRate').value=apartmentFinances.get(a.id)?.hourly_rate??0;
- $('#apartmentAddress').value=a.address||'';$('#apartmentAccess').value=a.access||'';$('#apartmentBeds').value=a.beds||0;
+ $('#apartmentClient').value=a.clientId||'';$('#apartmentAddress').value=a.address||'';$('#apartmentAccess').value=a.access||'';$('#apartmentBeds').value=a.beds||0;
  $('#apartmentSaveBtn').textContent='✓ Enregistrer les modifications';$('#apartmentCancelBtn').classList.remove('hidden');
  $('#apartmentForm').scrollIntoView({behavior:'smooth',block:'center'});$('#apartmentName').focus();
  }
