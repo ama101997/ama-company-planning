@@ -182,7 +182,7 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
   </nav>
   <section id="tab-invoices" class="hidden"><div class="card"><h3>🧾 Factures · Administration</h3><p class="desc">Préparation de la facturation par donneur d’ordre. Ce récapitulatif n’est pas une facture officielle.</p><div class="field"><label for="invoiceMonth">Mois des prestations</label><input type="month" id="invoiceMonth"></div><div id="invoiceSummary" style="margin-top:16px"></div><p class="muted">La génération des factures PDF numérotées sera ajoutée dans une prochaine étape.</p></div></section>
 <section id="tab-dashboard">
-    <div class="card hidden" id="notificationCard"><div class="section-title"><div><h3>🔔 Notifications <span id="notificationCount"></span></h3><p class="desc">Alertes liées aux interventions et aux missions.</p></div><button type="button" class="soft mini" id="notificationRefresh">Actualiser</button></div><div id="notificationList" style="margin-top:12px"></div></div>
+    <div class="card hidden" id="notificationCard"><div class="section-title"><button type="button" id="notificationToggle" aria-expanded="false" aria-controls="notificationContent" class="ghost" style="display:flex;align-items:center;gap:8px;flex:1;text-align:left;justify-content:space-between;padding:8px 4px"><span><strong>🔔 Notifications <span id="notificationCount"></span></strong></span><span id="notificationChevron" aria-hidden="true">⌄</span></button></div><div id="notificationContent" class="hidden"><p class="desc">Alertes liées aux interventions et aux missions.</p><button type="button" class="soft mini" id="notificationRefresh">↻ Actualiser</button><div id="notificationList" style="margin-top:12px"></div></div></div>
     <div class="card weekly-card" id="weeklyCard">
       <div class="weekly-header"><div><h3>📊 Activité de la semaine</h3><p class="desc" style="margin:3px 0 0">Missions planifiées et réalisées, jour par jour</p></div><div class="weekly-controls"><button type="button" id="weekPrev" aria-label="Semaine précédente">‹</button><span class="weekly-range" id="weekRange"></span><button type="button" id="weekNext" aria-label="Semaine suivante">›</button><button type="button" id="weekCurrent">Cette semaine</button></div></div>
       <div class="weekly-metrics" id="weekMetrics"></div><div class="week-bars" id="weekBars"></div>
@@ -452,6 +452,12 @@ function renderNotifications(){
  $('#notificationCount').textContent=unread?`(${unread} non lue${unread>1?'s':''})`:'';
  $('#notificationList').innerHTML=missionNotifications.length?missionNotifications.map(n=>`<div class="mission" style="margin-bottom:8px"><div><strong>${n.is_read?'':'🔵 '}${esc(n.title)}</strong><p>${esc(n.message)}</p><small>${new Date(n.created_at).toLocaleString('fr-FR')}</small></div>${n.is_read?'':`<button class="soft mini" data-notification-read="${esc(n.id)}">Marquer comme lue</button>`}</div>`).join(''):'<div class="empty">Aucune notification pour le moment.</div>';
 }
+$('#notificationToggle').addEventListener('click',()=>{
+ const content=$('#notificationContent');const expanded=content.classList.contains('hidden');
+ content.classList.toggle('hidden',!expanded);
+ $('#notificationToggle').setAttribute('aria-expanded',String(expanded));
+ $('#notificationChevron').textContent=expanded?'⌃':'⌄';
+});
 $('#notificationRefresh').addEventListener('click',async()=>{try{await loadNotifications();renderNotifications()}catch(e){alert(e.message)}});
 $('#notificationList').addEventListener('click',async e=>{
  const btn=e.target.closest('[data-notification-read]');if(!btn||!session)return;
