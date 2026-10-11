@@ -764,5 +764,20 @@ fillSelects();
 (async()=>{try{const r=await client?.auth.getUser();if(r?.data?.user)await startSession(r.data.user)}catch(e){console.warn('Session non restaurée :',e.message)}})();
 })();
 </script>
+
+<!-- Activation des notifications push -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('./sw.js');
+      console.log('Service Worker activé :', registration.scope);
+    } catch (error) {
+      console.error('Erreur Service Worker :', error);
+    }
+  });
+}
+</script>
+
 </body>
 </html>
