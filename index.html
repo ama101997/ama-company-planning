@@ -178,9 +178,11 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
   </section>
   <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
   <nav class="nav" id="nav">
-    <button class="active" data-tab="dashboard">⌂ Tableau de bord</button><button data-tab="planning">📅 Mon planning</button><button data-tab="history">☑️ Historique</button><button data-tab="admin" id="adminTab">⚙️ Administration</button>
+    <button class="active" data-tab="dashboard">⌂ Tableau de bord</button><button data-tab="planning">📅 Mon planning</button><button data-tab="history">☑️ Historique</button><button data-tab="admin" id="adminTab">⚙️ Administration</button><button data-tab="invoices" id="invoicesTab">🧾 Factures</button>
   </nav>
-  <section id="tab-dashboard">
+  <section id="tab-invoices" class="hidden"><div class="card"><h3>🧾 Factures · Administration</h3><p class="desc">Préparation de la facturation par donneur d’ordre. Ce récapitulatif n’est pas une facture officielle.</p><div class="field"><label for="invoiceMonth">Mois des prestations</label><input type="month" id="invoiceMonth"></div><div id="invoiceSummary" style="margin-top:16px"></div><p class="muted">La génération des factures PDF numérotées sera ajoutée dans une prochaine étape.</p></div></section>
+<section id="tab-dashboard">
+    <div class="card hidden" id="notificationCard"><div class="section-title"><div><h3>🔔 Notifications <span id="notificationCount"></span></h3><p class="desc">Alertes liées aux interventions et aux missions.</p></div><button type="button" class="soft mini" id="notificationRefresh">Actualiser</button></div><div id="notificationList" style="margin-top:12px"></div></div>
     <div class="card weekly-card" id="weeklyCard">
       <div class="weekly-header"><div><h3>📊 Activité de la semaine</h3><p class="desc" style="margin:3px 0 0">Missions planifiées et réalisées, jour par jour</p></div><div class="weekly-controls"><button type="button" id="weekPrev" aria-label="Semaine précédente">‹</button><span class="weekly-range" id="weekRange"></span><button type="button" id="weekNext" aria-label="Semaine suivante">›</button><button type="button" id="weekCurrent">Cette semaine</button></div></div>
       <div class="weekly-metrics" id="weekMetrics"></div><div class="week-bars" id="weekBars"></div>
@@ -279,7 +281,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const client=window.supabase?.createClient('https://bleixaoiyoxvatsimkrw.supabase.co','sb_publishable_cUhSkP5GpURWVSme6GMVzA_6L3Gl9tm');
 const uid=()=>crypto.randomUUID();
 let lastSnapshot={users:[],apartments:[],missions:[]},busy=false;
-let apartmentFinances=new Map(),missionFinances=new Map(),orderClients=[];
+let apartmentFinances=new Map(),missionFinances=new Map(),orderClients=[],missionNotifications=[];
 const euro=n=>Number(n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
 async function loadFinances(){
  if(!session||session.role!=='admin'){apartmentFinances.clear();missionFinances.clear();return;}
@@ -302,6 +304,7 @@ async function reload(){
  data={users:p.data.map(normalizeUser),apartments:a.data.map(normalizeApartment),missions:m.data.map(normalizeMission)};
  for(const m of data.missions){m.workerName=data.users.find(u=>u.id===m.workerId)?.name||'';m.apartmentName=data.apartments.find(a=>a.id===m.apartmentId)?.name||'';}
   lastSnapshot=structuredClone(data);
+  if(session)await loadNotifications();
   if(session?.role==='admin')await loadFinances();
 }
 async function persist(){
@@ -357,7 +360,7 @@ async function login(){
 async function startSession(authUser){
  await reload();const u=data.users.find(x=>x.id===authUser.id);
  if(!u||u.active===false)throw Error('Votre compte n’a pas de profil actif. Contactez l’administrateur.');
- session={id:u.id,role:u.role,name:u.name};if(u.role==='admin')await loadFinances();$('#loginError').textContent='';$('#loginPin').value='';
+ session={id:u.id,role:u.role,name:u.name};if(u.role==='admin')await loadFinances();await loadNotifications();$('#loginError').textContent='';$('#loginPin').value='';
  $('#loginScreen').classList.add('hidden');$('#app').hidden=false;
  $('#rolePill').textContent=u.role==='admin'?'Administrateur':'Intervenant';$('#welcomeTitle').textContent=`Bonjour ${u.name} 👋`;
  $('#welcomeText').textContent=u.role==='admin'?'Gérez les plannings, les équipes et les validations.':'Voici vos missions. Après chaque intervention, validez la mission et confirmez les heures.';
@@ -366,7 +369,7 @@ async function startSession(authUser){
  $('#reportTitle').textContent=u.role==='admin'?'↧ Suivi des heures des intervenants':'↧ Mon relevé d’heures';
  $('#reportDescription').textContent=u.role==='admin'?'Sélectionnez un intervenant et un mois pour suivre ses heures validées et exporter son relevé.':'Consultez vos heures validées et téléchargez votre relevé PDF.';
    $('#reportMonth').value=monthNow();$('#financeMonth').value=monthNow();$('#dashRevenueMonth').value=monthNow();refreshReportWorkers();
- $('#adminTab').classList.toggle('hidden',u.role!=='admin');$('#createMissionCard').classList.toggle('hidden',u.role!=='admin');
+ $('#adminTab').classList.toggle('hidden',u.role!=='admin');$('#invoicesTab').classList.toggle('hidden',u.role!=='admin');$('#createMissionCard').classList.toggle('hidden',u.role!=='admin');
  $('#planningWorkerFilterWrap').classList.toggle('hidden',u.role!=='admin');$('#historyWorkerWrap').classList.toggle('hidden',u.role!=='admin');
  if(u.role==='worker'){$('#planningWorkerFilter').value=u.id;$('#historyWorker').value=u.id}
  amaTabHistory=[];render();setTab('dashboard',true);
@@ -435,7 +438,28 @@ function renderAdmin(){renderOrderClients();
  $('#workerList').innerHTML=activeWorkers().length?activeWorkers().map(u=>`<div class="mission"><div><strong>${esc(u.name)}</strong><p>${esc(u.email||'E-mail à renseigner')} · ${u.active===false?'Compte désactivé':'Compte actif'}</p></div><div class="inline"><button class="soft mini" data-action="pin" data-id="${esc(u.id)}">Réinitialiser accès</button><button class="danger mini" data-action="worker-delete" data-id="${esc(u.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun intervenant enregistré.</div>';
    $('#apartmentList').innerHTML=activeApartments().length?activeApartments().map(a=>`<div class="mission"><div><strong>${esc(a.name)}</strong><p>⏱ ${hours(a.duration)} intervenant · 🏢 ${esc(orderClients.find(c=>c.id===a.clientId)?.name||'Client non attribué')} · 📊 ${hours(apartmentFinances.get(a.id)?.reference_hours??a.duration)} référence · ${euro(apartmentFinances.get(a.id)?.hourly_rate??0)}/h · 🛏️ ${Number(a.beds||0)} couchage(s)</p>${a.address?`<p>📍 ${esc(a.address)}</p>`:''}${a.access?`<p>🔑 ${esc(a.access)}</p>`:''}</div><div class="right"><button class="soft mini" data-action="apt-edit" data-id="${esc(a.id)}">✎ Modifier</button><button class="danger mini" data-action="apt-delete" data-id="${esc(a.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun logement enregistré.</div>';
 }
-function render(){refreshReportWorkers();fillSelects();renderStats();renderPlanning();renderHistory();renderDashboard();renderAdminDashboardRevenue();renderWeek();if(session.role==='admin'){renderAdmin();renderFinances()}reportTotal()}
+async function loadNotifications(){
+ if(!session){missionNotifications=[];return;}
+ const r=await client.from('mission_notifications').select('id,title,message,is_read,created_at').order('created_at',{ascending:false}).limit(100);
+ if(r.error)throw r.error;
+ missionNotifications=r.data||[];
+}
+function renderNotifications(){
+ const panel=$('#notificationCard');if(!panel)return;
+ panel.classList.toggle('hidden',!session);
+ if(!session)return;
+ const unread=missionNotifications.filter(n=>!n.is_read).length;
+ $('#notificationCount').textContent=unread?`(${unread} non lue${unread>1?'s':''})`:'';
+ $('#notificationList').innerHTML=missionNotifications.length?missionNotifications.map(n=>`<div class="mission" style="margin-bottom:8px"><div><strong>${n.is_read?'':'🔵 '}${esc(n.title)}</strong><p>${esc(n.message)}</p><small>${new Date(n.created_at).toLocaleString('fr-FR')}</small></div>${n.is_read?'':`<button class="soft mini" data-notification-read="${esc(n.id)}">Marquer comme lue</button>`}</div>`).join(''):'<div class="empty">Aucune notification pour le moment.</div>';
+}
+$('#notificationRefresh').addEventListener('click',async()=>{try{await loadNotifications();renderNotifications()}catch(e){alert(e.message)}});
+$('#notificationList').addEventListener('click',async e=>{
+ const btn=e.target.closest('[data-notification-read]');if(!btn||!session)return;
+ const r=await client.from('mission_notifications').update({is_read:true}).eq('id',btn.dataset.notificationRead);
+ if(r.error)return alert(r.error.message);
+ await loadNotifications();renderNotifications();
+});
+function render(){renderNotifications();refreshReportWorkers();fillSelects();renderStats();renderPlanning();renderHistory();renderDashboard();renderAdminDashboardRevenue();renderWeek();renderInvoiceSummary();if(session.role==='admin'){renderAdmin();renderFinances()}reportTotal()}
 function isoWeekMonday(dateStr){
  const d=new Date(dateStr+'T12:00:00');if(Number.isNaN(d.getTime()))return '';
  const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);
@@ -533,7 +557,7 @@ $('#weekNext').addEventListener('click',()=>{weekOffset++;renderWeek()});
 $('#weekCurrent').addEventListener('click',()=>{weekOffset=0;renderWeek()});
 $('#weekBars').addEventListener('click',e=>{const day=e.target.closest('[data-week-date]');if(!day)return;$('#planningDate').value=day.dataset.weekDate;renderPlanning();setTab('planning')});
 let amaTabHistory=[];
-function setTab(t,fromBack=false){if(session&&!fromBack&&tab!==t)amaTabHistory.push(tab);closeMobileMenu();if(t==='admin'&&session.role!=='admin')t='planning';tab=t;$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));['dashboard','planning','history','admin'].forEach(x=>$('#tab-'+x).classList.toggle('hidden',x!==t));}
+function setTab(t,fromBack=false){if(session&&!fromBack&&tab!==t)amaTabHistory.push(tab);closeMobileMenu();if((t==='admin'||t==='invoices')&&session.role!=='admin')t='planning';tab=t;$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));['dashboard','planning','history','admin','invoices'].forEach(x=>$('#tab-'+x).classList.toggle('hidden',x!==t));}
 
 function refreshReportWorkers(){
  const sel=$('#reportWorker'),previous=sel.value;
@@ -584,6 +608,22 @@ $('#backBtn').addEventListener('click',()=>{if(!session)return;setTab(amaTabHist
 $('#refreshBtn').addEventListener('click',async()=>{if(!session)return;const b=$('#refreshBtn');b.disabled=true;try{await reload();render()}catch(e){alert('Actualisation impossible : '+e.message)}finally{b.disabled=false}});
 $('#loginForm').addEventListener('submit',e=>{e.preventDefault();login()});$('#logoutBtn').addEventListener('click',logout);
 document.querySelector('#tab-dashboard').addEventListener('click',e=>{if(e.target.closest('[data-jump]'))setTab('planning')});
+function renderInvoiceSummary(){
+ if(!session||session.role!=='admin')return;
+ const month=$('#invoiceMonth').value||monthNow();
+ const groups=new Map();
+ for(const c of orderClients)groups.set(c.id,{name:c.name,count:0,total:0,missing:0});
+ for(const m of data.missions){
+  if(m.status!=='done'||m.prolonged||!String(m.date).startsWith(month))continue;
+  const a=data.apartments.find(x=>x.id===m.apartmentId);if(!a?.clientId)continue;
+  const g=groups.get(a.clientId);if(!g)continue;
+  g.count++;const f=missionFinances.get(m.id);if(f)g.total+=Number(f.revenue||0);else g.missing++;
+ }
+ const arr=[...groups.values()].filter(g=>g.count);
+ $('#invoiceSummary').innerHTML=arr.length?arr.map(g=>`<div class="mission"><div><strong>${esc(g.name)}</strong><p>${g.count} intervention(s) réalisée(s) · ${g.missing?g.missing+' sans valorisation':''}</p></div><strong>${euro(g.total)} HT estimé</strong></div>`).join(''):'<div class="empty">Aucune intervention facturable associée à un client pour ce mois.</div>';
+}
+$('#invoiceMonth').value=monthNow();
+$('#invoiceMonth').addEventListener('change',renderInvoiceSummary);
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)setTab(b.dataset.tab)});
 $('#planningDate').value=today();$('#missionDate').value=today();$('#historyMonth').value=monthNow();
 $('#planningDate').addEventListener('change',renderPlanning);$('#planningWorkerFilter').addEventListener('change',renderPlanning);$('#historyBody').addEventListener('click',async e=>{
