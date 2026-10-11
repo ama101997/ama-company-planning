@@ -1,0 +1,18 @@
+AMA PLANNING — FINANCES ADMIN
+
+1) Dans Supabase > SQL Editor, exécuter INSTALLATION_FINANCES.sql.
+2) Sur GitHub, remplacer uniquement index.html par celui de ce ZIP.
+3) Actualiser l'application et se reconnecter avec Amziane (admin).
+4) Administration > Logements : modifier heures de référence et tarif horaire.
+5) Administration > Chiffre d'affaires estimé : filtrer par mois et logement.
+
+Les heures attribuées aux intervenants ne changent pas.
+Les informations financières sont stockées dans apartment_finances et mission_finances
+avec les règles RLS administrateur déjà créées.
+Chaque NOUVELLE mission reçoit une copie des heures de référence et du tarif
+au moment de sa création, grâce au déclencheur SQL.
+Les missions antérieures à l'installation du déclencheur restent sans montant,
+plutôt que d'inventer une facturation historique.
+Le chiffre d'affaires estimé ne compte que les missions réalisées (done)
+et exclut les prolongations.
+Ne jamais inclure une clé Supabase service_role dans index.html.

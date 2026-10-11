@@ -217,6 +217,8 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
 <input type="hidden" id="apartmentEditId">
 <div class="field"><label for="apartmentName">Nom du logement *</label><input id="apartmentName" required placeholder="Ex. : Appartement Diderot"></div>
 <div class="field"><label for="apartmentDuration">Durée standard (heures)</label><input id="apartmentDuration" type="number" min="0" step=".25" value="1"></div>
+<div class="field"><label for="apartmentReferenceHours">Heures de référence client (admin uniquement)</label><input id="apartmentReferenceHours" type="number" min="0" step=".25" value="1"></div>
+<div class="field"><label for="apartmentHourlyRate">Tarif client (€/h, admin uniquement)</label><input id="apartmentHourlyRate" type="number" min="0" step=".01" value="0"></div>
 <div class="field full"><label for="apartmentAddress">Adresse complète</label><input id="apartmentAddress" placeholder="N°, rue, code postal, ville"></div>
 <div class="field"><label for="apartmentAccess">Code d’accès / instructions d’entrée</label><textarea id="apartmentAccess" rows="2" placeholder="Digicode, boîte à clés, étage…"></textarea></div>
 <div class="field"><label for="apartmentBeds">Nombre de couchages</label><input id="apartmentBeds" type="number" min="0" step="1" value="0"></div>
@@ -224,6 +226,11 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
 </form>
         <div id="apartmentList" style="margin-top:15px"></div>
       </div>
+    </div>
+    <div class="card" id="financePanel"><div class="section-title"><div><h3>💶 Chiffre d’affaires estimé</h3><p class="desc">Réservé à l’administrateur · missions réalisées, hors prolongations. Montants calculés à partir des heures de référence et tarifs enregistrés par mission.</p></div></div>
+      <div class="formgrid" style="margin:12px 0"><div class="field"><label for="financeMonth">Mois</label><input type="month" id="financeMonth"></div><div class="field"><label for="financeApartment">Logement</label><select id="financeApartment"><option value="">Tous les logements</option></select></div></div>
+      <div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><div class="label">CA estimé · missions réalisées</div><div class="value" id="financeRevenue">0 €</div></div><div class="stat"><div class="label">Missions réalisées valorisées</div><div class="value" id="financeCount">0</div></div></div>
+      <div class="tablewrap"><table><thead><tr><th>Logement</th><th>Missions</th><th>Heures de référence</th><th>CA estimé</th></tr></thead><tbody id="financeRows"></tbody></table></div><p class="desc" id="financeNotice" style="margin-top:12px">Les anciennes missions sans historique financier ne sont pas valorisées automatiquement.</p>
     </div>
     <div class="card"><h3>💾 Sauvegarde et sécurité</h3><p class="desc">Exportez régulièrement une copie JSON pour ne pas perdre les données de cet appareil.</p><div class="actions"><button class="soft" id="backupBtn">Télécharger une sauvegarde</button><label class="soft" style="display:inline-flex;align-items:center;cursor:pointer;padding:10px 14px;border-radius:10px;font-weight:650">Restaurer une sauvegarde<input id="restoreInput" type="file" accept=".json,application/json" hidden></label><button class="danger" id="resetBtn">Réinitialiser les données</button></div><p class="muted" style="font-size:.8rem;margin-top:12px">Attention : dans cette version, les comptes et codes sont stockés dans le navigateur. Ce n'est pas une authentification sécurisée pour un déploiement public.</p></div>
   </section>
@@ -237,6 +244,16 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const client=window.supabase?.createClient('https://bleixaoiyoxvatsimkrw.supabase.co','sb_publishable_cUhSkP5GpURWVSme6GMVzA_6L3Gl9tm');
 const uid=()=>crypto.randomUUID();
 let lastSnapshot={users:[],apartments:[],missions:[]},busy=false;
+let apartmentFinances=new Map(),missionFinances=new Map();
+const euro=n=>Number(n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
+async function loadFinances(){
+ if(!session||session.role!=='admin'){apartmentFinances.clear();missionFinances.clear();return;}
+ const [a,m]=await Promise.all([client.from('apartment_finances').select('apartment_id,reference_hours,hourly_rate'),client.from('mission_finances').select('mission_id,reference_hours,hourly_rate,revenue')]);
+ if(a.error||m.error)throw (a.error||m.error);
+ apartmentFinances=new Map((a.data||[]).map(x=>[x.apartment_id,x]));
+ missionFinances=new Map((m.data||[]).map(x=>[x.mission_id,x]));
+}
+
 const normalizeUser=u=>({id:u.id,name:u.full_name||'Utilisateur',email:u.email||'',role:u.role==='admin'?'admin':'worker',active:u.active!==false});
 const normalizeApartment=a=>({id:a.id,name:a.name,address:a.address||'',access:a.access_code||'',beds:a.beds||0,duration:Number(a.duration||0),active:a.active!==false});
 const normalizeMission=m=>({id:m.id,date:m.mission_date,workerId:m.intervenant_id,apartmentId:m.apartment_id,hours:Number(m.hours||0),status:m.status||'planned',notes:m.notes||'',createdAt:m.created_at||null,completedAt:m.completed_at||null,completedBy:m.completed_by||null,prolonged:m.prolonged===true});
@@ -248,7 +265,8 @@ async function reload(){
  for(const r of [p,a,m])if(r.error)throw r.error;
  data={users:p.data.map(normalizeUser),apartments:a.data.map(normalizeApartment),missions:m.data.map(normalizeMission)};
  for(const m of data.missions){m.workerName=data.users.find(u=>u.id===m.workerId)?.name||'';m.apartmentName=data.apartments.find(a=>a.id===m.apartmentId)?.name||'';}
- lastSnapshot=structuredClone(data);
+  lastSnapshot=structuredClone(data);
+  if(session?.role==='admin')await loadFinances();
 }
 async function persist(){
  if(busy)return;
@@ -303,7 +321,7 @@ async function login(){
 async function startSession(authUser){
  await reload();const u=data.users.find(x=>x.id===authUser.id);
  if(!u||u.active===false)throw Error('Votre compte n’a pas de profil actif. Contactez l’administrateur.');
- session={id:u.id,role:u.role,name:u.name};$('#loginError').textContent='';$('#loginPin').value='';
+ session={id:u.id,role:u.role,name:u.name};if(u.role==='admin')await loadFinances();$('#loginError').textContent='';$('#loginPin').value='';
  $('#loginScreen').classList.add('hidden');$('#app').hidden=false;
  $('#rolePill').textContent=u.role==='admin'?'Administrateur':'Intervenant';$('#welcomeTitle').textContent=`Bonjour ${u.name} 👋`;
  $('#welcomeText').textContent=u.role==='admin'?'Gérez les plannings, les équipes et les validations.':'Voici vos missions. Après chaque intervention, validez la mission et confirmez les heures.';
@@ -311,7 +329,7 @@ async function startSession(authUser){
  $('#downloadHoursExcel').classList.toggle('hidden',u.role!=='admin');
  $('#reportTitle').textContent=u.role==='admin'?'↧ Suivi des heures des intervenants':'↧ Mon relevé d’heures';
  $('#reportDescription').textContent=u.role==='admin'?'Sélectionnez un intervenant et un mois pour suivre ses heures validées et exporter son relevé.':'Consultez vos heures validées et téléchargez votre relevé PDF.';
- $('#reportMonth').value=monthNow();refreshReportWorkers();
+   $('#reportMonth').value=monthNow();$('#financeMonth').value=monthNow();refreshReportWorkers();
  $('#adminTab').classList.toggle('hidden',u.role!=='admin');$('#createMissionCard').classList.toggle('hidden',u.role!=='admin');
  $('#planningWorkerFilterWrap').classList.toggle('hidden',u.role!=='admin');$('#historyWorkerWrap').classList.toggle('hidden',u.role!=='admin');
  if(u.role==='worker'){$('#planningWorkerFilter').value=u.id;$('#historyWorker').value=u.id}
@@ -337,7 +355,7 @@ function apartmentInfo(m){
  return `<div class="apt-details">${address?`<p>📍 ${esc(address)}</p>`:''}${maps}${access?`<p>🔑 <strong>Accès :</strong> ${esc(access)}</p>`:''}<p>🛏️ <strong>Couchages :</strong> ${beds}</p></div>`;
 }
 function clearApartmentEditor(){
- $('#apartmentForm').reset();$('#apartmentEditId').value='';$('#apartmentDuration').value='1';$('#apartmentBeds').value='0';
+   $('#apartmentForm').reset();$('#apartmentEditId').value='';$('#apartmentDuration').value='1';$('#apartmentReferenceHours').value='1';$('#apartmentHourlyRate').value='0';$('#apartmentBeds').value='0';
  $('#apartmentSaveBtn').textContent='＋ Ajouter le logement';$('#apartmentCancelBtn').classList.add('hidden');
 }
 function renderPlanning(){
@@ -371,9 +389,28 @@ function renderHistory(){
 }
 function renderAdmin(){
  $('#workerList').innerHTML=activeWorkers().length?activeWorkers().map(u=>`<div class="mission"><div><strong>${esc(u.name)}</strong><p>${esc(u.email||'E-mail à renseigner')} · ${u.active===false?'Compte désactivé':'Compte actif'}</p></div><div class="inline"><button class="soft mini" data-action="pin" data-id="${esc(u.id)}">Réinitialiser accès</button><button class="danger mini" data-action="worker-delete" data-id="${esc(u.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun intervenant enregistré.</div>';
- $('#apartmentList').innerHTML=activeApartments().length?activeApartments().map(a=>`<div class="mission"><div><strong>${esc(a.name)}</strong><p>⏱ ${hours(a.duration)} · 🛏️ ${Number(a.beds||0)} couchage(s)</p>${a.address?`<p>📍 ${esc(a.address)}</p>`:''}${a.access?`<p>🔑 ${esc(a.access)}</p>`:''}</div><div class="right"><button class="soft mini" data-action="apt-edit" data-id="${esc(a.id)}">✎ Modifier</button><button class="danger mini" data-action="apt-delete" data-id="${esc(a.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun logement enregistré.</div>';
+   $('#apartmentList').innerHTML=activeApartments().length?activeApartments().map(a=>`<div class="mission"><div><strong>${esc(a.name)}</strong><p>⏱ ${hours(a.duration)} intervenant · 📊 ${hours(apartmentFinances.get(a.id)?.reference_hours??a.duration)} référence · ${euro(apartmentFinances.get(a.id)?.hourly_rate??0)}/h · 🛏️ ${Number(a.beds||0)} couchage(s)</p>${a.address?`<p>📍 ${esc(a.address)}</p>`:''}${a.access?`<p>🔑 ${esc(a.access)}</p>`:''}</div><div class="right"><button class="soft mini" data-action="apt-edit" data-id="${esc(a.id)}">✎ Modifier</button><button class="danger mini" data-action="apt-delete" data-id="${esc(a.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun logement enregistré.</div>';
 }
-function render(){refreshReportWorkers();fillSelects();renderStats();renderPlanning();renderHistory();renderDashboard();renderWeek();if(session.role==='admin')renderAdmin();reportTotal()}
+function render(){refreshReportWorkers();fillSelects();renderStats();renderPlanning();renderHistory();renderDashboard();renderWeek();if(session.role==='admin'){renderAdmin();renderFinances()}reportTotal()}
+function renderFinances(){
+ const select=$('#financeApartment'),prev=select.value;
+ select.innerHTML='<option value="">Tous les logements</option>'+data.apartments.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
+ if(data.apartments.some(a=>a.id===prev))select.value=prev;
+ const month=$('#financeMonth').value||monthNow(),apartment=select.value;
+ const missions=data.missions.filter(m=>m.date?.startsWith(month)&&m.status==='done'&&!m.prolonged&&(!apartment||m.apartmentId===apartment));
+ const groups=new Map();let revenue=0,count=0,missing=0;
+ for(const m of missions){
+  const f=missionFinances.get(m.id);if(!f){missing++;continue;}
+  const g=groups.get(m.apartmentId)||{name:m.apartmentName||'Logement',count:0,hours:0,revenue:0};
+  g.count++;g.hours+=Number(f.reference_hours||0);g.revenue+=Number(f.revenue??(Number(f.reference_hours||0)*Number(f.hourly_rate||0)));
+  revenue+=Number(f.revenue??(Number(f.reference_hours||0)*Number(f.hourly_rate||0)));count++;groups.set(m.apartmentId,g);
+ }
+ $('#financeRevenue').textContent=euro(revenue);$('#financeCount').textContent=String(count);
+ $('#financeRows').innerHTML=[...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'fr')).map(g=>`<tr><td>${esc(g.name)}</td><td>${g.count}</td><td>${hours(g.hours)}</td><td><strong>${euro(g.revenue)}</strong></td></tr>`).join('')||'<tr><td colspan="4">Aucune mission réalisée avec données financières pour ce mois.</td></tr>';
+ $('#financeNotice').textContent=missing?`${missing} mission(s) réalisée(s) sans historique financier : exclue(s) du total. Les missions anciennes ne sont pas valorisées automatiquement.`:'Montants estimés, avant charges et impôts. Les prolongations sont exclues.';
+}
+$('#financeMonth').addEventListener('change',renderFinances);
+$('#financeApartment').addEventListener('change',renderFinances);
 function renderDashboard(){
  const ms=getVisibleMissions(),future=ms.filter(m=>m.status==='planned'&&!m.prolonged).sort((a,b)=>{
   if(session.role==='worker'){
@@ -493,25 +530,29 @@ $('#missionList').addEventListener('click',async e=>{const b=e.target.closest('[
  if(b.dataset.action==='edit'&&session.role==='admin'){const h=prompt('Modifier la durée en heures :',m.hours);if(h===null)return;const n=Number(h);if(!n||n<=0)return alert('Durée invalide.');m.hours=n;const note=prompt('Modifier les consignes (laisser vide pour aucune) :',m.notes||'');if(note!==null)m.notes=note;const date=prompt('Modifier la date (AAAA-MM-JJ) :',m.date);if(date&&/^\d{4}-\d{2}-\d{2}$/.test(date))m.date=date;save();render()}
 });
 $('#workerForm').addEventListener('submit',e=>{e.preventDefault();alert('Pour créer un intervenant : Supabase → Authentication → Users → Add user, puis ajouter son UID dans public.profiles (full_name, role=intervenant, email). Ne stockez jamais de mot de passe dans cette application.');});
-$('#apartmentForm').addEventListener('submit',e=>{
- e.preventDefault();if(session.role!=='admin')return;
- const id=$('#apartmentEditId').value,name=$('#apartmentName').value.trim(),duration=Number($('#apartmentDuration').value)||0;
+$('#apartmentForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(session.role!=='admin'||busy)return;
+ const id=$('#apartmentEditId').value,name=$('#apartmentName').value.trim(),duration=Number($('#apartmentDuration').value);
+ const referenceHours=Number($('#apartmentReferenceHours').value),hourlyRate=Number($('#apartmentHourlyRate').value);
  const address=$('#apartmentAddress').value.trim(),access=$('#apartmentAccess').value.trim(),beds=Number($('#apartmentBeds').value);
- if(!name||!Number.isFinite(beds)||beds<0||!Number.isInteger(beds))return alert('Vérifiez le nom et le nombre de couchages.');
+ if(!name||![duration,referenceHours,hourlyRate,beds].every(Number.isFinite)||duration<0||referenceHours<0||hourlyRate<0||beds<0||!Number.isInteger(beds))return alert('Vérifiez les durées, le tarif, le nom et le nombre de couchages.');
  if(data.apartments.some(a=>a.id!==id&&a.name.toLowerCase()===name.toLowerCase()&&a.active!==false))return alert('Ce logement existe déjà.');
- if(id){
-  const a=data.apartments.find(x=>x.id===id);if(!a)return;
-  Object.assign(a,{name,duration,address,access,beds});
-  data.missions.filter(m=>m.apartmentId===id).forEach(m=>m.apartmentName=name);
- }else data.apartments.push({id:uid(),name,duration,address,access,beds,active:true});
- save();clearApartmentEditor();render();
+ const apartmentId=id||uid();
+ try{
+  const payload={id:apartmentId,name,address,access_code:access,beds,duration,active:true};
+  const r=id?await client.from('apartments').update(payload).eq('id',id):await client.from('apartments').insert(payload);
+  if(r.error)throw r.error;
+  const f=await client.from('apartment_finances').upsert({apartment_id:apartmentId,reference_hours:referenceHours,hourly_rate:hourlyRate},{onConflict:'apartment_id'});
+  if(f.error)throw f.error;
+  await reload();clearApartmentEditor();render();alert('Logement et paramètres financiers enregistrés.');
+ }catch(err){alert('Enregistrement refusé : '+err.message);try{await reload();render()}catch(e){console.error(e)}}
 });
 $('#apartmentCancelBtn').addEventListener('click',clearApartmentEditor);
 $('#tab-admin').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const u=userById(b.dataset.id),a=data.apartments.find(x=>x.id===b.dataset.id);
  if(b.dataset.action==='pin'&&u){alert('Le mot de passe se modifie via le lien « Mot de passe oublié ? » ou dans Supabase Authentication.');}
  if(b.dataset.action==='worker-delete'&&u&&confirm(`Désactiver le compte de ${u.name} ? Son historique sera conservé.`)){u.active=false;save();render()}
  if(b.dataset.action==='apt-edit'&&a&&session.role==='admin'){
- $('#apartmentEditId').value=a.id;$('#apartmentName').value=a.name||'';$('#apartmentDuration').value=a.duration??1;
+   $('#apartmentEditId').value=a.id;$('#apartmentName').value=a.name||'';$('#apartmentDuration').value=a.duration??1;$('#apartmentReferenceHours').value=apartmentFinances.get(a.id)?.reference_hours??a.duration??0;$('#apartmentHourlyRate').value=apartmentFinances.get(a.id)?.hourly_rate??0;
  $('#apartmentAddress').value=a.address||'';$('#apartmentAccess').value=a.access||'';$('#apartmentBeds').value=a.beds||0;
  $('#apartmentSaveBtn').textContent='✓ Enregistrer les modifications';$('#apartmentCancelBtn').classList.remove('hidden');
  $('#apartmentForm').scrollIntoView({behavior:'smooth',block:'center'});$('#apartmentName').focus();
