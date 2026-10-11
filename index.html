@@ -178,9 +178,11 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
   </section>
   <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
   <nav class="nav" id="nav">
-    <button class="active" data-tab="dashboard">⌂ Tableau de bord</button><button data-tab="planning">📅 Mon planning</button><button data-tab="history">☑️ Historique</button><button data-tab="admin" id="adminTab">⚙️ Administration</button><button data-tab="invoices" id="invoicesTab">🧾 Factures</button>
+    <button class="active" data-tab="dashboard">⌂ Tableau de bord</button><button data-tab="planning">📅 Mon planning</button><button data-tab="history">☑️ Historique</button><button data-tab="invoices" id="invoicesTab">🧾 Factures</button><button data-tab="admin" id="adminTab">⚙️ Administration</button>
   </nav>
-  <section id="tab-invoices" class="hidden"><div class="card"><h3>🧾 Factures · Administration</h3><p class="desc">Préparation de la facturation par donneur d’ordre. Ce récapitulatif n’est pas une facture officielle.</p><div class="field"><label for="invoiceMonth">Mois des prestations</label><input type="month" id="invoiceMonth"></div><div id="invoiceSummary" style="margin-top:16px"></div><p class="muted">La génération des factures PDF numérotées sera ajoutée dans une prochaine étape.</p></div></section>
+  <section id="tab-invoices" class="hidden"><div class="card"><h3>🧾 Factures par client</h3><p class="desc">Sélectionnez le mois, renseignez les informations de votre entreprise, puis générez le PDF de chaque client. Les missions sans montant ne peuvent pas être facturées automatiquement.</p>
+<div class="formgrid"><div class="field"><label for="invoiceMonth">Mois des prestations</label><input type="month" id="invoiceMonth"></div><div class="field"><label for="invoiceNumber">Numéro de facture *</label><input id="invoiceNumber" placeholder="Ex. F102026-001"></div><div class="field"><label for="invoiceIssuer">Entreprise émettrice *</label><input id="invoiceIssuer" value="AMA Company"></div><div class="field"><label for="invoiceSiret">Votre SIRET *</label><input id="invoiceSiret" placeholder="14 chiffres" inputmode="numeric"></div><div class="field full"><label for="invoiceIssuerAddress">Votre adresse professionnelle *</label><textarea id="invoiceIssuerAddress" rows="2"></textarea></div><div class="field"><label for="invoiceDueDate">Date limite de paiement *</label><input id="invoiceDueDate" type="date"></div><div class="field"><label for="invoicePayment">Modalités de règlement</label><input id="invoicePayment" placeholder="Ex. Virement bancaire"></div></div>
+<p class="muted" style="margin-top:12px">Numérotation à saisir manuellement : vérifiez qu'elle est unique et suit votre chronologie. Les informations ci-dessus restent sur cet appareil et ne sont pas enregistrées dans Supabase.</p><div id="invoiceSummary" style="margin-top:16px"></div></div></section>
 <section id="tab-dashboard">
     <div class="card hidden" id="notificationCard"><div class="section-title"><button type="button" id="notificationToggle" aria-expanded="false" aria-controls="notificationContent" class="ghost" style="display:flex;align-items:center;gap:8px;flex:1;text-align:left;justify-content:space-between;padding:8px 4px"><span><strong>🔔 Notifications <span id="notificationCount"></span></strong></span><span id="notificationChevron" aria-hidden="true">⌄</span></button></div><div id="notificationContent" class="hidden"><p class="desc">Alertes liées aux interventions et aux missions.</p><button type="button" class="soft mini" id="notificationRefresh">↻ Actualiser</button><div id="notificationList" style="margin-top:12px"></div></div></div>
     <div class="card weekly-card" id="weeklyCard">
@@ -614,20 +616,38 @@ $('#backBtn').addEventListener('click',()=>{if(!session)return;setTab(amaTabHist
 $('#refreshBtn').addEventListener('click',async()=>{if(!session)return;const b=$('#refreshBtn');b.disabled=true;try{await reload();render()}catch(e){alert('Actualisation impossible : '+e.message)}finally{b.disabled=false}});
 $('#loginForm').addEventListener('submit',e=>{e.preventDefault();login()});$('#logoutBtn').addEventListener('click',logout);
 document.querySelector('#tab-dashboard').addEventListener('click',e=>{if(e.target.closest('[data-jump]'))setTab('planning')});
+function invoiceRows(clientId,month){
+ return data.missions.filter(m=>m.status==='done'&&!m.prolonged&&String(m.date).startsWith(month)).map(m=>{
+  const apt=data.apartments.find(a=>a.id===m.apartmentId);
+  return apt?.clientId===clientId?{m,apt,finance:missionFinances.get(m.id)}:null;
+ }).filter(Boolean).sort((a,b)=>a.m.date.localeCompare(b.m.date));
+}
 function renderInvoiceSummary(){
  if(!session||session.role!=='admin')return;
  const month=$('#invoiceMonth').value||monthNow();
- const groups=new Map();
- for(const c of orderClients)groups.set(c.id,{name:c.name,count:0,total:0,missing:0});
- for(const m of data.missions){
-  if(m.status!=='done'||m.prolonged||!String(m.date).startsWith(month))continue;
-  const a=data.apartments.find(x=>x.id===m.apartmentId);if(!a?.clientId)continue;
-  const g=groups.get(a.clientId);if(!g)continue;
-  g.count++;const f=missionFinances.get(m.id);if(f)g.total+=Number(f.revenue||0);else g.missing++;
- }
- const arr=[...groups.values()].filter(g=>g.count);
- $('#invoiceSummary').innerHTML=arr.length?arr.map(g=>`<div class="mission"><div><strong>${esc(g.name)}</strong><p>${g.count} intervention(s) réalisée(s) · ${g.missing?g.missing+' sans valorisation':''}</p></div><strong>${euro(g.total)} HT estimé</strong></div>`).join(''):'<div class="empty">Aucune intervention facturable associée à un client pour ce mois.</div>';
+ const groups=orderClients.map(c=>({client:c,rows:invoiceRows(c.id,month)})).filter(g=>g.rows.length);
+ $('#invoiceSummary').innerHTML=groups.length?groups.map(g=>{
+  const missing=g.rows.filter(r=>!r.finance||r.finance.revenue===null||r.finance.revenue===undefined).length;
+  const total=g.rows.reduce((n,r)=>n+Number(r.finance?.revenue||0),0);
+  return `<div class="mission"><div><strong>${esc(g.client.name)}</strong><p>${g.rows.length} intervention(s) terminée(s) · ${missing?`⚠️ ${missing} montant(s) manquant(s)`:'Montants renseignés'}</p><strong>${euro(total)} HT</strong></div><div class="right"><button type="button" class="primary mini" data-invoice-client="${esc(g.client.id)}" ${missing?'disabled title="Complétez les montants dans Finances"':''}>🧾 Générer le PDF</button></div></div>`;
+ }).join(''):'<div class="empty">Aucune intervention terminée associée à un client pour ce mois.</div>';
 }
+function printClientInvoice(clientId){
+ if(!session||session.role!=='admin')return;
+ const c=orderClients.find(x=>x.id===clientId),month=$('#invoiceMonth').value||monthNow(),rows=invoiceRows(clientId,month);
+ if(!c||!rows.length)return alert('Aucune prestation facturable pour ce client.');
+ if(rows.some(r=>!r.finance||r.finance.revenue===null||r.finance.revenue===undefined))return alert('Renseignez tous les montants des missions dans la partie Finances avant de générer la facture.');
+ const number=$('#invoiceNumber').value.trim(),issuer=$('#invoiceIssuer').value.trim(),siret=$('#invoiceSiret').value.trim(),address=$('#invoiceIssuerAddress').value.trim(),due=$('#invoiceDueDate').value,payment=$('#invoicePayment').value.trim();
+ if(!number||!issuer||!/^\d{14}$/.test(siret)||!address||!due)return alert('Complétez le numéro, le nom, le SIRET (14 chiffres), l’adresse de l’entreprise et la date limite de paiement.');
+ if(!c.billing_address)return alert('Renseignez d’abord l’adresse de facturation de ce client dans Administration.');
+ const total=rows.reduce((n,r)=>n+Number(r.finance.revenue),0);
+ const detail=rows.map(r=>`<tr><td>${esc(dateFr(r.m.date))}</td><td>${esc(r.apt.name)}</td><td style="text-align:right">${esc(euro(Number(r.finance.revenue)))}</td></tr>`).join('');
+ const invoiceDate=dateFr(today());
+ const html=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Facture ${esc(number)} - ${esc(c.name)}</title><style>@page{size:A4;margin:17mm}body{font-family:Arial,sans-serif;color:#19283b;font-size:12px;line-height:1.5}h1{font-size:27px;margin:0 0 20px}h2{font-size:15px}.head{display:flex;justify-content:space-between;gap:30px;margin-bottom:25px}.head>div{width:48%}table{border-collapse:collapse;width:100%;margin:25px 0}th,td{padding:10px;border-bottom:1px solid #dce3eb;text-align:left}th{background:#f5f7fa}.total{text-align:right;font-size:18px;font-weight:bold;margin-top:18px}.note{margin-top:28px;color:#45566a;white-space:pre-wrap}.footer{margin-top:35px;border-top:1px solid #dce3eb;padding-top:12px;color:#58677b}.no-print{margin-bottom:20px;padding:12px;background:#fff7dd}@media print{.no-print{display:none}}</style></head><body><div class="no-print">Vérifiez les informations puis utilisez « Imprimer / Enregistrer en PDF » dans votre navigateur. Ce document n'est pas archivé automatiquement. <button onclick="window.print()">Imprimer / Enregistrer en PDF</button></div><h1>FACTURE</h1><p><b>N° ${esc(number)}</b> · Émise le ${esc(invoiceDate)} · Prestations : ${esc(month)}</p><div class="head"><div><h2>Émetteur</h2><b>${esc(issuer)}</b><br>${esc(address).replace(/\n/g,'<br>')}<br>SIRET : ${esc(siret)}</div><div><h2>Client</h2><b>${esc(c.name)}</b><br>${esc(c.billing_address).replace(/\n/g,'<br>')}${c.siret?'<br>SIRET : '+esc(c.siret):''}</div></div><table><thead><tr><th>Date</th><th>Prestation / logement</th><th style="text-align:right">Montant HT</th></tr></thead><tbody>${detail}</tbody></table><div class="total">Total HT : ${esc(euro(total))}</div><p>TVA non applicable, article 293 B du CGI — à conserver uniquement si vous êtes toujours en franchise en base de TVA.</p><div class="note">Date limite de paiement : ${esc(dateFr(due))}<br>Règlement : ${esc(payment||'À préciser')}<br>Indemnité forfaitaire pour frais de recouvrement : 40 € (clients professionnels, lorsque applicable).<br>Pénalités de retard : à préciser selon vos conditions contractuelles.</div><div class="footer">Vérifiez vos mentions obligatoires et votre régime de TVA avant l'envoi de cette facture.</div></body></html>`;
+ const w=window.open('','_blank');if(!w)return alert('Autorisez les fenêtres pop-up pour générer le PDF.');
+ w.document.open();w.document.write(html);w.document.close();
+}
+$('#invoiceSummary').addEventListener('click',e=>{const b=e.target.closest('[data-invoice-client]');if(b)printClientInvoice(b.dataset.invoiceClient)});
 $('#invoiceMonth').value=monthNow();
 $('#invoiceMonth').addEventListener('change',renderInvoiceSummary);
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)setTab(b.dataset.tab)});
