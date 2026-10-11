@@ -279,7 +279,6 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const client=window.supabase?.createClient('https://bleixaoiyoxvatsimkrw.supabase.co','sb_publishable_cUhSkP5GpURWVSme6GMVzA_6L3Gl9tm');
-window.amaPushClient=client; // Connexion partagee avec le bouton de notifications
 const uid=()=>crypto.randomUUID();
 let lastSnapshot={users:[],apartments:[],missions:[]},busy=false;
 let apartmentFinances=new Map(),missionFinances=new Map(),orderClients=[],missionNotifications=[];
@@ -806,8 +805,11 @@ document.getElementById('activer-notifications')
         return;
       }
 
-      const pushClient = window.amaPushClient;
-      if (!pushClient) throw new Error('Connexion Supabase indisponible. Actualisez la page.');
+      const pushClient = window.supabase?.createClient(
+        'https://bleixaoiyoxvatsimkrw.supabase.co',
+        'sb_publishable_cUhSkP5GpURWVSme6GMVzA_6L3Gl9tm'
+      );
+      if (!pushClient) throw new Error('Bibliothèque Supabase indisponible. Actualisez la page.');
 
       const { data: { user }, error: authError } =
         await pushClient.auth.getUser();
