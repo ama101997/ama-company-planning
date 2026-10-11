@@ -766,6 +766,43 @@ fillSelects();
 </script>
 
 <!-- Activation des notifications push -->
+ <!-- Bouton d'activation des notifications -->
+<button
+  id="activer-notifications"
+  type="button"
+  style="position:fixed;bottom:20px;right:20px;z-index:9999;
+         background:#2563eb;color:white;border:none;
+         padding:12px 18px;border-radius:12px;
+         font-weight:bold;cursor:pointer;
+         box-shadow:0 4px 12px #0003;"
+>
+  🔔 Activer les notifications
+</button>
+
+<script>
+document.getElementById('activer-notifications')
+  .addEventListener('click', async () => {
+    if (!('Notification' in window) ||
+        !('serviceWorker' in navigator) ||
+        !('PushManager' in window)) {
+      alert('Les notifications push ne sont pas disponibles dans ce navigateur.');
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+
+      if (permission === 'granted') {
+        alert('Autorisation accordée ! Nous allons maintenant configurer l’enregistrement de cet appareil.');
+      } else {
+        alert('Les notifications ne sont pas autorisées.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Impossible de demander l’autorisation des notifications.');
+    }
+  });
+</script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
