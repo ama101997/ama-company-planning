@@ -286,7 +286,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const client=window.supabase?.createClient('https://bleixaoiyoxvatsimkrw.supabase.co','sb_publishable_cUhSkP5GpURWVSme6GMVzA_6L3Gl9tm');
 const uid=()=>crypto.randomUUID();
 let lastSnapshot={users:[],apartments:[],missions:[]},busy=false;
-let apartmentFinances=new Map(),missionFinances=new Map(),orderClients=[],missionNotifications=[];
+let apartmentFinances=new Map(),missionFinances=new Map(),orderClients=[],missionNotifications=[],fusionInvites=[],fusionParticipants=[];
 const euro=n=>Number(n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
 async function loadFinances(){
  if(!session||session.role!=='admin'){apartmentFinances.clear();missionFinances.clear();return;}
@@ -302,6 +302,15 @@ const normalizeApartment=a=>({id:a.id,name:a.name,address:a.address||'',access:a
 const normalizeMission=m=>({id:m.id,date:m.mission_date,workerId:m.intervenant_id,apartmentId:m.apartment_id,hours:Number(m.hours||0),status:m.status||'planned',notes:m.notes||'',createdAt:m.created_at||null,completedAt:m.completed_at||null,completedBy:m.completed_by||null,prolonged:m.prolonged===true});
 const encodeApartment=a=>({id:a.id,name:a.name,address:a.address||'',access_code:a.access||'',beds:Number(a.beds||0),duration:Number(a.duration||0),client_id:a.clientId||null,active:a.active!==false});
 const encodeMission=m=>({id:m.id,mission_date:m.date,intervenant_id:m.workerId,apartment_id:m.apartmentId,hours:Number(m.hours||0),status:m.status,notes:m.notes||'',prolonged:m.prolonged===true});
+async function loadFusion(){
+ if(!session){fusionInvites=[];fusionParticipants=[];return;}
+ const [i,p]=await Promise.all([client.from('mission_fusion_invites').select('*'),client.from('mission_fusion_participants').select('*')]);
+ if(i.error||p.error){console.warn('Fusion non configurée dans Supabase',i.error||p.error);fusionInvites=[];fusionParticipants=[];return;}
+ fusionInvites=i.data||[];fusionParticipants=p.data||[];
+}
+function sharedIds(m){const ids=fusionParticipants.filter(p=>p.mission_id===m.id).map(p=>p.user_id);return ids.length?[...new Set([m.workerId,...ids])]:[m.workerId]}
+function sharedHours(m){return Number(m.hours||0)/sharedIds(m).length}
+function fusionLabel(m){const ids=sharedIds(m);return ids.length>1?`<p style="color:#805600">🤝 Mission partagée : ${esc(ids.map(id=>userById(id)?.name||'Collègue').join(', '))} · ${hours(sharedHours(m))} chacun</p>`:''}
 async function reload(){
  if(!client)throw Error('Impossible de charger Supabase. Vérifiez la connexion Internet.');
  const [p,a,m]=await Promise.all([client.from('profiles').select('*'),client.from('apartments').select('*'),client.from('missions').select('*')]);
@@ -309,7 +318,7 @@ async function reload(){
  data={users:p.data.map(normalizeUser),apartments:a.data.map(normalizeApartment),missions:m.data.map(normalizeMission)};
  for(const m of data.missions){m.workerName=data.users.find(u=>u.id===m.workerId)?.name||'';m.apartmentName=data.apartments.find(a=>a.id===m.apartmentId)?.name||'';}
   lastSnapshot=structuredClone(data);
-  if(session)await loadNotifications();
+  if(session){await loadNotifications();await loadFusion();}
   if(session?.role==='admin')await loadFinances();
 }
 async function persist(){
@@ -365,7 +374,7 @@ async function login(){
 async function startSession(authUser){
  await reload();const u=data.users.find(x=>x.id===authUser.id);
  if(!u||u.active===false)throw Error('Votre compte n’a pas de profil actif. Contactez l’administrateur.');
- session={id:u.id,role:u.role,name:u.name};if(u.role==='admin')await loadFinances();await loadNotifications();$('#loginError').textContent='';$('#loginPin').value='';
+ session={id:u.id,role:u.role,name:u.name};await loadFusion();if(u.role==='admin')await loadFinances();await loadNotifications();$('#loginError').textContent='';$('#loginPin').value='';
  $('#loginScreen').classList.add('hidden');$('#app').hidden=false;
  $('#rolePill').textContent=u.role==='admin'?'Administrateur':'Intervenant';$('#welcomeTitle').textContent=`Bonjour ${u.name} 👋`;
  $('#welcomeText').textContent=u.role==='admin'?'Gérez les plannings, les équipes et les validations.':'Voici vos missions. Après chaque intervention, validez la mission et confirmez les heures.';
@@ -380,15 +389,15 @@ async function startSession(authUser){
  amaTabHistory=[];render();setTab('dashboard',true);
 }
 async function logout(){await client?.auth.signOut();session=null;$('#app').hidden=true;$('#loginScreen').classList.remove('hidden');$('#loginPin').value='';$('#loginEmail').value='';}
-function canSee(m){return session.role==='admin'||m.workerId===session.id}
-function getVisibleMissions(){return data.missions.filter(canSee).filter(m=>session.role!=='worker'||m.workerId===session.id)}
+function canSee(m){return session.role==='admin'||m.workerId===session.id||sharedIds(m).includes(session.id)}
+function getVisibleMissions(){return data.missions.filter(canSee)}
 function missionBadge(m){return m.prolonged?'<span class="badge cancelled">↗ Prolongation du séjour</span>':statusBadge(m.status)}
 function statusBadge(s){return s==='done'?'<span class="badge done">✓ Réalisée</span>':s==='cancelled'?'<span class="badge cancelled">Annulée</span>':'<span class="badge planned">À réaliser</span>'}
 function renderStats(){
  const ms=getVisibleMissions(),todayM=ms.filter(m=>m.date===today()),monthM=ms.filter(m=>m.date?.startsWith(monthNow()));
  $('#statToday').textContent=todayM.length;$('#statPending').textContent=ms.filter(m=>m.status==='planned'&&!m.prolonged).length;
  $('#statDone').textContent=monthM.filter(m=>m.status==='done').length;
- $('#statHours').textContent=hours(monthM.filter(m=>m.status==='done').reduce((s,m)=>s+Number(m.hours||0),0));
+ $('#statHours').textContent=hours(monthM.filter(m=>m.status==='done').reduce((s,m)=>s+sharedHours(m),0));
  $('#todayLabel').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
 function apartmentInfo(m){
@@ -408,7 +417,7 @@ function renderPlanning(){
  if(session.role==='admin')ms=ms.filter(m=>m.status!=='done'||m.prolonged);
  const d=$('#planningDate').value,w=$('#planningWorkerFilter').value;
  if(d)ms=ms.filter(m=>m.date===d);
- if(session.role==='admin'&&w)ms=ms.filter(m=>m.workerId===w);
+ if(session.role==='admin'&&w)ms=ms.filter(m=>sharedIds(m).includes(w));
  ms.sort((a,b)=>{
   // Pour l'intervenant, les missions avec consignes passent en premier.
   if(session.role==='worker'){
@@ -419,11 +428,17 @@ function renderPlanning(){
   return a.date.localeCompare(b.date)||String(a.workerName).localeCompare(String(b.workerName));
  });
  $('#missionList').innerHTML=ms.length?ms.map(m=>{
- const isMine=m.workerId===session.id,canValidate=(session.role==='admin'||(session.role==='worker'&&isMine))&&m.status==='planned'&&!m.prolonged;
-  const workerActions=session.role==='worker'&&isMine&&m.status==='planned'?`<button class="soft mini" data-action="prolong" data-id="${esc(m.id)}">${m.prolonged?'↶ Annuler le signalement':'↗ Voyageur a prolongé'}</button>${!m.prolonged?`<button class="soft mini" data-action="reschedule" data-id="${esc(m.id)}">📅 Reporter</button><button class="soft mini" data-action="transfer" data-id="${esc(m.id)}">⇄ Passer à un collègue</button>`:''}`:'';
- return `<article class="mission"><div><h4>${esc(m.apartmentName||'Logement')}</h4><p>📅 ${dateFr(m.date)} · 👤 ${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</p><p>⏱ ${hours(m.hours)}</p>${m.notes?`<div class="mission-note" role="note"><strong>📌 Consignes importantes pour cette mission</strong><div class="note-body">${esc(m.notes)}</div></div>`:''}${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${missionBadge(m)}${workerActions}${canValidate?`<button class="primary mini" data-action="complete" data-id="${esc(m.id)}">✓ Valider la mission</button>`:''}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
+ const isMine=m.workerId===session.id,isParticipant=sharedIds(m).includes(session.id),canValidate=(session.role==='admin'||(session.role==='worker'&&isParticipant))&&m.status==='planned'&&!m.prolonged;
+  const workerActions=session.role==='worker'&&isMine&&m.status==='planned'?`<button class="soft mini" data-action="prolong" data-id="${esc(m.id)}">${m.prolonged?'↶ Annuler le signalement':'↗ Voyageur a prolongé'}</button>${!m.prolonged?`<button class="soft mini" data-action="reschedule" data-id="${esc(m.id)}">📅 Reporter</button><button class="soft mini" data-action="transfer" data-id="${esc(m.id)}">⇄ Passer à un collègue</button><button class="soft mini" data-action="fusion" data-id="${esc(m.id)}">🤝 Fusionner avec un collègue</button>`:''}`:'';
+ return `<article class="mission"><div><h4>${esc(m.apartmentName||'Logement')}</h4><p>📅 ${dateFr(m.date)} · 👤 ${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</p><p>⏱ ${hours(session.role==='worker'?sharedHours(m):m.hours)}${session.role==='worker'&&sharedIds(m).length>1?' (ma part)':''}</p>${fusionLabel(m)}${m.notes?`<div class="mission-note" role="note"><strong>📌 Consignes importantes pour cette mission</strong><div class="note-body">${esc(m.notes)}</div></div>`:''}${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${missionBadge(m)}${workerActions}${canValidate?`<button class="primary mini" data-action="complete" data-id="${esc(m.id)}">✓ Valider la mission</button>`:''}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
  }).join(''):'<div class="empty">Aucune mission à afficher pour ce filtre. Les missions terminées restent dans l’historique.</div>';
  $('#planningTitle').textContent=session.role==='admin'?'Planning des équipes · missions à traiter':'Mon planning';
+ if(session.role==='worker'){
+  const pending=fusionInvites.filter(i=>i.invitee_id===session.id&&i.status==='pending');
+  const box=pending.map(i=>{const m=data.missions.find(m=>m.id===i.mission_id);return `<div class="mission" style="border-color:#e9c35c;background:#fffbeb"><div><strong>🤝 Invitation à partager une mission</strong><p>${esc(m?.apartmentName||'Mission')} · ${m?dateFr(m.date):''} · ${m?hours(m.hours):''}</p><p>Invité par ${esc(userById(i.inviter_id)?.name||'un collègue')}</p></div><div class="right"><button class="primary mini" data-fusion-reply="yes" data-id="${esc(i.id)}">Accepter</button><button class="ghost mini" data-fusion-reply="no" data-id="${esc(i.id)}">Refuser</button></div></div>`}).join('');
+  $('#missionList').insertAdjacentHTML('afterbegin',box);
+ }
+
 }
 function renderHistory(){
  $('#historyActionsHead').classList.toggle('hidden',session.role!=='admin');
@@ -540,9 +555,9 @@ function renderDashboard(){
   }
   return a.date.localeCompare(b.date);
  }).slice(0,6);
- $('#dashMissions').innerHTML=future.length?'<div class="dash-table"><div class="dash-head"><span>Date</span><span>Logement</span><span>Durée</span><span>Statut</span></div>'+future.map(m=>`<div class="dash-row"><span>📅 ${dateFr(m.date)}</span><span><strong>${esc(m.apartmentName||'Logement')}</strong><small>${esc(m.workerName||'')}</small>${session.role==='worker'&&String(m.notes||'').trim()?`<small class="priority-label">📌 Consignes à lire</small>`:''}</span><span>◷ ${hours(m.hours)}</span><span>${statusBadge(m.status)}</span></div>`).join('')+'</div>':'<div class="empty">Aucune intervention à venir. Vous pouvez en programmer depuis « Mon planning ».</div>';
+ $('#dashMissions').innerHTML=future.length?'<div class="dash-table"><div class="dash-head"><span>Date</span><span>Logement</span><span>Durée</span><span>Statut</span></div>'+future.map(m=>`<div class="dash-row"><span>📅 ${dateFr(m.date)}</span><span><strong>${esc(m.apartmentName||'Logement')}</strong><small>${esc(m.workerName||'')}</small>${session.role==='worker'&&String(m.notes||'').trim()?`<small class="priority-label">📌 Consignes à lire</small>`:''}</span><span>◷ ${hours(session.role==='worker'?sharedHours(m):m.hours)}</span><span>${statusBadge(m.status)}</span></div>`).join('')+'</div>':'<div class="empty">Aucune intervention à venir. Vous pouvez en programmer depuis « Mon planning ».</div>';
  const month=ms.filter(m=>m.date?.startsWith(monthNow())),done=month.filter(m=>m.status==='done'),pending=month.filter(m=>m.status==='planned'&&!m.prolonged);
- $('#dashHours').textContent=hours(done.reduce((s,m)=>s+Number(m.hours||0),0));$('#dashSummary').textContent=`${done.length} terminées · ${pending.length} à venir`;
+ $('#dashHours').textContent=hours(done.reduce((s,m)=>s+sharedHours(m),0));$('#dashSummary').textContent=`${done.length} terminées · ${pending.length} à venir`;
  $('#dashProgress').style.width=(month.length?Math.round(done.length/month.length*100):0)+'%';
 }
 let weekOffset=0;
@@ -582,11 +597,11 @@ function reportRows(){
  const workerId=session.role==='admin'?$('#reportWorker').value:session.id;
  if(!workerId)return [];
  const month=$('#reportMonth').value||monthNow();
- return data.missions.filter(m=>m.workerId===workerId&&m.status==='done'&&String(m.date||'').startsWith(month)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+ return data.missions.filter(m=>sharedIds(m).includes(workerId)&&m.status==='done'&&String(m.date||'').startsWith(month)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
 }
 function reportTotal(){
  if(!session)return;
- const ms=reportRows(),total=ms.reduce((n,m)=>n+Number(m.hours||0),0);
+ const ms=reportRows(),total=ms.reduce((n,m)=>n+sharedHours(m),0);
  $('#reportTotal').textContent=(session.role==='admin'&&!$('#reportWorker').value)?'Choisissez un intervenant pour afficher son relevé.':`${ms.length} intervention(s) validée(s) · ${hours(total)}`;
 }
 function saveReportFile(blob,name){
@@ -596,7 +611,7 @@ function excelReport(){
  if(!session||session.role!=='admin')return;
  if(!$('#reportWorker').value){alert('Sélectionnez un intervenant.');return}
  const workerName=userById($('#reportWorker').value)?.name||'Intervenant';
- const ms=reportRows(),month=$('#reportMonth').value||monthNow(),total=ms.reduce((n,m)=>n+Number(m.hours||0),0);
+ const ms=reportRows(),month=$('#reportMonth').value||monthNow(),total=ms.reduce((n,m)=>n+sharedHours(m),0);
  const q=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
  const lines=[['AMA Company — Relevé d’heures'],['Intervenant',workerName],['Mois',month],[],['Date','Logement','Heures validées','Statut'],...ms.map(m=>[m.date,m.apartmentName||'',Number(m.hours||0).toLocaleString('fr-FR',{useGrouping:false}),'Réalisée']),[],['TOTAL','',total.toLocaleString('fr-FR',{useGrouping:false})]];
  const csv='\ufeff'+lines.map(r=>r.map(q).join(';')).join('\r\n');
@@ -606,7 +621,7 @@ function pdfReport(){
  if(!session)return;
  if(session.role==='admin'&&!$('#reportWorker').value){alert('Sélectionnez un intervenant.');return}
  const workerName=session.role==='admin'?(userById($('#reportWorker').value)?.name||'Intervenant'):session.name;
- const ms=reportRows(),month=$('#reportMonth').value||monthNow(),total=ms.reduce((n,m)=>n+Number(m.hours||0),0);
+ const ms=reportRows(),month=$('#reportMonth').value||monthNow(),total=ms.reduce((n,m)=>n+sharedHours(m),0);
  const w=window.open('','_blank');if(!w){alert('Autorisez les fenêtres pop-up pour enregistrer le relevé en PDF.');return}
  const body=ms.map(m=>`<tr><td>${esc(dateFr(m.date))}</td><td>${esc(m.apartmentName||'')}</td><td>${esc(hours(m.hours))}</td><td>Réalisée</td></tr>`).join('');
  w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Relevé d’heures AMA — ${esc(month)}</title><style>body{font:14px Arial,sans-serif;color:#152335;margin:40px}header{border-bottom:3px solid #efbd34;padding-bottom:16px;margin-bottom:25px}h1{margin:0 0 8px}p{color:#536273}table{width:100%;border-collapse:collapse;margin-top:25px}th,td{padding:12px;border-bottom:1px solid #dce2ea;text-align:left}th{background:#f5f7fa}.total{background:#fff6d9;font-weight:bold;padding:14px;margin-top:20px;border-radius:8px}.note{font-size:12px;color:#6c7889;margin-top:25px}@page{size:A4;margin:17mm}</style></head><body><header><h1>AMA Company</h1><p>Relevé mensuel des heures validées</p></header><p><b>Intervenant :</b> ${esc(workerName)}<br><b>Période :</b> ${esc(month)}</p><table><thead><tr><th>Date</th><th>Logement</th><th>Durée</th><th>Statut</th></tr></thead><tbody>${body||'<tr><td colspan="4">Aucune intervention validée pour ce mois.</td></tr>'}</tbody></table><div class="total">TOTAL : ${esc(hours(total))} — ${ms.length} intervention(s)</div><p class="note">Ce relevé reprend uniquement les interventions marquées réalisées dans AMA Company.</p><script>window.onload=()=>{window.focus();window.print()}<\/script></body></html>`);
@@ -617,7 +632,7 @@ function prepareHoursEmail(){
  const id=$('#reportWorker').value;if(!id)return alert('Sélectionnez un intervenant.');
  const worker=userById(id);if(!worker?.email)return alert('Ajoutez l’adresse e-mail de cet intervenant dans Supabase.');
  const month=$('#reportMonth').value||monthNow();
- const ms=reportRows();const total=ms.reduce((n,m)=>n+Number(m.hours||0),0);
+ const ms=reportRows();const total=ms.reduce((n,m)=>n+sharedHours(m),0);
  const lines=ms.map(m=>`${dateFr(m.date)} — ${m.apartmentName||'Logement'} : ${hours(m.hours)}`);
  const subject=`AMA Company — Relevé d’heures ${month}`;
  const body=`Bonjour ${worker.name},\n\nVoici votre relevé d’heures validées pour ${month} :\n\n${lines.join('\n')||'Aucune intervention validée.'}\n\nTotal : ${hours(total)} (${ms.length} interventions).\n\nCordialement,\nAMA Company`;
@@ -713,7 +728,14 @@ $('#missionForm').addEventListener('submit',e=>{e.preventDefault();if(session.ro
  if(!u||!a||!h||h<=0)return alert('Vérifiez l’intervenant, le logement et la durée.');
  const s=$('#missionStatus').value;data.missions.push({id:uid(),date:$('#missionDate').value,workerId:u.id,workerName:u.name,apartmentId:a.id,apartmentName:a.name,hours:h,notes:$('#missionNotes').value.trim(),status:s,createdAt:new Date().toISOString(),completedAt:s==='done'?new Date().toISOString():null,completedBy:s==='done'?session.name:null});
  save();$('#missionNotes').value='';render();});
-$('#missionList').addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b)return;const m=data.missions.find(x=>x.id===b.dataset.id);if(!m)return;
+$('#missionList').addEventListener('click',async e=>{
+ const reply=e.target.closest('[data-fusion-reply]');
+ if(reply){if(!confirm(reply.dataset.fusionReply==='yes'?'Accepter et partager les heures de cette mission ?':'Refuser cette invitation ?'))return;
+  const r=await client.rpc('ama_respond_fusion',{p_invite_id:reply.dataset.id,p_accept:reply.dataset.fusionReply==='yes'});
+  if(r.error)return alert('Réponse impossible : '+r.error.message);
+  await reload();render();return;
+ }
+ const b=e.target.closest('[data-action]');if(!b)return;const m=data.missions.find(x=>x.id===b.dataset.id);if(!m)return;
  if(b.dataset.action==='reschedule'&&session.role==='worker'&&m.workerId===session.id&&m.status==='planned'&&!m.prolonged){
   const next=prompt('Nouvelle date de l’intervention (AAAA-MM-JJ) :',m.date);
   if(next===null)return;
@@ -731,6 +753,17 @@ $('#missionList').addEventListener('click',async e=>{const b=e.target.closest('[
   if(r.error)return alert('Action refusée : '+r.error.message);
   await reload();render();return;
  }
+ if(b.dataset.action==='fusion'&&session.role==='worker'&&m.workerId===session.id&&m.status==='planned'&&!m.prolonged){
+  const ids=sharedIds(m),invited=fusionInvites.filter(i=>i.mission_id===m.id&&i.status==='pending').map(i=>i.invitee_id);
+  const colleagues=activeWorkers().filter(u=>!ids.includes(u.id)&&!invited.includes(u.id));
+  if(!colleagues.length)return alert('Aucun collègue disponible pour une nouvelle invitation.');
+  const answer=prompt('Inviter quel collègue à partager cette mission ?\n'+colleagues.map((u,i)=>`${i+1}. ${u.name}`).join('\n')+'\n\nSaisir le numéro :');
+  if(answer===null)return;const target=colleagues[Number(answer)-1];if(!target)return alert('Choix invalide.');
+  if(!confirm(`Inviter ${target.name} ? Les heures ne seront partagées qu’après son acceptation.`))return;
+  const r=await client.rpc('ama_invite_fusion',{p_mission_id:m.id,p_invitee_id:target.id});
+  if(r.error)return alert('Invitation refusée : '+r.error.message);
+  await reload();render();alert('Invitation envoyée à '+target.name);return;
+ }
  if(b.dataset.action==='transfer'&&session.role==='worker'&&m.workerId===session.id&&m.status==='planned'&&!m.prolonged){
   const colleagues=activeWorkers().filter(u=>u.id!==session.id);
   if(!colleagues.length)return alert('Aucun autre intervenant actif.');
@@ -743,7 +776,11 @@ $('#missionList').addEventListener('click',async e=>{const b=e.target.closest('[
   if(r.error)return alert('Transfert refusé : '+r.error.message);
   await reload();render();return;
  }
- if(b.dataset.action==='complete'&&m.status==='planned'&&!m.prolonged&&(session.role==='admin'||m.workerId===session.id)){if(!confirm(`Confirmer que la mission « ${m.apartmentName} » est terminée ?`))return;m.status='done';m.completedAt=new Date().toISOString();m.completedBy=session.name;save();render();}
+ if(b.dataset.action==='complete'&&m.status==='planned'&&!m.prolonged&&(session.role==='admin'||sharedIds(m).includes(session.id))){
+  if(!confirm(`Confirmer que la mission « ${m.apartmentName} » est terminée ?`))return;
+  if(sharedIds(m).length>1){const r=await client.rpc('ama_complete_shared_mission',{p_mission_id:m.id});if(r.error)return alert('Validation refusée : '+r.error.message);await reload();render();return;}
+  m.status='done';m.completedAt=new Date().toISOString();m.completedBy=session.name;save();render();
+ }
  if(b.dataset.action==='delete'&&session.role==='admin'&&confirm('Supprimer définitivement cette mission ?')){data.missions=data.missions.filter(x=>x.id!==m.id);save();render()}
  if(b.dataset.action==='edit'&&session.role==='admin'){const h=prompt('Modifier la durée en heures :',m.hours);if(h===null)return;const n=Number(h);if(!n||n<=0)return alert('Durée invalide.');m.hours=n;const note=prompt('Modifier les consignes (laisser vide pour aucune) :',m.notes||'');if(note!==null)m.notes=note;const date=prompt('Modifier la date (AAAA-MM-JJ) :',m.date);if(date&&/^\d{4}-\d{2}-\d{2}$/.test(date))m.date=date;save();render()}
 });
