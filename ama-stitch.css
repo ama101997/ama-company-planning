@@ -1,0 +1,54 @@
+/* AMA Planning — adaptation visuelle Stitch. Aucun script ni logique modifiés. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
+:root{--bg:#FBFBFD;--card:#fff;--ink:#090A0F;--muted:#71747E;--line:#EAEAEF;--brand:#090A0F;--brand2:#1C1E26;--green:#047857;--amber:#93744D;--red:#BA1A1A;--radius:8px;--shadow:0 12px 36px -8px rgba(9,10,15,.04),0 4px 12px -2px rgba(9,10,15,.02)}
+body{background:#FBFBFD;color:#090A0F;font-family:Inter,system-ui,sans-serif;letter-spacing:-.005em}
+h1,h2,h3,h4,.hero h2,.brand h1,.stat .value,.big-number{font-family:'Plus Jakarta Sans',Inter,system-ui,sans-serif;letter-spacing:-.025em}
+button{border-radius:6px;font-weight:600;transition:background .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+button:hover:not(:disabled){filter:none;transform:translateY(-1px)}
+.primary{background:#090A0F;color:#fff;border:1px solid #090A0F;box-shadow:none}
+.primary:hover:not(:disabled){background:#1C1E26}
+.soft{background:#F7F3EE;color:#93744D;border:1px solid rgba(197,168,128,.3)}
+.soft:hover:not(:disabled){background:#EFE8DE}
+.ghost{background:#fff;color:#090A0F;border:1px solid #EAEAEF}
+.ghost:hover:not(:disabled){background:#FBFBFD;border-color:#090A0F}
+.danger{background:#fff1f0;color:#BA1A1A}
+.sidebar{background:#090A0F;color:#fff}
+.side-label{color:#aaa9af;letter-spacing:.08em}
+.side-foot{border-color:rgba(255,255,255,.12)}
+.workspace{background:#FBFBFD;max-width:1440px}
+.top{border-color:#EAEAEF}
+.top .brand .ama-logo{background:#090A0F}
+.hero{background:#fff;border:1px solid #EAEAEF;border-radius:8px;box-shadow:none}
+.hero h2{color:#090A0F}
+.stat,.card,.mission,.login{background:#fff;border:1px solid #EAEAEF;border-radius:8px;box-shadow:none}
+.stat:before{background:#C5A880}
+.stat .label,.stat .sub,.desc,.muted{color:#71747E}
+.stat .value,.big-number{font-variant-numeric:tabular-nums}
+.nav button{border-radius:6px}
+.nav button.active{background:#F7F3EE;color:#93744D;border-color:rgba(197,168,128,.3)}
+.nav button:hover{background:#F7F3EE;color:#93744D}
+.card h3,.section-title{color:#090A0F}
+.dark-promo{background:#090A0F;border-radius:8px}
+.progress{background:#F0F0F4}
+.progress span{background:#C5A880}
+.field label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:#71747E}
+.field input,.field select,.field textarea,input,select,textarea{border-radius:8px;border-color:#EAEAEF;background:#fff;color:#090A0F}
+.field input:focus,.field select:focus,.field textarea:focus,input:focus-visible,select:focus-visible,textarea:focus-visible{border-color:#090A0F;outline:2px solid rgba(9,10,15,.10);outline-offset:1px;box-shadow:none}
+.tablewrap{border-color:#EAEAEF;border-radius:8px}
+table{border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#71747E;background:#fff;border-bottom:1px solid #EAEAEF}
+td{border-bottom:1px solid #F0F0F4}
+tr:hover td{background:#FBFBFD}
+.badge{border-radius:999px}
+.done{background:#F0FDF4;color:#047857;border-color:rgba(16,185,129,.25)}
+.planned{background:#F7F3EE;color:#93744D;border-color:rgba(197,168,128,.3)}
+.cancelled{background:#F0F0F4;color:#71747E}
+.notice{border-radius:8px}
+.login-screen{background:#FBFBFD}
+.login{box-shadow:0 12px 36px -8px rgba(9,10,15,.04)}
+.login .primary{background:#090A0F;color:#fff}
+#activer-notifications{border-color:#EAEAEF;box-shadow:var(--shadow)}
+#activer-notifications:hover{background:#F7F3EE;color:#93744D}
+@media(min-width:1280px){.workspace{padding-left:clamp(32px,4vw,56px);padding-right:clamp(32px,4vw,56px)}}
+@media(max-width:700px){.workspace{padding-left:20px;padding-right:20px}.stat,.card,.mission{border-radius:8px}.hero h2{letter-spacing:-.02em}}
+@media(prefers-reduced-motion:reduce){button{transition:none}button:hover:not(:disabled){transform:none}}
