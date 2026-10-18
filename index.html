@@ -727,12 +727,9 @@ body.ama-worker #tab-planning .grid{margin-top:0}
   </section>
     <div class="card hidden" id="notificationCard"><div class="section-title"><button type="button" id="notificationToggle" aria-expanded="false" aria-controls="notificationContent" class="ghost" style="display:flex;align-items:center;gap:8px;flex:1;text-align:left;justify-content:space-between;padding:8px 4px"><span class="ama-notif-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><strong>Notifications</strong></span><span class="ama-notif-unread" id="notificationUnreadText" aria-live="polite"></span><span id="notificationCount" class="ama-count-hidden" aria-hidden="true"></span><span id="notificationChevron" aria-hidden="true">⌄</span></button></div><div id="notificationContent" class="hidden"><p class="desc">Alertes liées aux interventions et aux missions.</p><div id="amaPullIndicator" class="ama-pull-indicator" aria-live="polite" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg><span id="amaPullText">Tirez pour actualiser</span></div><div id="notificationList" style="margin-top:12px"></div><div id="amaAutoRefreshStatus" class="ama-auto-refresh-status" role="status" aria-live="polite" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg><span>Actualisation automatique…</span></div><div id="amaUndoToast" hidden class="ama-undo-toast">Notification supprimée <button type="button">Annuler</button></div></div></div>
     
-<div class="ama-quick-actions" id="amaQuickActions" aria-label="Accès rapide"><div class="ama-quick-heading">Accès rapide</div><div class="ama-quick-grid">
-<button type="button" class="ama-quick-action" data-ama-tab="planning"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Programmer</span></button>
-<button type="button" class="ama-quick-action" data-ama-tab="planning"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 2v4m10-4v4M3 10h18m-13 5 2 2 5-5"/></svg></span><span>Missions</span></button>
-<button type="button" class="ama-quick-action ama-admin-only" data-ama-tab="admin"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 21V6l9-3 9 3v15M3 10h18M8 10v11m8-11v11"/></svg></span><span>Logements</span></button>
-<button type="button" class="ama-quick-action ama-admin-only" data-ama-tab="invoices"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-4 2-4-2-3 2zM8 8h8M8 12h8"/></svg></span><span>Facturation</span></button>
-</div></div>
+<div class="ama-admin-program" id="amaQuickActions" aria-label="Gestion des interventions"><span>Gestion des interventions</span><button type="button" class="ama-program-button" data-ama-tab="planning" id="amaHomeProgram">＋ Programmer</button></div>
+<div class="ama-ca-home-mini" id="amaCaHomeMini" hidden>
+  <div class="ama-ca-home-label">Chiffre d’affaires</div>
 <div class="card weekly-card" id="weeklyCard">
       <div class="weekly-header"><div><h3 class="ama-weekly-title"><span class="ama-weekly-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V11m5 9V5m5 15v-8m5 8V8"/><path d="M2 21h20"/></svg></span>Activité de la semaine</h3><p class="desc" style="margin:3px 0 0">Missions planifiées et réalisées, jour par jour</p></div><div class="weekly-controls"><button type="button" id="weekPrev" aria-label="Semaine précédente">‹</button><span class="weekly-range" id="weekRange"></span><button type="button" id="weekNext" aria-label="Semaine suivante">›</button><button type="button" id="weekCurrent">Cette semaine</button></div></div>
       <div class="weekly-metrics" id="weekMetrics"></div><div class="week-bars" id="weekBars"></div>
@@ -746,13 +743,12 @@ body.ama-worker #tab-planning .grid{margin-top:0}
       <div class="formgrid" style="margin:12px 0"><div class="field"><label for="financePeriod">Période</label><select id="financePeriod"><option value="month">Mensuel</option><option value="day">Quotidien</option><option value="week">Hebdomadaire</option><option value="year">Annuel</option></select></div><div class="field"><label for="financeMonth">Date / période</label><input type="month" id="financeMonth"></div><div class="field"><label for="financeApartment">Logement</label><select id="financeApartment"><option value="">Tous les logements</option></select></div></div>
       <div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><div class="label">CA estimé · missions réalisées</div><div class="value" id="financeRevenue">0 €</div></div><div class="stat"><div class="label">Missions réalisées valorisées</div><div class="value" id="financeCount">0</div></div></div>
       <div id="amaFinanceChart" class="ama-finance-chart"></div><button type="button" id="amaFinanceToggle" class="ama-expand-button" hidden>Voir tous les logements ↓</button><div class="tablewrap ama-finance-table" hidden><table><thead><tr><th>Logement</th><th>Missions</th><th>Heures de référence</th><th>CA estimé</th></tr></thead><tbody id="financeRows"></tbody></table></div><p class="desc" id="financeNotice" style="margin-top:12px">Les anciennes missions sans historique financier ne sont pas valorisées automatiquement.</p>
-    </div><div class="ama-ca-home-mini" id="amaCaHomeMini" hidden>
-  <div class="ama-ca-home-label">Chiffre d’affaires</div>
+    </div>
   <strong class="ama-ca-home-value" id="amaCaHomeValue">0 €</strong>
   <select id="amaCaHomeMonth" aria-label="Choisir le mois du chiffre d’affaires"></select>
   <button type="button" id="amaCaHomeDetails" aria-label="Voir le chiffre d’affaires détaillé dans Gestion" title="Voir les détails">↗</button>
 </div>
-    <div class="dashboard-grid"><div class="card dashboard-main"><div class="section-title"><div><h3 class="ama-icon-heading"><span class="ama-heading-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#398B7B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18m-12 5h3m3 0h3m-6 4h3"/></svg></span>Mon planning</h3><p class="desc">Vos interventions à venir</p></div><button class="soft mini" data-jump="planning">Voir tout le planning →</button></div><div id="dashMissions"></div></div><div class="dashboard-side"><div class="card ama-month-summary"><div class="ama-month-heading"><h3>Activité du mois</h3><span class="ama-month-pill" id="amaMonthLabel">Ce mois</span></div><div class="ama-month-numbers"><div><div class="big-number" id="dashHours">0 h</div><p class="desc">Heures validées</p></div><div class="ama-month-percent"><strong id="amaMonthPercent">0 %</strong><span>Missions terminées</span></div></div><div class="progress"><span id="dashProgress"></span></div><div class="dashboard-mini" id="dashSummary"></div></div><div class="ama-home-signature" aria-label="AMA Company, organisation connectée"><span>AMA Company</span><span class="ama-signature-dot" aria-hidden="true"></span><span>Organisation connectée</span></div><div class="card reminder" id="amaWorkerReminder">🔔 Pensez à valider vos interventions après chaque ménage.</div></div></div></section>
+    <div class="dashboard-grid"><div class="card dashboard-main"><div class="section-title"><div><h3 class="ama-icon-heading"><span class="ama-heading-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#398B7B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18m-12 5h3m3 0h3m-6 4h3"/></svg></span>Prochaines interventions</h3><p class="desc">Les 3 prochaines missions</p></div><button class="soft mini" data-jump="planning">Voir tout le planning →</button></div><div id="dashMissions"></div></div><div class="dashboard-side"><div class="card ama-month-summary"><div class="ama-month-heading"><h3>Activité du mois</h3><span class="ama-month-pill" id="amaMonthLabel">Ce mois</span></div><div class="ama-month-numbers"><div><div class="big-number" id="dashHours">0 h</div><p class="desc">Heures validées</p></div><div class="ama-month-percent"><strong id="amaMonthPercent">0 %</strong><span>Missions terminées</span></div></div><div class="progress"><span id="dashProgress"></span></div><div class="dashboard-mini" id="dashSummary"></div></div><div class="ama-home-signature" aria-label="AMA Company, organisation connectée"><span>AMA Company</span><span class="ama-signature-dot" aria-hidden="true"></span><span>Organisation connectée</span></div><div class="card reminder" id="amaWorkerReminder">🔔 Pensez à valider vos interventions après chaque ménage.</div></div></div></section>
   <section id="tab-planning">
     <div class="ama-planning-heading"><div class="ama-planning-title"><span class="ama-planning-symbol" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#398B7B" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18m-12 5h3m3 0h3m-6 4h3"/></svg></span><div><h2 id="amaPlanningPageTitle">Planning des équipes</h2><p class="desc" id="amaPlanningPageDesc">Organisez et suivez les interventions.</p></div></div><button type="button" class="primary" id="amaOpenMissionForm" aria-expanded="false" aria-controls="createMissionCard">＋ Ajouter une mission</button></div>
     <div class="grid">
@@ -845,7 +841,7 @@ body.ama-worker #tab-planning .grid{margin-top:0}
     </div>
     <div class="card"><h3>💾 Sauvegarde et sécurité</h3><p class="desc">Exportez régulièrement une copie JSON pour ne pas perdre les données de cet appareil.</p><div class="actions"><button class="soft" id="backupBtn">Télécharger une sauvegarde</button><label class="soft" style="display:inline-flex;align-items:center;cursor:pointer;padding:10px 14px;border-radius:10px;font-weight:650">Restaurer une sauvegarde<input id="restoreInput" type="file" accept=".json,application/json" hidden></label><button class="danger" id="resetBtn">Réinitialiser les données</button></div><p class="muted" style="font-size:.8rem;margin-top:12px">Attention : dans cette version, les comptes et codes sont stockés dans le navigateur. Ce n'est pas une authentification sécurisée pour un déploiement public.</p></div>
   </section>
-  <footer class="muted" style="text-align:center;font-size:.8rem;padding:8px 0 20px">AMA Company · Planning des interventions</footer>
+  
 </main></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -1252,7 +1248,7 @@ function renderDashboard(){
    if(an!==bn)return an?-1:1;
   }
   return a.date.localeCompare(b.date);
- }).slice(0,6);
+ }).slice(0,session.role==='admin'?3:6);
  const nextCard=$('#amaNextMission');
  if(nextCard){
   nextCard.classList.toggle('hidden',session.role==='admin');
@@ -2244,6 +2240,38 @@ new MutationObserver(()=>{if(!modal.hidden){load();if(typeof refreshNotification
  const app=document.getElementById('app');if(app)new MutationObserver(update).observe(app,{attributes:true,attributeFilter:['hidden']});
  document.addEventListener('click',()=>setTimeout(update,0));
  setTimeout(update,400);
+})();
+</script>
+
+<style id="ama-admin-final-home">
+/* Admin-only presentation, preserving worker layout and business logic. */
+body:not(.ama-worker) #tab-dashboard .ama-admin-program{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 15px;padding:0 2px;color:#315a72;font-size:14px;font-weight:600}
+.ama-program-button{background:#e4f0ed;color:#237b69;border:0;border-radius:12px;padding:11px 15px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ama-program-button:hover{background:#d5e8e3}
+body.ama-worker #amaQuickActions{display:none!important}
+body:not(.ama-worker) #tab-dashboard .ama-ca-home-mini{margin:0 0 16px}
+body:not(.ama-worker) #tab-dashboard .dashboard-grid{display:flex;flex-direction:column;gap:16px}
+body:not(.ama-worker) #tab-dashboard .dashboard-main{width:100%;min-width:0}
+body:not(.ama-worker) #tab-dashboard .dashboard-side{width:100%;min-width:0}
+body:not(.ama-worker) #tab-dashboard .dashboard-main .section-title{align-items:center;gap:12px}
+body:not(.ama-worker) #tab-dashboard .dashboard-main .section-title .soft.mini{background:#e4f0ed;color:#237b69;border:0;border-radius:12px}
+body:not(.ama-worker) #tab-dashboard .dashboard-main .dash-table .dash-row:nth-of-type(n+5){display:none}
+body:not(.ama-worker) #tab-dashboard .ama-home-signature{margin:20px 0 10px}
+@media(max-width:600px){body:not(.ama-worker) #tab-dashboard .ama-admin-program{font-size:13px} .ama-program-button{padding:10px 12px}body:not(.ama-worker) #tab-dashboard .dashboard-main .section-title{flex-wrap:wrap}}
+</style>
+<script id="ama-admin-final-home-script">
+(function(){
+ const btn=document.getElementById('amaHomeProgram');
+ if(!btn)return;
+ btn.addEventListener('click',()=>{
+  // The existing quick-actions listener switches to Planning first.
+  requestAnimationFrame(()=>{
+   const open=document.getElementById('amaOpenMissionForm');
+   const card=document.getElementById('createMissionCard');
+   if(card&&card.classList.contains('ama-mission-form-collapsed'))open?.click();
+   setTimeout(()=>card?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+  });
+ });
 })();
 </script>
 </body>
