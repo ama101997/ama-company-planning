@@ -481,7 +481,25 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 .ama-planning-symbol svg,.ama-heading-icon svg{display:block!important;width:23px!important;height:23px!important;min-width:23px!important;stroke:#398B7B!important;stroke-width:1.9!important;fill:none!important;opacity:1!important;visibility:visible!important}
 .ama-icon-heading{display:flex!important;align-items:center!important;gap:11px!important}
 .ama-revenue-panel .section-title h3:before{display:none!important;content:none!important}
-</style></head>
+</style><style id="ama-profile-compact-2026">
+.ama-account-dialog{width:min(470px,100%);padding:22px!important;border-radius:23px!important}
+.ama-account-dialog>p{margin-bottom:17px!important}
+.ama-profile-preview{display:flex;align-items:center;gap:15px;padding:13px;background:#f4f8f9;border:1px solid #e5edef;border-radius:17px;margin:0 0 16px}
+.ama-profile-photo-wrap{position:relative;flex:0 0 70px;width:70px;height:70px;border-radius:50%;background:#e2eee9;border:3px solid #fff;box-shadow:0 2px 12px #28485b12;display:flex;align-items:center;justify-content:center;color:#398b7b;font-weight:750;font-size:21px;overflow:visible}
+.ama-profile-photo-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.ama-profile-photo-wrap img[hidden],.ama-profile-photo-wrap span[hidden]{display:none!important}
+.ama-profile-camera{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#398b7b;color:white;font-size:13px;border:2px solid white}
+.ama-profile-intro{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+.ama-profile-intro strong{color:#294b5c;font-size:16px;overflow-wrap:anywhere}
+.ama-profile-intro span{color:#8195a0;font-size:12px}
+.ama-profile-change{background:transparent!important;border:0!important;color:#398b7b!important;padding:3px 0!important;font-size:12px!important;font-weight:750!important;text-align:left}
+.ama-avatar-heading{margin:8px 0 12px!important;color:#315a72}
+.ama-account-dialog .ama-account-photo{display:flex;justify-content:center;width:100%;margin:14px 0 8px;padding:11px!important;border-radius:12px!important;font-weight:700}
+.ama-account-dialog .ama-avatar-grid{margin-bottom:4px}
+.ama-account-dialog input{background:#f8fafb}
+@media(max-width:480px){#amaAccountModal{padding:12px!important}.ama-account-dialog{padding:17px!important;max-height:calc(100dvh - 35px)!important}.ama-profile-preview{gap:11px;padding:11px}.ama-profile-photo-wrap{flex-basis:62px;width:62px;height:62px}}
+</style>
+</head>
 <body>
 <div id="loginScreen" class="login-screen">
   <form class="login" id="loginForm">
@@ -1314,8 +1332,12 @@ fillSelects();
 <div id="amaAccountModal" hidden role="dialog" aria-modal="true" aria-labelledby="amaAccountTitle">
   <div class="ama-account-dialog">
     <h2 id="amaAccountTitle">Paramètres du compte</h2><p>Modifiez vos informations personnelles.</p>
+    <div class="ama-profile-preview" aria-label="Photo actuelle du compte">
+      <div class="ama-profile-photo-wrap"><img id="amaProfilePreviewImg" alt="Photo de profil actuelle" hidden><span id="amaProfilePreviewFallback" aria-hidden="true">AM</span><span class="ama-profile-camera" aria-hidden="true">✎</span></div>
+      <div class="ama-profile-intro"><strong id="amaProfilePreviewName">Mon profil</strong><span id="amaProfilePreviewRole">Photo de profil actuelle</span><button type="button" id="amaProfilePreviewChange" class="ama-profile-change">Modifier la photo</button></div>
+    </div>
     <div class="ama-avatar-chooser">
-    <div class="ama-avatar-heading">Choisir un avatar</div>
+    <div class="ama-avatar-heading">Avatars disponibles</div>
     <div class="ama-avatar-grid" id="amaAvatarGallery" role="group" aria-label="Avatars prédéfinis"></div>
     <div class="ama-avatar-status" id="amaAvatarStatus" role="status" aria-live="polite"></div>
   </div>
@@ -1341,14 +1363,23 @@ fillSelects();
  const match=scripts.match(/createClient\(\s*['"]https:\/\/bleixaoiyoxvatsimkrw\.supabase\.co['"]\s*,\s*['"]([^'"]+)['"]/);
  const client=sup&&match?sup.createClient('https://bleixaoiyoxvatsimkrw.supabase.co',match[1]):null;
  const status=$('amaAccountStatus');
+ function updateProfilePreview(url,name,role){
+   const img=$('amaProfilePreviewImg'),fallback=$('amaProfilePreviewFallback');
+   if(!img||!fallback)return;
+   if(name){$('amaProfilePreviewName').textContent=name;fallback.textContent=name.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'AM'}
+   if(role)$('amaProfilePreviewRole').textContent=role==='admin'?'Administrateur':'Intervenant';
+   if(url){img.src=url;img.hidden=false;fallback.hidden=true}else{img.hidden=true;img.removeAttribute('src');fallback.hidden=false}
+ }
+ window.amaUpdateProfilePreview=updateProfilePreview;
  function close(){menu.hidden=true;avatar?.setAttribute('aria-expanded','false')}
  async function openSettings(){
    close();if(!client){alert('Supabase indisponible.');return}
    const {data:{user},error}=await client.auth.getUser();if(error||!user){alert('Session expirée.');return}
-   const {data:p}=await client.from('profiles').select('full_name,phone,role').eq('id',user.id).maybeSingle();
+   const {data:p}=await client.from('profiles').select('full_name,phone,role,avatar_url').eq('id',user.id).maybeSingle();
    $('amaAccountFullName').value=p?.full_name||user.user_metadata?.full_name||'';
    $('amaAccountPhone').value=p?.phone||user.user_metadata?.phone||'';
    $('amaAccountNewEmail').value=user.email||''; $('amaAccountFullName').defaultValue=$('amaAccountFullName').value;
+   updateProfilePreview(window.amaAvatarSrc?.(p?.avatar_url||'')||'',p?.full_name||user.user_metadata?.full_name||user.email||'Mon profil',p?.role||'intervenant');
    modal.dataset.role=p?.role||'intervenant';
    const restricted=modal.dataset.role!=='admin';
    $('amaAccountFullName').readOnly=restricted;
@@ -1360,7 +1391,8 @@ fillSelects();
  $('amaOpenSettings').addEventListener('click',openSettings);
  $('amaCloseSettings').addEventListener('click',()=>modal.hidden=true);
  modal.addEventListener('click',e=>{if(e.target===modal)modal.hidden=true});
- $('amaChangePhoto').addEventListener('click',()=>{modal.hidden=true;$('amaAvatarInput')?.click()});
+ $('amaChangePhoto').addEventListener('click',()=>$('amaAvatarInput')?.click());
+ $('amaProfilePreviewChange').addEventListener('click',()=>$('amaAvatarInput')?.click());
  $('amaMenuLogout').addEventListener('click',()=>{close();$('logoutBtn')?.click()});
  document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)&&!avatar?.contains(e.target))close()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){close();modal.hidden=true}});
@@ -1597,6 +1629,7 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="${bg}"/><g fill="none" stroke="${fg}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${shape}</g></svg>`;
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
  }
+ window.amaAvatarSrc=amaAvatarSrc;
  const avatarButton=byId('amaAvatarButton'),avatarInput=byId('amaAvatarInput'),avatarImg=byId('amaAvatarImg'),initials=byId('amaAvatarInitials');
  let selectedProfile=null;let pictureUrls=new Map();
  // Réutiliser la session Supabase déjà présente dans l'application, sans nouvelle connexion.
@@ -1619,6 +1652,7 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
   const p=rows?.[0];if(!p)return;
   initials.textContent=(p.full_name||user.email||'AM').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
   if(p.avatar_url){avatarImg.src=amaAvatarSrc(p.avatar_url);avatarImg.classList.remove('hidden')}else{avatarImg.classList.add('hidden');avatarImg.removeAttribute('src')}
+  window.amaUpdateProfilePreview?.(p.avatar_url?amaAvatarSrc(p.avatar_url):'',p.full_name||user.email||'Mon profil');
  }
  avatarButton?.addEventListener('click',()=>{selectedProfile=null;const menu=document.getElementById('amaAccountMenu');if(menu){menu.hidden=!menu.hidden;avatarButton.setAttribute('aria-expanded',String(!menu.hidden));}});
  const avatarGallery=byId('amaAvatarGallery'),avatarStatus=byId('amaAvatarStatus');
@@ -1631,6 +1665,8 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
    image.style.cssText='width:100%;height:100%;display:block;border-radius:50%';
    button.appendChild(image);
    button.addEventListener('click',async()=>{
+    const priorSrc=document.getElementById('amaProfilePreviewImg')?.getAttribute('src')||'';
+    window.amaUpdateProfilePreview?.(amaAvatarSrc('ama-avatar://'+(i+1)));
     button.disabled=true;avatarStatus.textContent='Enregistrement de l’avatar…';
     try{
      const c=await photoClient();if(!c)throw Error('Supabase indisponible');
@@ -1640,7 +1676,7 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
      avatarGallery.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
      avatarStatus.textContent='Avatar enregistré.';
      await refreshAvatar();
-    }catch(e){avatarStatus.textContent='Erreur : '+(e.message||e)+'. Exécutez la migration avatars dans Supabase.'}
+    }catch(e){window.amaUpdateProfilePreview?.(priorSrc);avatarStatus.textContent='Erreur : '+(e.message||e)+'. Exécutez la migration avatars dans Supabase.'}
     finally{button.disabled=false}
    });
    avatarGallery.appendChild(button);
@@ -1649,6 +1685,10 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
  avatarInput?.addEventListener('change',async()=>{
   const file=avatarInput.files?.[0];if(!file)return;
   if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>3*1024*1024){alert('Choisissez une image JPG, PNG ou WebP de 3 Mo maximum.');avatarInput.value='';return}
+  const priorPhoto=document.getElementById('amaProfilePreviewImg')?.getAttribute('src')||'';
+  const ownPhoto=!selectedProfile;
+  const previewObject=ownPhoto?URL.createObjectURL(file):null;
+  if(previewObject)window.amaUpdateProfilePreview?.(previewObject);
   avatarButton.disabled=true;
   try{
    const client=await photoClient();if(!client)throw Error('Connexion Supabase indisponible.');
@@ -1661,7 +1701,7 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
    if(updated.error)throw updated.error;
    pictureUrls.set(target,url.publicUrl);
    if(target===user.id)await refreshAvatar();else updateWorkerPictures();
-  }catch(e){alert('Photo non enregistrée : '+(e.message||e)+'\nVérifiez la configuration SQL du dossier.')}finally{avatarButton.disabled=false;avatarInput.value='';selectedProfile=null}
+  }catch(e){if(ownPhoto)window.amaUpdateProfilePreview?.(priorPhoto);alert('Photo non enregistrée : '+(e.message||e)+'\nVérifiez la configuration SQL du dossier.')}finally{if(previewObject)URL.revokeObjectURL(previewObject);avatarButton.disabled=false;avatarInput.value='';selectedProfile=null}
  });
  const workerList=byId('workerList');let busy=false;
  async function fetchWorkerPictures(){if(byId('app')?.hidden||!workerList)return;const c=await photoClient();if(!c)return;const {data,error}=await c.from('profiles').select('id,avatar_url');if(!error){pictureUrls=new Map((data||[]).filter(p=>p.avatar_url).map(p=>[p.id,p.avatar_url]));updateWorkerPictures()}}
