@@ -571,6 +571,29 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 .ama-password-submit:disabled{opacity:.65;cursor:wait}
 #amaPasswordStatus{font-size:12px;line-height:1.4;color:#446b7b}
 </style>
+<style id="ama-notification-password-redesign">
+.ama-push-action{display:flex;align-items:center;gap:8px;padding:10px 2px 7px}
+.ama-push-action-copy{flex:1;min-width:0}.ama-push-action-copy strong{font-size:13px;color:#315a72;display:block}
+.ama-push-action-copy small{display:block;font-size:11px;color:#8196a0;margin-top:3px;line-height:1.4}
+.ama-push-enable{width:auto!important;margin:0!important;padding:8px 14px!important;border-radius:99px!important;font-size:12px!important}
+.ama-push-help-toggle{width:29px;height:29px;border:1px solid #c9dfd7;border-radius:50%;background:#eaf4ef;color:#398b7b;font-size:15px;font-weight:700;flex:none}
+.ama-push-active-check{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:#e5f4eb;color:#398b7b;font-weight:800}
+.ama-push-help[hidden],.ama-push-enable[hidden],.ama-push-help-toggle[hidden],.ama-push-active-check[hidden],#amaPasswordVerify[hidden],#amaPasswordChange[hidden]{display:none!important}
+.ama-push-help{margin:8px 0 4px;background:#fff;border:1px solid #e0eae7;border-radius:12px;padding:12px}
+.ama-push-help-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#315a72;font-size:12px}
+.ama-push-help-heading button{border:0;background:transparent;color:#718b96;font-size:23px}
+.ama-push-help-tabs{display:flex;gap:5px;margin:10px 0}.ama-push-help-tabs button{flex:1;padding:8px;border-radius:8px;border:1px solid #dce8e5;background:#fff;color:#52707b;font-size:12px}
+.ama-push-help-tabs button[aria-pressed=true]{background:#e6f3ed;color:#317b67;border-color:#b7dcd0;font-weight:700}
+.ama-push-help ol{padding-left:18px;margin:8px 0 2px;color:#607d88;font-size:12px;line-height:1.6}
+.ama-password-section{margin:16px 0 12px!important}
+#amaPasswordPanel{background:#f7faf9;border-radius:12px;padding:13px!important;margin-top:8px}
+#amaPasswordVerify,#amaPasswordChange{display:grid;gap:9px}
+#amaPasswordVerify strong,#amaPasswordChange strong{color:#315a72;font-size:13px}
+#amaPasswordVerify p{color:#8196a0;font-size:12px;margin:0}
+#amaPasswordVerify label,#amaPasswordChange label:not(.ama-password-show){font-size:12px;font-weight:600;color:#496877}
+#amaPasswordVerify input,#amaPasswordChange>input{width:100%;box-sizing:border-box;border:1px solid #dce8e6;border-radius:10px;padding:11px 12px;font-size:14px;background:#fff;color:#315a72}
+.ama-password-actions{display:flex;gap:8px;margin-top:4px}.ama-password-actions button{flex:1;margin:0!important;font-size:12px!important}
+</style>
 </head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
@@ -1498,18 +1521,17 @@ fillSelects();
   <button type="button" class="ama-account-photo" id="amaChangePhoto">Importer ma propre photo</button>
     <section class="ama-push-settings" aria-labelledby="amaPushTitle">
       <div class="ama-push-heading"><span class="ama-push-bell" aria-hidden="true">🔔</span><div><strong id="amaPushTitle">Notifications</strong><small id="amaPushSubtitle" hidden></small></div></div>
-      <div id="amaPushWorkerIntro" class="ama-push-worker-intro" hidden>
-        <div class="ama-push-worker-icon" aria-hidden="true">🔔</div>
-        <strong>Ne manquez aucune mission</strong>
-        <p>Recevez les nouvelles missions, les modifications de planning et les rappels importants.</p>
+      <div class="ama-push-action" id="amaPushAction">
+        <div class="ama-push-action-copy"><strong id="amaPushDeviceTitle">Vérification…</strong><small id="amaPushStatus" role="status" aria-live="polite"></small></div>
+        <button type="button" id="amaPushEnable" class="ama-push-enable">Activer</button>
+        <button type="button" id="amaPushHelpToggle" class="ama-push-help-toggle" aria-label="Comment activer les notifications ?" aria-expanded="false" aria-controls="amaPushHelp" hidden>?</button>
+        <span id="amaPushActiveCheck" class="ama-push-active-check" hidden aria-hidden="true">✓</span>
       </div>
-      <div id="amaPushDevice" class="ama-push-device">
-        <span class="ama-push-device-icon" aria-hidden="true">✓</span>
-        <div><strong id="amaPushDeviceTitle">Vérification des notifications…</strong>
-        <p id="amaPushStatus" class="ama-push-status" role="status" aria-live="polite">Vérification des autorisations…</p></div>
+      <div id="amaPushHelp" class="ama-push-help" hidden>
+        <div class="ama-push-help-heading"><strong>Comment activer les notifications ?</strong><button type="button" id="amaPushHelpClose" aria-label="Fermer l’aide">×</button></div>
+        <div class="ama-push-help-tabs"><button type="button" data-ama-platform="ios" aria-pressed="true">iPhone</button><button type="button" data-ama-platform="android" aria-pressed="false">Android</button></div>
+        <ol id="amaPushHelpSteps"></ol>
       </div>
-      <button type="button" id="amaPushEnable" class="ama-push-enable">Activer les notifications</button>
-      <div id="amaPushHelp" class="ama-push-help" hidden></div>
       <div id="amaPushAdminChoices" class="ama-push-choices" hidden>
         <label><i class="ama-push-pref-icon" aria-hidden="true">✓</i><span><b>Missions réalisées</b><small>Validation des interventions</small></span><input type="checkbox" data-ama-push-pref="completed" checked><span class="ama-pref-pill" aria-hidden="true"></span></label>
         <label><i class="ama-push-pref-icon" aria-hidden="true">⇄</i><span><b>Modifications d’équipe</b><small>Transfert, fusion ou report</small></span><input type="checkbox" data-ama-push-pref="planning" checked><span class="ama-pref-pill" aria-hidden="true"></span></label>
@@ -1521,22 +1543,32 @@ fillSelects();
       <label for="amaAccountPhone">Téléphone</label><input id="amaAccountPhone" type="tel" autocomplete="tel" maxlength="35" placeholder="Votre numéro de téléphone">
       <label for="amaAccountNewEmail">Adresse e-mail</label><input id="amaAccountNewEmail" type="email" autocomplete="email" required>
       <div id="amaAccountStatus" role="status" aria-live="polite"></div>
-      <div class="ama-account-buttons"><button type="button" class="ghost" id="amaCloseSettings">Annuler</button><button type="submit" class="ama-account-save">Enregistrer</button></div>
-    </form>
     <section class="ama-password-section" aria-labelledby="amaPasswordHeading">
       <button type="button" id="amaPasswordToggle" class="ama-password-toggle" aria-expanded="false" aria-controls="amaPasswordPanel">
         <span class="ama-password-lock" aria-hidden="true">♙</span><span><strong id="amaPasswordHeading">Modifier mon mot de passe</strong><small>Sécurité du compte</small></span><span class="ama-password-chevron" aria-hidden="true">›</span>
       </button>
-      <form id="amaPasswordPanel" hidden autocomplete="off">
+      <div id="amaPasswordPanel" hidden>
+        <div id="amaPasswordVerify">
+          <strong>Vérifiez votre identité</strong><p>Saisissez votre mot de passe actuel pour continuer.</p>
+          <label for="amaPasswordOld">Mot de passe actuel</label>
+          <input id="amaPasswordOld" type="password" autocomplete="current-password" placeholder="Mot de passe actuel">
+          <div class="ama-password-actions"><button type="button" class="ghost" id="amaPasswordCancelVerify">Annuler</button><button type="button" id="amaPasswordVerifyButton" class="ama-password-submit">Continuer</button></div>
+        </div>
+        <div id="amaPasswordChange" hidden>
+        <strong>Nouveau mot de passe</strong>
         <label for="amaPasswordNew">Nouveau mot de passe</label>
         <input id="amaPasswordNew" type="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="8 caractères minimum" required>
         <label for="amaPasswordConfirm">Confirmer le mot de passe</label>
         <input id="amaPasswordConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="Confirmer le mot de passe" required>
         <label class="ama-password-show"><input type="checkbox" id="amaPasswordReveal"> Afficher les mots de passe</label>
+        <div class="ama-password-actions"><button type="button" class="ghost" id="amaPasswordCancelChange">Annuler</button><button type="button" id="amaPasswordSubmit" class="ama-password-submit">Enregistrer</button></div>
+        </div>
         <div id="amaPasswordStatus" role="status" aria-live="polite"></div>
-        <button type="submit" class="ama-password-submit">Enregistrer le nouveau mot de passe</button>
-      </form>
+      </div>
     </section>
+      <div class="ama-account-buttons"><button type="button" class="ghost" id="amaCloseSettings">Annuler</button><button type="submit" class="ama-account-save">Enregistrer</button></div>
+    </form>
+
   </div>
 </div>
 
@@ -1676,71 +1708,56 @@ const legacyNotificationButton = document.getElementById('activer-notifications'
 if (legacyNotificationButton) legacyNotificationButton.style.display = 'none';
 
 // Le bouton n'apparaît que si cet appareil n'est pas encore abonné.
+const amaPushHelpToggle=document.getElementById('amaPushHelpToggle');
+const amaPushHelp=document.getElementById('amaPushHelp');
+const amaPushHelpSteps=document.getElementById('amaPushHelpSteps');
+const amaPushGuides={
+ ios:['Ouvrez AMA Planning dans Safari.','Touchez Partager, puis « Sur l’écran d’accueil » et Ajouter.','Ouvrez AMA Planning depuis son icône sur l’écran d’accueil.','Touchez « Activer » et autorisez les notifications.'],
+ android:['Ouvrez AMA Planning dans Chrome.','Installez l’application depuis le menu Chrome si nécessaire.','Touchez « Activer » et autorisez les notifications.','En cas de refus, vérifiez les autorisations dans les réglages Android.']
+};
+function amaPushShowGuide(platform){
+ amaPushHelpSteps.replaceChildren(...amaPushGuides[platform].map(step=>{const li=document.createElement('li');li.textContent=step;return li}));
+ document.querySelectorAll('[data-ama-platform]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.amaPlatform===platform)));
+}
+amaPushShowGuide('ios');
+document.querySelectorAll('[data-ama-platform]').forEach(b=>b.addEventListener('click',()=>amaPushShowGuide(b.dataset.amaPlatform)));
+amaPushHelpToggle.addEventListener('click',()=>{amaPushHelp.hidden=!amaPushHelp.hidden;amaPushHelpToggle.setAttribute('aria-expanded',String(!amaPushHelp.hidden))});
+document.getElementById('amaPushHelpClose').addEventListener('click',()=>{amaPushHelp.hidden=true;amaPushHelpToggle.setAttribute('aria-expanded','false')});
 function amaPushUpdateRole(){
-  const isAdmin=document.getElementById('amaAccountModal')?.dataset.role==='admin';
-  document.getElementById('amaPushAdminChoices').hidden=!isAdmin;
-  document.getElementById('amaPushSubtitle').hidden=true;
-  refreshNotificationButton();
+ const isAdmin=document.getElementById('amaAccountModal')?.dataset.role==='admin';
+ document.getElementById('amaPushAdminChoices').hidden=!isAdmin;
+ refreshNotificationButton();
 }
 window.amaPushUpdateRole=amaPushUpdateRole;
-async function refreshNotificationButton() {
-  const modal=document.getElementById('amaAccountModal');
-  const isAdmin=modal?.dataset.role==='admin';
-  const status=document.getElementById('amaPushStatus');
-  const title=document.getElementById('amaPushDeviceTitle');
-  const help=document.getElementById('amaPushHelp');
-  const intro=document.getElementById('amaPushWorkerIntro');
-  const device=document.getElementById('amaPushDevice');
-  const setState=(heading,message,button,helpText='',active=false)=>{
-    title.textContent=heading;
-    status.textContent=message;
-    notificationButton.hidden=!button;
-    notificationButton.disabled=false;
-    notificationButton.textContent=isAdmin?'Activer les notifications':'Activer les notifications';
-    help.hidden=!helpText;
-    help.textContent=helpText;
-    // Intervenant : après activation, la grande carte disparaît et laisse un statut discret.
-    intro.hidden=isAdmin||active||!button;
-    device.classList.toggle('ama-push-worker-active',!isAdmin&&active);
-    device.hidden=!isAdmin&&!active&&button;
-  };
-  try {
-    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||
-      (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-    const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-    if(isIOS&&!standalone){
-      setState('Ouvert dans Safari',
-        'Pour activer les alertes, ouvrez AMA Planning depuis son icône sur l’écran d’accueil.',false);
-      return;
-    }
-    if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
-      setState('Notifications indisponibles',
-        'Cet appareil ou navigateur ne prend pas en charge les notifications push.',false);
-      return;
-    }
-    if(Notification.permission==='denied'){
-      setState('Notifications désactivées',
-        'L’autorisation a été refusée.',false,
-        'Sur iPhone : Réglages → Notifications → AMA Planning → Autoriser les notifications, si l’application y figure.');
-      return;
-    }
-    if(Notification.permission==='granted'){
-      const registration=await navigator.serviceWorker.ready;
-      const subscription=await registration.pushManager.getSubscription();
-      if(subscription){
-        setState('Notifications activées',
-          isAdmin?'Cet appareil est autorisé et abonné.':'Vous recevrez les alertes de vos missions.',false,'',true);
-        return;
-      }
-      setState('Autorisation accordée','Finalisez l’abonnement pour recevoir les alertes.',true);
-      return;
-    }
-    setState('Prêt à activer',
-      'Autorisez les alertes pour recevoir les informations importantes de vos missions.',true);
-  }catch(error){
-    console.warn('État des notifications indisponible :',error);
-    setState('État indisponible','Impossible de vérifier les notifications pour le moment.',true);
+async function refreshNotificationButton(){
+ const title=document.getElementById('amaPushDeviceTitle');
+ const status=document.getElementById('amaPushStatus');
+ const check=document.getElementById('amaPushActiveCheck');
+ const render=(active,available,description='')=>{
+   title.textContent=active?'Notifications activées':'Activer les notifications';
+   status.textContent=description;
+   notificationButton.hidden=active||!available;
+   notificationButton.disabled=false;
+   notificationButton.textContent='Activer';
+   check.hidden=!active;
+   amaPushHelpToggle.hidden=active;
+   if(active){amaPushHelp.hidden=true;amaPushHelpToggle.setAttribute('aria-expanded','false')}
+ };
+ try{
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  if(isIOS&&!standalone){render(false,false,'Ouvrez l’application depuis l’écran d’accueil');return}
+  if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
+    render(false,false,'Notifications non disponibles sur ce navigateur');return;
   }
+  if(Notification.permission==='denied'){render(false,false,'Autorisation refusée : consultez l’aide');return}
+  if(Notification.permission==='granted'){
+   const registration=await navigator.serviceWorker.ready;
+   if(await registration.pushManager.getSubscription()){render(true,false);return}
+   render(false,true,'Abonnement à terminer');return;
+  }
+  render(false,true);
+ }catch(e){console.warn('Notifications :',e);render(false,false,'État indisponible')}
 }
 window.addEventListener('load', refreshNotificationButton);
 window.addEventListener('pageshow', refreshNotificationButton);
@@ -1979,31 +1996,55 @@ new MutationObserver(()=>{if(!modal.hidden){load();if(typeof refreshNotification
 </script>
 <script id="ama-account-password-change">
 (()=>{'use strict';
- const byId=id=>document.getElementById(id);
- const toggle=byId('amaPasswordToggle'),panel=byId('amaPasswordPanel'),status=byId('amaPasswordStatus');
- const newer=byId('amaPasswordNew'),confirm=byId('amaPasswordConfirm'),reveal=byId('amaPasswordReveal');
- toggle.addEventListener('click',()=>{
-   const opening=panel.hidden;panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
-   if(opening)newer.focus();else{panel.reset();status.textContent=''}
- });
+ const $=id=>document.getElementById(id);
+ const toggle=$('amaPasswordToggle'),panel=$('amaPasswordPanel'),verify=$('amaPasswordVerify'),change=$('amaPasswordChange');
+ const old=$('amaPasswordOld'),newer=$('amaPasswordNew'),confirm=$('amaPasswordConfirm'),status=$('amaPasswordStatus'),reveal=$('amaPasswordReveal');
+ const verifyButton=$('amaPasswordVerifyButton'),submit=$('amaPasswordSubmit');
+ let verified=false,busy=false;
+ const SUPABASE_URL='https://bleixaoiyoxvatsimkrw.supabase.co';
+ const SUPABASE_KEY='sb_publishable_cUhSkP5GpURWVSme6GMVzA_6L3Gl9tm';
+ function reset(){verified=false;old.value='';newer.value='';confirm.value='';reveal.checked=false;old.type=newer.type=confirm.type='password';status.textContent='';verify.hidden=false;change.hidden=true}
+ function close(){panel.hidden=true;toggle.setAttribute('aria-expanded','false');reset()}
+ toggle.addEventListener('click',()=>{if(!panel.hidden){close();return}reset();panel.hidden=false;toggle.setAttribute('aria-expanded','true');old.focus()});
+ $('amaPasswordCancelVerify').addEventListener('click',close);
+ $('amaPasswordCancelChange').addEventListener('click',close);
  reveal.addEventListener('change',()=>{newer.type=confirm.type=reveal.checked?'text':'password'});
- panel.addEventListener('submit',async e=>{
-   e.preventDefault();status.textContent='';
-   if(newer.value.length<8){status.textContent='Utilisez au moins 8 caractères.';return}
-   if(newer.value!==confirm.value){status.textContent='Les mots de passe ne correspondent pas.';return}
-   const submit=panel.querySelector('[type="submit"]');submit.disabled=true;
-   try{
-     const sup=window.supabase;
-     const client=sup?.createClient('https://bleixaoiyoxvatsimkrw.supabase.co','sb_publishable_cUhSkP5GpURWVSme6GMVzA_6L3Gl9tm');
-     if(!client)throw Error('Connexion Supabase indisponible.');
-     const {data:{user},error:userError}=await client.auth.getUser();
-     if(userError||!user)throw Error('Session expirée. Reconnectez-vous.');
-     const {error}=await client.auth.updateUser({password:newer.value});
-     if(error)throw error;
-     panel.reset();newer.type=confirm.type='password';
-     status.textContent='Mot de passe modifié avec succès.';
-   }catch(error){status.textContent=error.message||'Impossible de modifier le mot de passe.'}
-   finally{submit.disabled=false}
+ verifyButton.addEventListener('click',async()=>{
+  if(busy)return;
+  status.textContent='';
+  if(!old.value){status.textContent='Saisissez votre mot de passe actuel.';return}
+  busy=true;verifyButton.disabled=true;
+  try{
+   if(!window.supabase?.createClient)throw Error('Supabase indisponible.');
+   const primary=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+   const {data:{user},error:userError}=await primary.auth.getUser();
+   if(userError||!user?.email)throw Error('Session expirée. Reconnectez-vous.');
+   // Client éphémère : la vérification ne remplace pas la session connectée.
+   const verifier=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+   const {data,error}=await verifier.auth.signInWithPassword({email:user.email,password:old.value});
+   if(error||data?.user?.id!==user.id)throw Error('Mot de passe actuel incorrect.');
+   await verifier.auth.signOut();
+   verified=true;old.value='';verify.hidden=true;change.hidden=false;newer.focus();
+  }catch(e){status.textContent=e.message||'Vérification impossible.'}
+  finally{busy=false;verifyButton.disabled=false}
+ });
+ submit.addEventListener('click',async()=>{
+  if(busy||!verified)return;
+  status.textContent='';
+  if(newer.value.length<8){status.textContent='Utilisez au moins 8 caractères.';return}
+  if(newer.value!==confirm.value){status.textContent='Les mots de passe ne correspondent pas.';return}
+  busy=true;submit.disabled=true;
+  try{
+   const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+   const {data:{user},error:userError}=await client.auth.getUser();
+   if(userError||!user)throw Error('Session expirée. Reconnectez-vous.');
+   const {error}=await client.auth.updateUser({password:newer.value});
+   if(error)throw error;
+   close();
+   // Confirmation hors du panneau fermé.
+   toggle.querySelector('small').textContent='Mot de passe modifié avec succès';
+  }catch(e){status.textContent=e.message||'Impossible de modifier le mot de passe.'}
+  finally{busy=false;submit.disabled=false}
  });
 })();
 </script>
