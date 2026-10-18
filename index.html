@@ -594,6 +594,32 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 #amaPasswordVerify input,#amaPasswordChange>input{width:100%;box-sizing:border-box;border:1px solid #dce8e6;border-radius:10px;padding:11px 12px;font-size:14px;background:#fff;color:#315a72}
 .ama-password-actions{display:flex;gap:8px;margin-top:4px}.ama-password-actions button{flex:1;margin:0!important;font-size:12px!important}
 </style>
+<style id="ama-final-unified-profile-styles">
+.ama-visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.ama-push-heading{display:none!important}
+#amaAccountForm>label{display:block;margin-top:11px}
+#amaAccountForm>input{width:100%;box-sizing:border-box;min-height:48px;border:1px solid #d6e3e7!important;border-radius:12px!important;background:#f5f8fa!important;color:#315a72;padding:12px 14px!important}
+#amaAccountForm>input[readonly]{color:#617b88!important;background:#f1f5f6!important;cursor:default}
+#amaAccountManagedHint{font-size:12px;color:#698592;margin:15px 0 8px}
+.ama-password-toggle{min-height:48px;background:#f5f8fa;border:1px solid #d6e3e7;border-radius:12px;padding:11px 13px}
+.ama-password-lock{width:auto;height:auto;background:transparent;font-size:18px}
+.ama-worker-card{cursor:pointer;align-items:center;border:1px solid #dce7e9;border-radius:16px;padding:15px!important;background:#fff}
+.ama-worker-card:focus-visible{outline:3px solid #398b7b;outline-offset:2px}
+.ama-worker-card small{font-size:11px;color:#8297a0}
+.ama-worker-chevron{font-size:27px;color:#91a4ab;margin-left:auto}
+.ama-worker-editor{background:#fff;border:1px solid #dce7e9;border-radius:16px;padding:17px;margin:14px 0}
+.ama-worker-editor[hidden]{display:none!important}
+.ama-worker-editor-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ama-worker-editor-head h3{margin:0;color:#315a72}
+.ama-worker-editor-head button{border:0;background:transparent;font-size:24px;color:#8196a0}
+#amaWorkerEditForm{display:grid;gap:8px}
+#amaWorkerEditForm>label{font-size:12px;color:#496877;font-weight:600;margin-top:6px}
+#amaWorkerEditForm>input{width:100%;min-height:48px;border:1px solid #d6e3e7;border-radius:12px;background:#f5f8fa;color:#315a72;padding:11px 13px;box-sizing:border-box}
+#amaWorkerEditForm>input[readonly]{background:#f1f5f6;color:#617b88}
+.ama-worker-email-help{color:#8297a0;font-size:11px;line-height:1.5}
+.ama-worker-reset{border:1px solid #d6e3e7;border-radius:12px;background:#f5f8fa;color:#315a72;padding:12px;text-align:left;margin-top:10px}
+#amaWorkerEditStatus{font-size:12px;color:#398b7b;min-height:1em}
+</style>
 </head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
@@ -715,6 +741,19 @@ body.ama-worker #tab-planning .grid{margin-top:0}
       <div class="card"><h3>👥 Comptes intervenants</h3><p class="desc">Créez un compte par personne. Communiquez son code en privé.</p>
         <form id="workerForm" class="formgrid"><div class="field"><label for="workerName">Nom complet *</label><input id="workerName" required placeholder="Ex. : Hafida"></div><div class="field"><label for="workerEmail">Adresse e-mail *</label><input id="workerEmail" type="email" required placeholder="intervenant@exemple.fr"></div><div class="field"><label for="workerPin">Mot de passe (géré dans Supabase) *</label><input id="workerPin" type="password" required minlength="4" maxlength="72" placeholder="4 caractères minimum"></div><div class="full"><button class="primary">＋ Ajouter l'intervenant</button></div></form>
         <div id="workerList" style="margin-top:15px"></div>
+      </div>
+      <div id="amaWorkerEditor" class="ama-worker-editor" hidden>
+        <div class="ama-worker-editor-head"><h3>Fiche intervenant</h3><button type="button" id="amaWorkerEditorClose" aria-label="Fermer">×</button></div>
+        <form id="amaWorkerEditForm">
+          <input type="hidden" id="amaWorkerEditId">
+          <label for="amaWorkerEditName">Nom complet</label><input id="amaWorkerEditName" required maxlength="120">
+          <label for="amaWorkerEditPhone">Téléphone</label><input id="amaWorkerEditPhone" type="tel" maxlength="35" placeholder="Numéro de téléphone">
+          <label for="amaWorkerEditEmail">Adresse e-mail actuelle</label><input id="amaWorkerEditEmail" type="email" readonly aria-readonly="true">
+          <small class="ama-worker-email-help">L'adresse de connexion est protégée par Supabase Auth. Sa modification nécessite une procédure administrateur sécurisée.</small>
+          <button type="button" class="ama-worker-reset" id="amaWorkerReset">Réinitialiser l'accès</button>
+          <p id="amaWorkerEditStatus" role="status" aria-live="polite"></p>
+          <div class="ama-account-buttons"><button type="button" class="ghost" id="amaWorkerCancel">Annuler</button><button type="submit" class="ama-account-save">Enregistrer</button></div>
+        </form>
       </div>
       <div class="card"><h3>🏢 Donneurs d’ordre</h3><p class="desc">Fiches clients privées, accessibles uniquement à l’administrateur.</p>
 <form id="clientForm" class="formgrid">
@@ -955,7 +994,7 @@ function renderOrderClients(){
  $('#clientList').innerHTML=orderClients.length?orderClients.map(c=>`<div class="mission"><div><strong>${esc(c.name)}</strong><p>${esc(c.billing_address||'Adresse non renseignée')}</p><p>${esc(c.email||'')}</p></div><div class="right"><button class="soft mini" data-client-edit="${esc(c.id)}">Modifier</button></div></div>`).join(''):'<div class="empty">Aucun donneur d’ordre enregistré.</div>';
 }
 function renderAdmin(){renderOrderClients();
- $('#workerList').innerHTML=activeWorkers().length?activeWorkers().map(u=>`<div class="mission"><div><strong>${esc(u.name)}</strong><p>${esc(u.email||'E-mail à renseigner')} · ${u.active===false?'Compte désactivé':'Compte actif'}</p></div><div class="inline"><button class="soft mini" data-action="pin" data-id="${esc(u.id)}">Réinitialiser accès</button><button class="danger mini" data-action="worker-delete" data-id="${esc(u.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun intervenant enregistré.</div>';
+ $('#workerList').innerHTML=activeWorkers().length?activeWorkers().map(u=>`<div class="mission ama-worker-card" data-worker-card="${esc(u.id)}" role="button" tabindex="0" aria-label="Ouvrir la fiche de ${esc(u.name)}"><div><strong>${esc(u.name)}</strong><p>${esc(u.email||'E-mail à renseigner')} · ${u.active===false?'Compte désactivé':'Compte actif'}</p><small>Voir et modifier les informations ›</small></div><div class="ama-worker-chevron" aria-hidden="true">›</div></div>`).join(''):'<div class="empty">Aucun intervenant enregistré.</div>';
    $('#apartmentList').innerHTML=activeApartments().length?activeApartments().map(a=>`<div class="mission"><div><strong>${esc(a.name)}</strong><p>⏱ ${hours(a.duration)} intervenant · 🏢 ${esc(orderClients.find(c=>c.id===a.clientId)?.name||'Client non attribué')} · 📊 ${hours(apartmentFinances.get(a.id)?.reference_hours??a.duration)} référence · ${euro(apartmentFinances.get(a.id)?.hourly_rate??0)}/h · 🛏️ ${Number(a.beds||0)} couchage(s)</p>${a.address?`<p>📍 ${esc(a.address)}</p>`:''}${a.access?`<p>🔑 ${esc(a.access)}</p>`:''}</div><div class="right"><button class="soft mini" data-action="apt-edit" data-id="${esc(a.id)}">✎ Modifier</button><button class="danger mini" data-action="apt-delete" data-id="${esc(a.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun logement enregistré.</div>';
 }
 async function loadNotifications(){
@@ -1438,6 +1477,46 @@ $('#tab-admin').addEventListener('click',e=>{const b=e.target.closest('[data-act
  }
  if(b.dataset.action==='apt-delete'&&a&&confirm(`Désactiver le logement ${a.name} ? Les missions passées seront conservées.`)){a.active=false;save();render()}
 });
+// Fiche intervenant : accès réservé à l'administrateur connecté.
+(function(){
+ const list=document.getElementById('workerList'),panel=document.getElementById('amaWorkerEditor');
+ if(!list||!panel)return;
+ const by=id=>document.getElementById(id);
+ const close=()=>{panel.hidden=true;by('amaWorkerEditStatus').textContent=''};
+ async function open(id){
+   if(!session||session.role!=='admin')return;
+   const u=userById(id);if(!u||u.role!=='worker')return;
+   by('amaWorkerEditId').value=id;
+   by('amaWorkerEditName').value=u.name||'';
+   by('amaWorkerEditPhone').value='';
+   by('amaWorkerEditEmail').value=u.email||'';
+   by('amaWorkerEditStatus').textContent='Chargement des informations…';
+   panel.hidden=false;panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+   try{
+     const {data:row,error}=await client.from('profiles').select('full_name,phone').eq('id',id).single();
+     if(error)throw error;
+     if(by('amaWorkerEditId').value===id){by('amaWorkerEditName').value=row.full_name||u.name||'';by('amaWorkerEditPhone').value=row.phone||'';by('amaWorkerEditStatus').textContent=''}
+   }catch(e){by('amaWorkerEditStatus').textContent='Informations complémentaires indisponibles : '+e.message}
+ }
+ list.addEventListener('click',e=>{if(e.target.closest('button'))return;const card=e.target.closest('[data-worker-card]');if(card)open(card.dataset.workerCard)});
+ list.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-worker-card]')){e.preventDefault();open(e.target.dataset.workerCard)}});
+ by('amaWorkerEditorClose').addEventListener('click',close);
+ by('amaWorkerCancel').addEventListener('click',close);
+ by('amaWorkerReset').addEventListener('click',()=>{by('amaWorkerEditStatus').textContent='Le mot de passe actuel ne peut pas être affiché. Utilisez la procédure « Mot de passe oublié ? » ou Supabase Authentication pour réinitialiser l’accès.'});
+ by('amaWorkerEditForm').addEventListener('submit',async e=>{
+   e.preventDefault();if(!session||session.role!=='admin')return;
+   const id=by('amaWorkerEditId').value,name=by('amaWorkerEditName').value.trim(),phone=by('amaWorkerEditPhone').value.trim(),status=by('amaWorkerEditStatus');
+   if(!name)return;
+   const btn=e.currentTarget.querySelector('[type=submit]');btn.disabled=true;status.textContent='Enregistrement…';
+   try{
+     const {error}=await client.from('profiles').update({full_name:name,phone}).eq('id',id);
+     if(error)throw error;
+     const u=userById(id);if(u)u.name=name;
+     status.textContent='Informations enregistrées.';render();
+   }catch(err){status.textContent='Enregistrement impossible : '+(err.message||err)}
+   finally{btn.disabled=false}
+ });
+})();
 function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`ama-planning-${today()}.json`;a.click();URL.revokeObjectURL(url)}
 $('#recoverAdmin').addEventListener('click',()=>{
  const panel=$('#resetEmailBox');panel.classList.toggle('hidden');
@@ -1520,7 +1599,7 @@ fillSelects();
   </div>
   <button type="button" class="ama-account-photo" id="amaChangePhoto">Importer ma propre photo</button>
     <section class="ama-push-settings" aria-labelledby="amaPushTitle">
-      <div class="ama-push-heading"><span class="ama-push-bell" aria-hidden="true">🔔</span><div><strong id="amaPushTitle">Notifications</strong><small id="amaPushSubtitle" hidden></small></div></div>
+      <span id="amaPushTitle" class="ama-visually-hidden">État des notifications</span>
       <div class="ama-push-action" id="amaPushAction">
         <div class="ama-push-action-copy"><strong id="amaPushDeviceTitle">Vérification…</strong><small id="amaPushStatus" role="status" aria-live="polite"></small></div>
         <button type="button" id="amaPushEnable" class="ama-push-enable">Activer</button>
@@ -1545,7 +1624,7 @@ fillSelects();
       <div id="amaAccountStatus" role="status" aria-live="polite"></div>
     <section class="ama-password-section" aria-labelledby="amaPasswordHeading">
       <button type="button" id="amaPasswordToggle" class="ama-password-toggle" aria-expanded="false" aria-controls="amaPasswordPanel">
-        <span class="ama-password-lock" aria-hidden="true">♙</span><span><strong id="amaPasswordHeading">Modifier mon mot de passe</strong><small>Sécurité du compte</small></span><span class="ama-password-chevron" aria-hidden="true">›</span>
+        <span class="ama-password-lock" aria-hidden="true">♙</span><span><strong id="amaPasswordHeading">Modifier mon mot de passe</strong></span><span class="ama-password-chevron" aria-hidden="true">›</span>
       </button>
       <div id="amaPasswordPanel" hidden>
         <div id="amaPasswordVerify">
@@ -1566,6 +1645,7 @@ fillSelects();
         <div id="amaPasswordStatus" role="status" aria-live="polite"></div>
       </div>
     </section>
+      <p id="amaAccountManagedHint" hidden>Le nom et l’adresse e-mail sont gérés par l’administrateur.</p>
       <div class="ama-account-buttons"><button type="button" class="ghost" id="amaCloseSettings">Annuler</button><button type="submit" class="ama-account-save">Enregistrer</button></div>
     </form>
 
@@ -1607,7 +1687,7 @@ fillSelects();
    $('amaAccountNewEmail').readOnly=restricted;
    $('amaAccountFullName').setAttribute('aria-readonly',String(restricted));
    $('amaAccountNewEmail').setAttribute('aria-readonly',String(restricted));
-   status.textContent=restricted?'Le nom et l’adresse e-mail sont gérés par l’administrateur.':'';modal.hidden=false;
+   status.textContent=''; $('amaAccountManagedHint').hidden=!restricted;modal.hidden=false;
  }
  $('amaOpenSettings').addEventListener('click',openSettings);
  $('amaCloseSettings').addEventListener('click',()=>modal.hidden=true);
@@ -1734,7 +1814,7 @@ async function refreshNotificationButton(){
  const status=document.getElementById('amaPushStatus');
  const check=document.getElementById('amaPushActiveCheck');
  const render=(active,available,description='')=>{
-   title.textContent=active?'Notifications activées':'Activer les notifications';
+   title.textContent=active?'Notifications activées':'Notifications désactivées';
    status.textContent=description;
    notificationButton.hidden=active||!available;
    notificationButton.disabled=false;
@@ -1967,7 +2047,7 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
  });
  const workerList=byId('workerList');let busy=false;
  async function fetchWorkerPictures(){if(byId('app')?.hidden||!workerList)return;const c=await photoClient();if(!c)return;const {data,error}=await c.from('profiles').select('id,avatar_url');if(!error){pictureUrls=new Map((data||[]).filter(p=>p.avatar_url).map(p=>[p.id,p.avatar_url]));updateWorkerPictures()}}
- function updateWorkerPictures(){if(!workerList||busy)return;busy=true;try{workerList.querySelectorAll('.mission').forEach(row=>{const btn=row.querySelector('button[data-id]');if(!btn)return;const id=btn.dataset.id;const strong=row.querySelector('strong');if(!strong)return;let photo=row.querySelector('.ama-worker-avatar');const url=pictureUrls.get(id);if(url){if(!photo){photo=document.createElement('img');photo.className='ama-worker-avatar';photo.alt='Photo de profil';strong.prepend(photo)}if(photo.src!==amaAvatarSrc(url))photo.src=amaAvatarSrc(url)}else photo?.remove();if(!row.querySelector('.ama-photo-action')){const action=document.createElement('button');action.type='button';action.className='ghost mini ama-photo-action';action.textContent='📷 Photo';action.title='Ajouter ou modifier la photo de cet intervenant';action.addEventListener('click',()=>{selectedProfile=id;avatarInput.click()});row.querySelector('.inline')?.prepend(action)}})}finally{busy=false}}
+ function updateWorkerPictures(){if(!workerList||busy)return;busy=true;try{workerList.querySelectorAll('.mission').forEach(row=>{const btn=row.querySelector('[data-worker-card],button[data-id]')||row.closest('[data-worker-card]');if(!btn)return;const id=btn.dataset.workerCard||btn.dataset.id;const strong=row.querySelector('strong');if(!strong)return;let photo=row.querySelector('.ama-worker-avatar');const url=pictureUrls.get(id);if(url){if(!photo){photo=document.createElement('img');photo.className='ama-worker-avatar';photo.alt='Photo de profil';strong.prepend(photo)}if(photo.src!==amaAvatarSrc(url))photo.src=amaAvatarSrc(url)}else photo?.remove();if(!row.querySelector('.ama-photo-action')){const action=document.createElement('button');action.type='button';action.className='ghost mini ama-photo-action';action.textContent='📷 Photo';action.title='Ajouter ou modifier la photo de cet intervenant';action.addEventListener('click',()=>{selectedProfile=id;avatarInput.click()});row.append(action)}})}finally{busy=false}}
  if(workerList)new MutationObserver(()=>updateWorkerPictures()).observe(workerList,{childList:true,subtree:false});
  // Déclenché à la connexion, sans altérer les fonctions internes de session.
  const app=byId('app');if(app){new MutationObserver(()=>{if(!app.hidden){refreshAvatar().catch(()=>{});fetchWorkerPictures().catch(()=>{})}else{panel?.classList.remove('ama-open');avatarImg?.classList.add('hidden')}}).observe(app,{attributes:true,attributeFilter:['hidden']})}
