@@ -620,6 +620,23 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 .ama-worker-reset{border:1px solid #d6e3e7;border-radius:12px;background:#f5f8fa;color:#315a72;padding:12px;text-align:left;margin-top:10px}
 #amaWorkerEditStatus{font-size:12px;color:#398b7b;min-height:1em}
 </style>
+
+<style id="ama-worker-compact-v2">
+#workerList .ama-photo-action{display:none!important}
+#workerList{display:grid;gap:10px;margin-top:15px}
+#workerList .ama-worker-card{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-height:72px!important;margin:0!important;padding:12px 14px!important;border:1px solid #dce7e9!important;border-radius:16px!important;box-shadow:none!important;background:#fff!important;text-align:left!important}
+#workerList .ama-worker-card .ama-worker-card-body{display:flex;flex:1;min-width:0;align-items:center;gap:12px}
+#workerList .ama-worker-card .ama-worker-details{flex:1;min-width:0}
+#workerList .ama-worker-card strong{display:block!important;font-size:15px!important;line-height:1.35!important;margin:0!important;color:#315a72!important}
+#workerList .ama-worker-card p{margin:4px 0 0!important;font-size:12px!important;color:#398b7b!important;line-height:1.3!important}
+#workerList .ama-worker-card small{display:none!important}
+#workerList .ama-worker-card .ama-worker-chevron{position:static!important;margin:0 0 0 auto!important;align-self:center!important;line-height:1!important;font-size:26px!important}
+#workerList .ama-worker-avatar{display:block!important;position:static!important;width:46px!important;height:46px!important;min-width:46px!important;max-width:46px!important;object-fit:cover!important;border-radius:50%!important;margin:0!important}
+.ama-worker-avatar-fallback{display:flex;align-items:center;justify-content:center;flex:none;width:46px;height:46px;border-radius:50%;background:#e5f1eb;color:#398b7b;font-size:13px;font-weight:700}
+.ama-worker-editor-photo{display:flex;flex-direction:column;align-items:center;gap:9px;margin:8px 0 14px}
+.ama-worker-editor-photo .ama-worker-avatar,.ama-worker-editor-photo .ama-worker-avatar-fallback{width:72px!important;height:72px!important;max-width:72px!important;font-size:20px}
+.ama-worker-photo-button{border:1px solid #d6e3e7;border-radius:10px;background:#f5f8fa;color:#315a72;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
+</style>
 </head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
@@ -744,6 +761,7 @@ body.ama-worker #tab-planning .grid{margin-top:0}
       </div>
       <div id="amaWorkerEditor" class="ama-worker-editor" hidden>
         <div class="ama-worker-editor-head"><h3>Fiche intervenant</h3><button type="button" id="amaWorkerEditorClose" aria-label="Fermer">×</button></div>
+        <div class="ama-worker-editor-photo"><div id="amaWorkerEditorPhoto" class="ama-worker-avatar-fallback" aria-label="Photo de profil">👤</div><button type="button" id="amaWorkerEditorPhotoButton" class="ama-worker-photo-button">📷 Modifier la photo</button></div>
         <form id="amaWorkerEditForm">
           <input type="hidden" id="amaWorkerEditId">
           <label for="amaWorkerEditName">Nom complet</label><input id="amaWorkerEditName" required maxlength="120">
@@ -994,7 +1012,7 @@ function renderOrderClients(){
  $('#clientList').innerHTML=orderClients.length?orderClients.map(c=>`<div class="mission"><div><strong>${esc(c.name)}</strong><p>${esc(c.billing_address||'Adresse non renseignée')}</p><p>${esc(c.email||'')}</p></div><div class="right"><button class="soft mini" data-client-edit="${esc(c.id)}">Modifier</button></div></div>`).join(''):'<div class="empty">Aucun donneur d’ordre enregistré.</div>';
 }
 function renderAdmin(){renderOrderClients();
- $('#workerList').innerHTML=activeWorkers().length?activeWorkers().map(u=>`<div class="mission ama-worker-card" data-worker-card="${esc(u.id)}" role="button" tabindex="0" aria-label="Ouvrir la fiche de ${esc(u.name)}"><div><strong>${esc(u.name)}</strong><p>${esc(u.email||'E-mail à renseigner')} · ${u.active===false?'Compte désactivé':'Compte actif'}</p><small>Voir et modifier les informations ›</small></div><div class="ama-worker-chevron" aria-hidden="true">›</div></div>`).join(''):'<div class="empty">Aucun intervenant enregistré.</div>';
+ $('#workerList').innerHTML=activeWorkers().length?activeWorkers().map(u=>`<div class="mission ama-worker-card" data-worker-card="${esc(u.id)}" role="button" tabindex="0" aria-label="Ouvrir la fiche de ${esc(u.name)}"><div class="ama-worker-card-body"><span class="ama-worker-avatar-fallback" aria-hidden="true">${esc((u.name||'').split(/\s+/).map(x=>x[0]||'').slice(0,2).join('').toUpperCase())}</span><div class="ama-worker-details"><strong>${esc(u.name)}</strong><p>${u.active===false?'Compte désactivé':'● Compte actif'}</p></div></div><span class="ama-worker-chevron" aria-hidden="true">›</span></div>`).join(''):'<div class="empty">Aucun intervenant enregistré.</div>';
    $('#apartmentList').innerHTML=activeApartments().length?activeApartments().map(a=>`<div class="mission"><div><strong>${esc(a.name)}</strong><p>⏱ ${hours(a.duration)} intervenant · 🏢 ${esc(orderClients.find(c=>c.id===a.clientId)?.name||'Client non attribué')} · 📊 ${hours(apartmentFinances.get(a.id)?.reference_hours??a.duration)} référence · ${euro(apartmentFinances.get(a.id)?.hourly_rate??0)}/h · 🛏️ ${Number(a.beds||0)} couchage(s)</p>${a.address?`<p>📍 ${esc(a.address)}</p>`:''}${a.access?`<p>🔑 ${esc(a.access)}</p>`:''}</div><div class="right"><button class="soft mini" data-action="apt-edit" data-id="${esc(a.id)}">✎ Modifier</button><button class="danger mini" data-action="apt-delete" data-id="${esc(a.id)}">Désactiver</button></div></div>`).join(''):'<div class="empty">Aucun logement enregistré.</div>';
 }
 async function loadNotifications(){
@@ -1491,6 +1509,8 @@ $('#tab-admin').addEventListener('click',e=>{const b=e.target.closest('[data-act
    by('amaWorkerEditPhone').value='';
    by('amaWorkerEditEmail').value=u.email||'';
    by('amaWorkerEditStatus').textContent='Chargement des informations…';
+   const photoBox=by('amaWorkerEditorPhoto');
+   if(photoBox){photoBox.className='ama-worker-avatar-fallback';photoBox.textContent=(u.name||'').split(/\s+/).map(x=>x[0]||'').slice(0,2).join('').toUpperCase()||'👤';const existing=list.querySelector('[data-worker-card="'+CSS.escape(id)+'"] .ama-worker-avatar');if(existing?.src){photoBox.className='ama-worker-avatar-fallback';photoBox.textContent='';const img=document.createElement('img');img.className='ama-worker-avatar';img.alt='Photo de profil';img.src=existing.src;photoBox.appendChild(img)}}
    panel.hidden=false;panel.scrollIntoView({behavior:'smooth',block:'nearest'});
    try{
      const {data:row,error}=await client.from('profiles').select('full_name,phone').eq('id',id).single();
@@ -1500,6 +1520,7 @@ $('#tab-admin').addEventListener('click',e=>{const b=e.target.closest('[data-act
  }
  list.addEventListener('click',e=>{if(e.target.closest('button'))return;const card=e.target.closest('[data-worker-card]');if(card)open(card.dataset.workerCard)});
  list.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-worker-card]')){e.preventDefault();open(e.target.dataset.workerCard)}});
+ by('amaWorkerEditorPhotoButton').addEventListener('click',()=>{const id=by('amaWorkerEditId').value;if(!id)return;const row=Array.from(list.querySelectorAll('[data-worker-card]')).find(el=>el.dataset.workerCard===id);const trigger=row?.querySelector('.ama-photo-action');if(trigger)trigger.click();else by('amaWorkerEditStatus').textContent='La fonction photo sera disponible après le chargement du profil.'});
  by('amaWorkerEditorClose').addEventListener('click',close);
  by('amaWorkerCancel').addEventListener('click',close);
  by('amaWorkerReset').addEventListener('click',()=>{by('amaWorkerEditStatus').textContent='Le mot de passe actuel ne peut pas être affiché. Utilisez la procédure « Mot de passe oublié ? » ou Supabase Authentication pour réinitialiser l’accès.'});
@@ -2047,7 +2068,7 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
  });
  const workerList=byId('workerList');let busy=false;
  async function fetchWorkerPictures(){if(byId('app')?.hidden||!workerList)return;const c=await photoClient();if(!c)return;const {data,error}=await c.from('profiles').select('id,avatar_url');if(!error){pictureUrls=new Map((data||[]).filter(p=>p.avatar_url).map(p=>[p.id,p.avatar_url]));updateWorkerPictures()}}
- function updateWorkerPictures(){if(!workerList||busy)return;busy=true;try{workerList.querySelectorAll('.mission').forEach(row=>{const btn=row.querySelector('[data-worker-card],button[data-id]')||row.closest('[data-worker-card]');if(!btn)return;const id=btn.dataset.workerCard||btn.dataset.id;const strong=row.querySelector('strong');if(!strong)return;let photo=row.querySelector('.ama-worker-avatar');const url=pictureUrls.get(id);if(url){if(!photo){photo=document.createElement('img');photo.className='ama-worker-avatar';photo.alt='Photo de profil';strong.prepend(photo)}if(photo.src!==amaAvatarSrc(url))photo.src=amaAvatarSrc(url)}else photo?.remove();if(!row.querySelector('.ama-photo-action')){const action=document.createElement('button');action.type='button';action.className='ghost mini ama-photo-action';action.textContent='📷 Photo';action.title='Ajouter ou modifier la photo de cet intervenant';action.addEventListener('click',()=>{selectedProfile=id;avatarInput.click()});row.append(action)}})}finally{busy=false}}
+ function updateWorkerPictures(){if(!workerList||busy)return;busy=true;try{workerList.querySelectorAll('.ama-worker-card').forEach(row=>{const id=row.dataset.workerCard;if(!id)return;const body=row.querySelector('.ama-worker-card-body');if(!body)return;let avatar=body.querySelector('.ama-worker-avatar,.ama-worker-avatar-fallback');const url=pictureUrls.get(id);if(url){if(!avatar||avatar.tagName!=='IMG'){const img=document.createElement('img');img.className='ama-worker-avatar';img.alt='Photo de profil';avatar?.replaceWith(img);avatar=img}const resolved=amaAvatarSrc(url);if(avatar.getAttribute('src')!==resolved)avatar.src=resolved}else if(avatar?.tagName==='IMG'){const fallback=document.createElement('span');fallback.className='ama-worker-avatar-fallback';fallback.textContent=(row.querySelector('strong')?.textContent||'').split(/\s+/).map(x=>x[0]||'').slice(0,2).join('').toUpperCase();avatar.replaceWith(fallback)}if(!row.querySelector('.ama-photo-action')){const action=document.createElement('button');action.type='button';action.className='ama-photo-action';action.hidden=true;action.setAttribute('aria-hidden','true');action.tabIndex=-1;action.addEventListener('click',()=>{selectedProfile=id;avatarInput.click()});row.append(action)}})}finally{busy=false}}
  if(workerList)new MutationObserver(()=>updateWorkerPictures()).observe(workerList,{childList:true,subtree:false});
  // Déclenché à la connexion, sans altérer les fonctions internes de session.
  const app=byId('app');if(app){new MutationObserver(()=>{if(!app.hidden){refreshAvatar().catch(()=>{});fetchWorkerPictures().catch(()=>{})}else{panel?.classList.remove('ama-open');avatarImg?.classList.add('hidden')}}).observe(app,{attributes:true,attributeFilter:['hidden']})}
