@@ -813,8 +813,8 @@ body.ama-worker #tab-planning .grid{margin-top:0}
   <h2 id="amaPhotoTitle" style="margin:13px 0 2px;color:#315a72;font-size:22px">Détails de la mission</h2><div id="amaPhotoState" class="ama-photo-sub">À réaliser</div>
   <div class="ama-photo-card"><h3 id="amaPhotoApartment"></h3><div class="ama-photo-sub">Ménage de fin de séjour</div><div class="ama-photo-details"><div><div class="ama-photo-sub">Date</div><strong id="amaPhotoDate"></strong></div><div><div class="ama-photo-sub">Durée prévue</div><strong id="amaPhotoHours"></strong></div></div><div id="amaPhotoApartmentInfo"></div><div id="amaPhotoNotes" style="margin-top:12px"></div></div>
   <div class="ama-photo-card"><h3>📷 Photos de fin de ménage</h3><p class="ama-photo-sub">Photographiez le logement une fois prêt. Les images ne sont pas stockées sur Supabase.</p><div class="ama-photo-grid" id="amaPhotoPreview"><div class="ama-photo-tile">Photo 1</div><div class="ama-photo-tile">Photo 2</div><div class="ama-photo-tile">Photo 3</div></div><input id="amaPhotoFiles" type="file" accept="image/*" multiple hidden><button type="button" class="ama-photo-btn" id="amaPhotoChoose">＋ Ajouter des photos</button><div class="ama-photo-sub" id="amaPhotoCount" style="margin-top:8px">0 photo sélectionnée</div></div>
-  <div class="ama-photo-note"><strong>Partage WhatsApp</strong><div>Le téléphone proposera WhatsApp : choisissez votre groupe et confirmez l’envoi. L’application ne peut pas envoyer automatiquement dans un groupe.</div></div>
-  <button type="button" class="ama-photo-submit" id="amaPhotoFinish" disabled>✓ Terminer et partager les photos</button><div id="amaPhotoFeedback" class="ama-photo-status" role="status" aria-live="polite"></div>
+  <div class="ama-photo-note" id="amaPhotoWhatsAppNote" hidden><strong>Partage WhatsApp</strong><div>Après le partage, choisissez WhatsApp et votre groupe. Confirmez ensuite l’envoi dans AMA Planning.</div></div>
+  <button type="button" class="ama-photo-submit" id="amaPhotoFinish">✓ Terminer la mission</button><div id="amaPhotoFeedback" class="ama-photo-status" role="status" aria-live="polite"></div><div id="amaPhotoConfirm" class="ama-photo-card" hidden role="group" aria-label="Confirmer la fin de mission"><h3>Terminer cette mission ?</h3><p class="ama-photo-sub">Confirmez que le ménage est terminé. Aucune photo n’est obligatoire.</p><div id="amaPhotoConfirmInfo" class="ama-photo-sub" style="margin:10px 0"></div><button type="button" class="ama-photo-submit" id="amaPhotoConfirmYes">✓ Confirmer la fin de mission</button><button type="button" class="ama-photo-btn" id="amaPhotoConfirmNo" style="margin-top:8px">Retour à la mission</button></div>
  </div>
 </div>
   <section id="tab-history" class="hidden">
@@ -1497,11 +1497,11 @@ function amaPhotoRender(){
  amaPhotoUrls.forEach((url,i)=>{const d=document.createElement('div');d.className='ama-photo-tile';const img=document.createElement('img');img.src=url;img.alt='Photo sélectionnée '+(i+1);d.appendChild(img);grid.appendChild(d)});
  for(let i=amaPhotoUrls.length;i<Math.max(3,amaPhotoUrls.length);i++){const d=document.createElement('div');d.className='ama-photo-tile';d.textContent='Photo '+(i+1);grid.appendChild(d)}
  document.getElementById('amaPhotoCount').textContent=amaSelectedPhotoFiles.length+' photo'+(amaSelectedPhotoFiles.length>1?'s':'')+' sélectionnée'+(amaSelectedPhotoFiles.length>1?'s':'');
- document.getElementById('amaPhotoFinish').disabled=!amaSelectedPhotoFiles.length;
+ document.getElementById('amaPhotoFinish').disabled=false;document.getElementById('amaPhotoFinish').textContent=amaSelectedPhotoFiles.length?'✓ Terminer et partager':'✓ Terminer la mission';document.getElementById('amaPhotoWhatsAppNote').hidden=!amaSelectedPhotoFiles.length;
 }
 function amaOpenPhotoMission(m){
  if(!session||session.role!=='worker'||!sharedIds(m).includes(session.id)||m.status!=='planned'||m.prolonged)return;
- amaCurrentPhotoMission=m.id;amaPhotoClear();amaPhotoMessage('');
+ amaCurrentPhotoMission=m.id;amaPhotoClear();amaPhotoMessage('');document.getElementById('amaPhotoConfirm').hidden=true;
  document.getElementById('amaPhotoApartment').textContent=m.apartmentName||'Logement';document.getElementById('amaPhotoDate').textContent=dateFr(m.date);document.getElementById('amaPhotoHours').textContent=hours(sharedHours(m));
  document.getElementById('amaPhotoApartmentInfo').innerHTML=apartmentInfo(m);
  document.getElementById('amaPhotoNotes').innerHTML=m.notes?'<div class="mission-note"><strong>Consignes de ménage</strong><div class="note-body">'+esc(m.notes)+'</div></div>':'';
@@ -1515,23 +1515,45 @@ document.getElementById('amaPhotoFiles').addEventListener('change',e=>{
  if(files.some(f=>f.size>20*1024*1024)){amaPhotoMessage('Chaque photo doit faire moins de 20 Mo.');return}
  amaSelectedPhotoFiles=[...amaSelectedPhotoFiles,...files].slice(0,15);amaPhotoUrls.forEach(u=>URL.revokeObjectURL(u));amaPhotoUrls=amaSelectedPhotoFiles.map(f=>URL.createObjectURL(f));amaPhotoRender();amaPhotoMessage('');e.target.value='';
 });
-document.getElementById('amaPhotoFinish').addEventListener('click',async()=>{
- const m=data.missions.find(x=>x.id===amaCurrentPhotoMission);
- if(!m||!session||session.role!=='worker'||!sharedIds(m).includes(session.id)||m.status!=='planned'||m.prolonged)return amaPhotoMessage('Cette mission ne peut plus être validée.');
- if(!amaSelectedPhotoFiles.length)return amaPhotoMessage('Ajoutez au moins une photo.');
- if(!navigator.share||!navigator.canShare||!navigator.canShare({files:amaSelectedPhotoFiles}))return amaPhotoMessage('Le partage de photos n’est pas disponible dans ce navigateur. Ouvrez AMA Planning dans Safari ou Chrome sur votre téléphone. Aucune mission n’a été validée.');
+async function amaPhotoComplete(m){
  const btn=document.getElementById('amaPhotoFinish');btn.disabled=true;
  try{
-  await navigator.share({files:amaSelectedPhotoFiles,title:'AMA Company — '+(m.apartmentName||'Mission'),text:'Fin de ménage · '+(m.apartmentName||'Logement')+' · '+dateFr(m.date)});
-  // Le partage natif ne garantit pas que WhatsApp ait effectivement transmis les fichiers.
-  if(!confirm('Avez-vous bien envoyé les photos dans le groupe WhatsApp ?\n\nConfirmer pour valider la mission dans AMA Planning.')){amaPhotoMessage('Mission non validée. Vous pouvez réessayer le partage.');return}
   amaPhotoMessage('Enregistrement de la mission…');
   if(sharedIds(m).length>1){const r=await client.rpc('ama_complete_shared_mission',{p_mission_id:m.id});if(r.error)throw r.error;await reload();}
   else{const r=await client.from('missions').update({status:'done'}).eq('id',m.id).eq('status','planned').select('id');if(r.error)throw r.error;if(!r.data?.length)throw Error('Mission non mise à jour : vérifiez vos autorisations.');await reload();}
   amaClosePhotoMission();render();
- }catch(err){if(err?.name==='AbortError')amaPhotoMessage('Partage annulé. La mission n’a pas été validée.');else amaPhotoMessage('Impossible de terminer : '+(err?.message||'Erreur inconnue')+'. La mission n’a pas été confirmée.');}
- finally{btn.disabled=!amaSelectedPhotoFiles.length}
+ }catch(err){amaPhotoMessage('Impossible de terminer : '+(err?.message||'Erreur inconnue'));}
+ finally{btn.disabled=false;}
+}
+function amaPhotoValidMission(){
+ const m=data.missions.find(x=>x.id===amaCurrentPhotoMission);
+ if(!m||!session||session.role!=='worker'||!sharedIds(m).includes(session.id)||m.status!=='planned'||m.prolonged){amaPhotoMessage('Cette mission ne peut plus être validée.');return null;}
+ return m;
+}
+document.getElementById('amaPhotoFinish').addEventListener('click',async()=>{
+ const m=amaPhotoValidMission();if(!m)return;
+ if(!amaSelectedPhotoFiles.length){
+  document.getElementById('amaPhotoConfirmInfo').textContent=(m.apartmentName||'Logement')+' · '+dateFr(m.date)+' · '+hours(sharedHours(m))+' · Aucune photo ajoutée';
+  document.getElementById('amaPhotoConfirm').hidden=false;
+  document.getElementById('amaPhotoConfirm').scrollIntoView({behavior:'smooth',block:'nearest'});
+  return;
+ }
+ if(!navigator.share||!navigator.canShare||!navigator.canShare({files:amaSelectedPhotoFiles}))return amaPhotoMessage('Partage des photos indisponible dans ce navigateur. Essayez Safari ou Chrome sur votre téléphone, ou retirez les photos pour terminer sans partage.');
+ const btn=document.getElementById('amaPhotoFinish');btn.disabled=true;
+ try{
+  await navigator.share({files:amaSelectedPhotoFiles,title:'AMA Company — '+(m.apartmentName||'Mission'),text:'Fin de ménage · '+(m.apartmentName||'Logement')+' · '+dateFr(m.date)});
+  if(!confirm('Avez-vous bien envoyé les photos dans le groupe WhatsApp ?\n\nConfirmer pour valider la mission dans AMA Planning.')){amaPhotoMessage('Mission non validée. Vous pouvez réessayer le partage.');return;}
+  await amaPhotoComplete(m);
+ }catch(err){if(err?.name==='AbortError')amaPhotoMessage('Partage annulé. La mission n’a pas été validée.');else amaPhotoMessage('Partage impossible : '+(err?.message||'Erreur inconnue'));}
+ finally{btn.disabled=false;}
 });
+document.getElementById('amaPhotoConfirmYes').addEventListener('click',async()=>{
+ const m=amaPhotoValidMission();if(!m)return;
+ if(amaSelectedPhotoFiles.length){document.getElementById('amaPhotoConfirm').hidden=true;return;}
+ document.getElementById('amaPhotoConfirmYes').disabled=true;
+ try{await amaPhotoComplete(m)}finally{document.getElementById('amaPhotoConfirmYes').disabled=false;}
+});
+document.getElementById('amaPhotoConfirmNo').addEventListener('click',()=>{document.getElementById('amaPhotoConfirm').hidden=true;});
 $('#missionList').addEventListener('click',async e=>{
  const reply=e.target.closest('[data-fusion-reply]');
  if(reply){if(!confirm(reply.dataset.fusionReply==='yes'?'Accepter et partager les heures de cette mission ?':'Refuser cette invitation ?'))return;
