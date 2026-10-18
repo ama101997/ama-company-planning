@@ -724,7 +724,11 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 .ama-photo-tile{border-radius:9px!important}
 .ama-photo-submit:disabled{opacity:.4!important}
 </style>
-</head>
+<style id="ama-live-camera-styles">
+.ama-photo-tile{position:relative;overflow:hidden}.ama-photo-remove{position:absolute;right:5px;top:5px;width:26px;height:26px;min-width:26px;border:0;border-radius:50%;background:rgba(18,35,43,.8);color:white;font-size:18px;line-height:24px;z-index:2;cursor:pointer;display:grid;place-items:center}.ama-photo-remove:focus-visible{outline:2px solid #398b7b;outline-offset:2px}
+.ama-live-camera[hidden]{display:none!important}.ama-live-camera{position:fixed;inset:0;z-index:12000;background:#0b1318;color:white;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 18px)}
+.ama-live-top,.ama-live-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}.ama-live-top{padding-bottom:14px}.ama-live-top button{background:#243a43;color:white;border:0;border-radius:50%;height:36px;width:36px;font-size:19px}.ama-live-camera video{width:100%;min-height:0;flex:1;object-fit:cover;border-radius:16px;background:#172b32}.ama-live-bottom{padding-top:20px}.ama-live-bottom span{font-size:13px}.ama-live-bottom #amaLiveShoot{height:66px;width:66px;flex:none;border-radius:50%;border:4px solid white;background:transparent;display:grid;place-items:center}.ama-live-bottom #amaLiveShoot span{display:block;width:49px;height:49px;background:white;border-radius:50%}.ama-live-bottom #amaLiveDone{border:0;border-radius:12px;background:#398b7b;color:white;font-weight:700;padding:12px}.ama-live-camera #amaLiveFeedback{text-align:center;font-size:13px;min-height:22px;color:#d7e5e6}
+</style></head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
   <div id="amaWelcomeLoading" class="ama-welcome-stage">
@@ -833,8 +837,14 @@ body.ama-worker #tab-planning .grid{margin-top:0}
   <div class="ama-photo-top"><span class="ama-photo-sub">AMA Planning · Espace intervenant</span><button type="button" class="ama-photo-close" id="amaPhotoClose">✕ Fermer</button></div>
   <h2 id="amaPhotoTitle" style="margin:13px 0 2px;color:#315a72;font-size:22px">Détails de la mission</h2><div id="amaPhotoState" class="ama-photo-sub">À réaliser</div>
   <div class="ama-photo-card"><h3 id="amaPhotoApartment"></h3><div class="ama-photo-sub">Ménage de fin de séjour</div><div class="ama-photo-details"><div><div class="ama-photo-sub">Date</div><strong id="amaPhotoDate"></strong></div><div><div class="ama-photo-sub">Durée prévue</div><strong id="amaPhotoHours"></strong></div></div><div id="amaPhotoApartmentInfo"></div><div id="amaPhotoNotes" style="margin-top:12px"></div></div>
-  <div class="ama-photo-card"><h3>📷 Photos de fin de ménage</h3><p class="ama-photo-sub">Ajoutez au moins une photo du logement prêt. Les images ne sont pas stockées sur Supabase.</p><div class="ama-photo-grid" id="amaPhotoPreview"><div class="ama-photo-tile">Photo 1</div><div class="ama-photo-tile">Photo 2</div><div class="ama-photo-tile">Photo 3</div></div><input id="amaPhotoFiles" type="file" accept="image/*" multiple hidden><input id="amaPhotoCamera" type="file" accept="image/*" capture="environment" hidden><div class="ama-photo-actions"><button type="button" class="ama-photo-btn" id="amaPhotoCameraBtn">📷 Prendre une photo</button><button type="button" class="ama-photo-btn" id="amaPhotoChoose">▧ Ajouter depuis la galerie</button></div><p class="ama-photo-sub">Appareil photo : jusqu’à 50 prises par mission. Galerie : pas de limite fixée par AMA Planning. Au moins une photo obligatoire pour terminer la mission.</p><div class="ama-photo-sub" id="amaPhotoCount" style="margin-top:8px">0 photo sélectionnée</div></div>
-  <div class="ama-photo-note" id="amaPhotoWhatsAppNote" hidden><strong>Partage WhatsApp</strong><div>Le message contient le logement, l’intervenant et la date. Sélectionnez WhatsApp et votre groupe, puis confirmez l’envoi. Si le texte ne suit pas les photos sur iPhone, utilisez « Copier le message ».</div><button type="button" class="ama-photo-btn" id="amaPhotoCopyText" style="margin-top:10px">Copier le message WhatsApp</button></div>
+  <div class="ama-photo-card"><h3>📷 Photos de fin de ménage</h3><p class="ama-photo-sub">Ajoutez au moins une photo du logement prêt. Les images ne sont pas stockées sur Supabase.</p><div class="ama-photo-grid" id="amaPhotoPreview"><div class="ama-photo-tile">Photo 1</div><div class="ama-photo-tile">Photo 2</div><div class="ama-photo-tile">Photo 3</div></div><input id="amaPhotoFiles" type="file" accept="image/*" multiple hidden><input id="amaPhotoCamera" type="file" accept="image/*" capture="environment" hidden><div class="ama-photo-actions"><button type="button" class="ama-photo-btn" id="amaPhotoCameraBtn">📷 Ouvrir la caméra</button><button type="button" class="ama-photo-btn" id="amaPhotoChoose">▧ Ajouter depuis la galerie</button></div><p class="ama-photo-sub">Caméra intégrée : 30 photos successives par session. Galerie : pas de limite fixée par AMA Planning. Au moins une photo obligatoire pour terminer la mission.</p><div class="ama-photo-sub" id="amaPhotoCount" style="margin-top:8px">0 photo sélectionnée</div></div>
+  <div class="ama-live-camera" id="amaLiveCamera" hidden role="dialog" aria-label="Appareil photo AMA Planning">
+    <div class="ama-live-top"><strong>📷 Appareil photo</strong><button type="button" id="amaLiveClose" aria-label="Fermer la caméra">✕</button></div>
+    <video id="amaLiveVideo" autoplay playsinline muted></video>
+    <div class="ama-live-bottom"><span id="amaLiveCounter">0 / 30 photos</span><button type="button" id="amaLiveShoot" aria-label="Prendre une photo"><span></span></button><button type="button" id="amaLiveDone">Terminer</button></div>
+    <p id="amaLiveFeedback" role="status" aria-live="polite"></p>
+  </div>
+  <div class="ama-photo-note" id="amaPhotoWhatsAppNote" hidden><strong>Partage WhatsApp</strong><div>Les photos sont partagées ensemble en une seule opération. WhatsApp peut toutefois les afficher séparément. Le message est préparé une seule fois ; si nécessaire, copiez-le et collez-le dans votre groupe.</div><button type="button" class="ama-photo-btn" id="amaPhotoCopyText" style="margin-top:10px">Copier le message WhatsApp</button></div>
   <button type="button" class="ama-photo-submit" id="amaPhotoFinish">✓ Terminer la mission</button><div id="amaPhotoFeedback" class="ama-photo-status" role="status" aria-live="polite"></div><div id="amaPhotoConfirm" class="ama-photo-card" hidden role="group" aria-label="Confirmer la fin de mission"><h3>Terminer cette mission ?</h3><p class="ama-photo-sub">Une photo et son partage sont nécessaires pour terminer la mission.</p><div id="amaPhotoConfirmInfo" class="ama-photo-sub" style="margin:10px 0"></div><button type="button" class="ama-photo-submit" id="amaPhotoConfirmYes">✓ Confirmer la fin de mission</button><button type="button" class="ama-photo-btn" id="amaPhotoConfirmNo" style="margin-top:8px">Retour à la mission</button></div>
  </div>
 </div>
@@ -1537,16 +1547,18 @@ $('#missionForm').addEventListener('submit',e=>{e.preventDefault();if(session.ro
  const s=$('#missionStatus').value;data.missions.push({id:uid(),date:$('#missionDate').value,workerId:u.id,workerName:u.name,apartmentId:a.id,apartmentName:a.name,hours:h,notes:$('#missionNotes').value.trim(),status:s,createdAt:new Date().toISOString(),completedAt:s==='done'?new Date().toISOString():null,completedBy:s==='done'?session.name:null});
  save();$('#missionNotes').value='';render();});
 let amaCurrentPhotoMission=null,amaSelectedPhotoFiles=[],amaPhotoUrls=[],amaCameraShots=0;
-function amaPhotoWhatsAppText(m){return "AMA Company — Fin de ménage\nLogement : "+(m.apartmentName||"Logement")+"\nIntervenant(e) : "+(session?.name||m.workerName||"Intervenant")+"\nDate d’intervention : "+dateFr(m.date)+"\nPhotos de fin de ménage.";}
+function amaPhotoWhatsAppText(m){return "AMA Company | Ménage terminé ✓\n\n🏠 "+(m.apartmentName||"Logement")+"\n👤 "+(session?.name||m.workerName||"Intervenant")+"\n📅 "+dateFr(m.date);}
 function amaPhotoMessage(t){document.getElementById('amaPhotoFeedback').textContent=t;}
 function amaPhotoClear(){amaPhotoUrls.forEach(u=>URL.revokeObjectURL(u));amaPhotoUrls=[];amaSelectedPhotoFiles=[];amaCameraShots=0;document.getElementById('amaPhotoFiles').value='';document.getElementById('amaPhotoCamera').value='';amaPhotoRender();}
 function amaPhotoRender(){
  const grid=document.getElementById('amaPhotoPreview');grid.innerHTML='';
- amaPhotoUrls.slice(0,12).forEach((url,i)=>{const d=document.createElement('div');d.className='ama-photo-tile';const img=document.createElement('img');img.src=url;img.alt='Photo sélectionnée '+(i+1);d.appendChild(img);grid.appendChild(d)});
- for(let i=Math.min(12,amaPhotoUrls.length);i<Math.max(3,Math.min(12,amaPhotoUrls.length));i++){const d=document.createElement('div');d.className='ama-photo-tile';d.textContent='Photo '+(i+1);grid.appendChild(d)}
- document.getElementById('amaPhotoCount').textContent=amaSelectedPhotoFiles.length+' photo'+(amaSelectedPhotoFiles.length>1?'s':'')+' sélectionnée'+(amaSelectedPhotoFiles.length>1?'s':'')+' · '+amaCameraShots+'/50 prises appareil photo'+(amaSelectedPhotoFiles.length>12?' · 12 aperçus affichés':'');
+ amaPhotoUrls.forEach((url,i)=>{const d=document.createElement('div');d.className='ama-photo-tile';const img=document.createElement('img');img.src=url;img.alt='Photo sélectionnée '+(i+1);d.appendChild(img);const remove=document.createElement('button');remove.type='button';remove.className='ama-photo-remove';remove.textContent='×';remove.setAttribute('aria-label','Supprimer la photo '+(i+1));remove.addEventListener('click',()=>amaRemovePhoto(i));d.appendChild(remove);grid.appendChild(d)});
+ document.getElementById('amaPhotoCount').textContent=amaSelectedPhotoFiles.length+' photo'+(amaSelectedPhotoFiles.length>1?'s':'')+' sélectionnée'+(amaSelectedPhotoFiles.length>1?'s':'')+' · caméra : 30 photos par session';
  document.getElementById('amaPhotoFinish').disabled=!amaSelectedPhotoFiles.length;document.getElementById('amaPhotoFinish').textContent='✓ Terminer et partager';document.getElementById('amaPhotoWhatsAppNote').hidden=!amaSelectedPhotoFiles.length;
 }
+function amaRefreshPhotoUrls(){amaPhotoUrls.forEach(u=>URL.revokeObjectURL(u));amaPhotoUrls=amaSelectedPhotoFiles.map(f=>URL.createObjectURL(f));amaPhotoRender();}
+function amaRemovePhoto(i){if(i<0||i>=amaSelectedPhotoFiles.length)return;amaSelectedPhotoFiles.splice(i,1);amaRefreshPhotoUrls();amaPhotoMessage('Photo supprimée.');}
+
 function amaOpenPhotoMission(m){
  if(!session||session.role!=='worker'||!sharedIds(m).includes(session.id)||m.status!=='planned'||m.prolonged)return;
  amaCurrentPhotoMission=m.id;amaPhotoClear();amaPhotoMessage('');document.getElementById('amaPhotoConfirm').hidden=true;
@@ -1555,22 +1567,42 @@ function amaOpenPhotoMission(m){
  document.getElementById('amaPhotoNotes').innerHTML=m.notes?'<div class="mission-note"><strong>Consignes de ménage</strong><div class="note-body">'+esc(m.notes)+'</div></div>':'';
  document.getElementById('amaPhotoModal').hidden=false;
 }
-function amaClosePhotoMission(){document.getElementById('amaPhotoModal').hidden=true;amaCurrentPhotoMission=null;amaPhotoClear()}
+function amaClosePhotoMission(){amaStopLiveCamera();document.getElementById('amaPhotoModal').hidden=true;amaCurrentPhotoMission=null;amaPhotoClear()}
 document.getElementById('amaPhotoClose').addEventListener('click',amaClosePhotoMission);
 document.getElementById('amaPhotoChoose').addEventListener('click',()=>document.getElementById('amaPhotoFiles').click());
-document.getElementById('amaPhotoCameraBtn').addEventListener('click',()=>{if(amaCameraShots>=50){amaPhotoMessage('50 prises depuis l’appareil photo atteintes. Vous pouvez encore importer des photos depuis la galerie.');return;}document.getElementById('amaPhotoCamera').click();});
+let amaLiveStream=null,amaLiveShots=0,amaLiveBusy=false;
+async function amaStartLiveCamera(){
+ const panel=document.getElementById('amaLiveCamera'),video=document.getElementById('amaLiveVideo');
+ amaLiveShots=0;amaLiveBusy=false;document.getElementById('amaLiveFeedback').textContent='';document.getElementById('amaLiveCounter').textContent='0 / 30 photos';
+ if(!navigator.mediaDevices?.getUserMedia){amaPhotoMessage('Caméra intégrée non disponible. Utilisez la galerie ou la caméra classique.');document.getElementById('amaPhotoCamera').click();return;}
+ panel.hidden=false;
+ try{amaLiveStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:1920}}});video.srcObject=amaLiveStream;await video.play();}
+ catch(e){amaStopLiveCamera();amaPhotoMessage('Impossible d’ouvrir la caméra intégrée. Autorisez la caméra dans Safari ou utilisez la galerie.');}
+}
+function amaStopLiveCamera(){const panel=document.getElementById('amaLiveCamera');if(panel)panel.hidden=true;if(amaLiveStream){amaLiveStream.getTracks().forEach(t=>t.stop());amaLiveStream=null;}const video=document.getElementById('amaLiveVideo');if(video){video.pause();video.srcObject=null;}}
+async function amaShootLivePhoto(){
+ if(amaLiveBusy||amaLiveShots>=30||!amaLiveStream)return;
+ const video=document.getElementById('amaLiveVideo');if(!video.videoWidth){document.getElementById('amaLiveFeedback').textContent='Caméra en cours de démarrage…';return;}
+ amaLiveBusy=true;const shoot=document.getElementById('amaLiveShoot');shoot.disabled=true;
+ try{const canvas=document.createElement('canvas');const ratio=Math.min(1,1600/Math.max(video.videoWidth,video.videoHeight));canvas.width=Math.round(video.videoWidth*ratio);canvas.height=Math.round(video.videoHeight*ratio);canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
+ const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.82));if(!blob)throw Error('Photo non disponible');
+ const f=new File([blob],'ama-menage-'+Date.now()+'-'+(amaLiveShots+1)+'.jpg',{type:'image/jpeg'});amaSelectedPhotoFiles.push(f);amaLiveShots++;amaCameraShots++;amaRefreshPhotoUrls();document.getElementById('amaLiveCounter').textContent=amaLiveShots+' / 30 photos';document.getElementById('amaLiveFeedback').textContent=amaLiveShots===30?'30 photos prises. Appuyez sur Terminer.':'Photo '+amaLiveShots+' ajoutée ✓';
+ }catch(e){document.getElementById('amaLiveFeedback').textContent='Impossible de prendre la photo : '+e.message;}
+ finally{amaLiveBusy=false;shoot.disabled=amaLiveShots>=30;}
+}
+document.getElementById('amaPhotoCameraBtn').addEventListener('click',amaStartLiveCamera);
+document.getElementById('amaLiveShoot').addEventListener('click',amaShootLivePhoto);
+document.getElementById('amaLiveClose').addEventListener('click',amaStopLiveCamera);
+document.getElementById('amaLiveDone').addEventListener('click',amaStopLiveCamera);
 function amaAddPhotoFiles(input,isCamera){
  const files=Array.from(input.files||[]).filter(f=>f.type.startsWith('image/'));
  input.value='';
  if(!files.length)return;
  if(files.some(f=>f.size>20*1024*1024)){amaPhotoMessage('Chaque photo doit faire moins de 20 Mo.');return;}
- if(isCamera&&amaCameraShots+files.length>50){amaPhotoMessage('Maximum 50 prises avec l’appareil photo par mission.');return;}
+ if(isCamera&&files.length>30){amaPhotoMessage('Maximum 30 photos par session.');return;}
  if(isCamera)amaCameraShots+=files.length;
  amaSelectedPhotoFiles.push(...files);
- // Only create thumbnails for the first twelve photos to protect phone memory.
- amaPhotoUrls.forEach(u=>URL.revokeObjectURL(u));
- amaPhotoUrls=amaSelectedPhotoFiles.slice(0,12).map(f=>URL.createObjectURL(f));
- amaPhotoRender();amaPhotoMessage('');
+ amaRefreshPhotoUrls();amaPhotoMessage('');
 }
 document.getElementById('amaPhotoFiles').addEventListener('change',e=>amaAddPhotoFiles(e.target,false));
 document.getElementById('amaPhotoCamera').addEventListener('change',e=>amaAddPhotoFiles(e.target,true));
@@ -1601,7 +1633,7 @@ document.getElementById('amaPhotoFinish').addEventListener('click',async()=>{
  if(!navigator.share||!navigator.canShare||!navigator.canShare({files:amaSelectedPhotoFiles}))return amaPhotoMessage('Ce navigateur ne peut pas partager cette sélection de photos. Essayez un lot plus petit. Vous pouvez aussi copier le message WhatsApp.');
  const btn=document.getElementById('amaPhotoFinish');btn.disabled=true;
  try{
-  await navigator.share({files:amaSelectedPhotoFiles,title:'AMA Company — '+(m.apartmentName||'Mission'),text:amaPhotoWhatsAppText(m)});
+  await navigator.share({files:amaSelectedPhotoFiles,text:amaPhotoWhatsAppText(m)});
   if(!confirm('Avez-vous bien envoyé les photos dans le groupe WhatsApp ?\n\nConfirmer pour valider la mission dans AMA Planning.')){amaPhotoMessage('Mission non validée. Vous pouvez réessayer le partage.');return;}
   await amaPhotoComplete(m);
  }catch(err){if(err?.name==='AbortError')amaPhotoMessage('Partage annulé. La mission n’a pas été validée.');else amaPhotoMessage('Partage impossible : '+(err?.message||'Erreur inconnue'));}
