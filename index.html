@@ -543,6 +543,34 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 .ama-push-worker-active{padding:11px 12px;border:1px solid #e6efeb;border-radius:12px;background:#fff}
 .ama-push-worker-active .ama-push-device-icon{background:#e7f4ec}
 </style>
+<style id="ama-notifications-pills-password">
+#amaPushSubtitle{display:none!important}
+.ama-push-settings{background:transparent!important;border:0!important;padding:0!important;margin:15px 0!important;box-shadow:none!important}
+.ama-push-heading{padding:0 0 8px!important}
+.ama-push-heading strong{font-size:15px!important}
+.ama-push-choices{padding:0 12px!important;margin-top:7px!important;background:#f9fbfa!important}
+.ama-push-choices label{cursor:pointer;min-height:54px!important;padding:10px 0!important}
+.ama-push-choices input[data-ama-push-pref]{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.ama-push-choices input[data-ama-push-pref]+.ama-pref-pill{display:inline-flex;align-items:center;justify-content:center;min-width:68px;height:29px;border-radius:999px;background:#f0f2f3;color:#84939a;font-size:11px;font-weight:700;letter-spacing:.01em;flex:none;border:1px solid #e5eaec}
+.ama-push-choices input[data-ama-push-pref]+.ama-pref-pill::before{content:'−  Inactif'}
+.ama-push-choices input[data-ama-push-pref]:checked+.ama-pref-pill{background:#e5f3ec;color:#31816c;border-color:#d2e8dc}
+.ama-push-choices input[data-ama-push-pref]:checked+.ama-pref-pill::before{content:'✓  Actif'}
+.ama-push-choices input[data-ama-push-pref]:focus-visible+.ama-pref-pill{outline:2px solid #315a72;outline-offset:3px}
+.ama-password-section{margin:14px 0 4px}
+.ama-password-toggle{display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:1px solid #e5efec;background:#f3f8f6;border-radius:13px;padding:12px;color:#315a72;cursor:pointer}
+.ama-password-lock{display:grid;place-items:center;background:#e2f0e9;color:#398b7b;border-radius:10px;width:36px;height:36px;flex:none;font-size:19px}
+.ama-password-toggle>span:nth-child(2){flex:1;display:flex;flex-direction:column;gap:3px}
+.ama-password-toggle strong{font-size:13px}.ama-password-toggle small{font-size:11px;color:#8197a0}
+.ama-password-chevron{font-size:23px;color:#8499a1}.ama-password-toggle[aria-expanded="true"] .ama-password-chevron{transform:rotate(90deg)}
+#amaPasswordPanel{padding:13px 4px 5px;display:grid;gap:8px}#amaPasswordPanel[hidden]{display:none!important}
+#amaPasswordPanel>label:not(.ama-password-show){font-size:12px;color:#496877;font-weight:600}
+#amaPasswordPanel>input{width:100%;box-sizing:border-box;border:1px solid #dce8e6;border-radius:10px;padding:11px 12px;font-size:14px;background:#fff;color:#315a72}
+.ama-password-show{display:flex;align-items:center;gap:8px;font-size:12px;color:#647d88;margin:4px 0}
+.ama-password-show input{accent-color:#398b7b}
+.ama-password-submit{background:#398b7b;color:#fff;border:0;border-radius:11px;padding:12px;font-weight:700;font-size:12px;cursor:pointer}
+.ama-password-submit:disabled{opacity:.65;cursor:wait}
+#amaPasswordStatus{font-size:12px;line-height:1.4;color:#446b7b}
+</style>
 </head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
@@ -1469,7 +1497,7 @@ fillSelects();
   </div>
   <button type="button" class="ama-account-photo" id="amaChangePhoto">Importer ma propre photo</button>
     <section class="ama-push-settings" aria-labelledby="amaPushTitle">
-      <div class="ama-push-heading"><span class="ama-push-bell" aria-hidden="true">🔔</span><div><strong id="amaPushTitle">Notifications</strong><small id="amaPushSubtitle">Alertes de votre compte</small></div></div>
+      <div class="ama-push-heading"><span class="ama-push-bell" aria-hidden="true">🔔</span><div><strong id="amaPushTitle">Notifications</strong><small id="amaPushSubtitle" hidden></small></div></div>
       <div id="amaPushWorkerIntro" class="ama-push-worker-intro" hidden>
         <div class="ama-push-worker-icon" aria-hidden="true">🔔</div>
         <strong>Ne manquez aucune mission</strong>
@@ -1483,9 +1511,9 @@ fillSelects();
       <button type="button" id="amaPushEnable" class="ama-push-enable">Activer les notifications</button>
       <div id="amaPushHelp" class="ama-push-help" hidden></div>
       <div id="amaPushAdminChoices" class="ama-push-choices" hidden>
-        <label><i class="ama-push-pref-icon" aria-hidden="true">✓</i><span><b>Missions réalisées</b><small>Validation des interventions</small></span><input type="checkbox" data-ama-push-pref="completed" checked></label>
-        <label><i class="ama-push-pref-icon" aria-hidden="true">⇄</i><span><b>Modifications d’équipe</b><small>Transfert, fusion ou report</small></span><input type="checkbox" data-ama-push-pref="planning" checked></label>
-        <label><i class="ama-push-pref-icon" aria-hidden="true">!</i><span><b>Alertes importantes</b><small>Incidents et non-entrées</small></span><input type="checkbox" data-ama-push-pref="alerts" checked></label>
+        <label><i class="ama-push-pref-icon" aria-hidden="true">✓</i><span><b>Missions réalisées</b><small>Validation des interventions</small></span><input type="checkbox" data-ama-push-pref="completed" checked><span class="ama-pref-pill" aria-hidden="true"></span></label>
+        <label><i class="ama-push-pref-icon" aria-hidden="true">⇄</i><span><b>Modifications d’équipe</b><small>Transfert, fusion ou report</small></span><input type="checkbox" data-ama-push-pref="planning" checked><span class="ama-pref-pill" aria-hidden="true"></span></label>
+        <label><i class="ama-push-pref-icon" aria-hidden="true">!</i><span><b>Alertes importantes</b><small>Incidents et non-entrées</small></span><input type="checkbox" data-ama-push-pref="alerts" checked><span class="ama-pref-pill" aria-hidden="true"></span></label>
       </div>
     </section>
     <form id="amaAccountForm">
@@ -1495,6 +1523,20 @@ fillSelects();
       <div id="amaAccountStatus" role="status" aria-live="polite"></div>
       <div class="ama-account-buttons"><button type="button" class="ghost" id="amaCloseSettings">Annuler</button><button type="submit" class="ama-account-save">Enregistrer</button></div>
     </form>
+    <section class="ama-password-section" aria-labelledby="amaPasswordHeading">
+      <button type="button" id="amaPasswordToggle" class="ama-password-toggle" aria-expanded="false" aria-controls="amaPasswordPanel">
+        <span class="ama-password-lock" aria-hidden="true">♙</span><span><strong id="amaPasswordHeading">Modifier mon mot de passe</strong><small>Sécurité du compte</small></span><span class="ama-password-chevron" aria-hidden="true">›</span>
+      </button>
+      <form id="amaPasswordPanel" hidden autocomplete="off">
+        <label for="amaPasswordNew">Nouveau mot de passe</label>
+        <input id="amaPasswordNew" type="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="8 caractères minimum" required>
+        <label for="amaPasswordConfirm">Confirmer le mot de passe</label>
+        <input id="amaPasswordConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="Confirmer le mot de passe" required>
+        <label class="ama-password-show"><input type="checkbox" id="amaPasswordReveal"> Afficher les mots de passe</label>
+        <div id="amaPasswordStatus" role="status" aria-live="polite"></div>
+        <button type="submit" class="ama-password-submit">Enregistrer le nouveau mot de passe</button>
+      </form>
+    </section>
   </div>
 </div>
 
@@ -1637,7 +1679,7 @@ if (legacyNotificationButton) legacyNotificationButton.style.display = 'none';
 function amaPushUpdateRole(){
   const isAdmin=document.getElementById('amaAccountModal')?.dataset.role==='admin';
   document.getElementById('amaPushAdminChoices').hidden=!isAdmin;
-  document.getElementById('amaPushSubtitle').textContent=isAdmin?'Paramètres administrateur':'Espace intervenant';
+  document.getElementById('amaPushSubtitle').hidden=true;
   refreshNotificationButton();
 }
 window.amaPushUpdateRole=amaPushUpdateRole;
@@ -1933,6 +1975,36 @@ if(error){status.dataset.prefs='local';status.textContent='Préférences enregis
 else{status.dataset.prefs='cloud';status.textContent='Préférences enregistrées (alertes importantes : réglage local uniquement).'}
 });
 new MutationObserver(()=>{if(!modal.hidden){load();if(typeof refreshNotificationButton==='function')refreshNotificationButton()}}).observe(modal,{attributes:true,attributeFilter:['hidden']});
+})();
+</script>
+<script id="ama-account-password-change">
+(()=>{'use strict';
+ const byId=id=>document.getElementById(id);
+ const toggle=byId('amaPasswordToggle'),panel=byId('amaPasswordPanel'),status=byId('amaPasswordStatus');
+ const newer=byId('amaPasswordNew'),confirm=byId('amaPasswordConfirm'),reveal=byId('amaPasswordReveal');
+ toggle.addEventListener('click',()=>{
+   const opening=panel.hidden;panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
+   if(opening)newer.focus();else{panel.reset();status.textContent=''}
+ });
+ reveal.addEventListener('change',()=>{newer.type=confirm.type=reveal.checked?'text':'password'});
+ panel.addEventListener('submit',async e=>{
+   e.preventDefault();status.textContent='';
+   if(newer.value.length<8){status.textContent='Utilisez au moins 8 caractères.';return}
+   if(newer.value!==confirm.value){status.textContent='Les mots de passe ne correspondent pas.';return}
+   const submit=panel.querySelector('[type="submit"]');submit.disabled=true;
+   try{
+     const sup=window.supabase;
+     const client=sup?.createClient('https://bleixaoiyoxvatsimkrw.supabase.co','sb_publishable_cUhSkP5GpURWVSme6GMVzA_6L3Gl9tm');
+     if(!client)throw Error('Connexion Supabase indisponible.');
+     const {data:{user},error:userError}=await client.auth.getUser();
+     if(userError||!user)throw Error('Session expirée. Reconnectez-vous.');
+     const {error}=await client.auth.updateUser({password:newer.value});
+     if(error)throw error;
+     panel.reset();newer.type=confirm.type='password';
+     status.textContent='Mot de passe modifié avec succès.';
+   }catch(error){status.textContent=error.message||'Impossible de modifier le mot de passe.'}
+   finally{submit.disabled=false}
+ });
 })();
 </script>
 </body>
