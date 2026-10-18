@@ -154,8 +154,82 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
 .ama-ca-details[open] summary::before{content:'▾ ';}
 .ama-ca-details .tablewrap{margin-top:12px}
 @media(max-width:700px){#adminDashboardRevenue .ama-ca-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}#adminDashboardRevenue .ama-ca-summary .stat{padding:10px;min-height:80px}}
+
+/* AMA Planning · design unifié bleu pétrole & sauge · 2026 */
+:root{--bg:#F4F8F9;--card:#fff;--ink:#213D4A;--muted:#728691;--line:#E0E9EC;--brand:#39748B;--brand2:#28576A;--green:#278C74;--amber:#B17E3F;--radius:18px;--shadow:0 6px 24px rgba(35,82,98,.055)}
+html,body{background:#F4F8F9;color:var(--ink)}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap[hidden],#app[hidden]{display:none!important}
+.login-screen:not(.hidden)~.wrap{display:none!important}
+.sidebar{background:#fff;border-right:1px solid var(--line);color:var(--ink);box-shadow:none}
+.nav button{color:#718994}.nav button.active{background:#E9F5F2;color:#207762;box-shadow:none}
+.nav button:hover{background:#F0F6F7;color:#28576A}
+.side-foot{color:#2B5361;border-color:var(--line)}.side-foot small{color:#82959F}
+.top{background:#F4F8F9;border-color:var(--line)}
+.top .brand h1{color:#2C5A6D;font-weight:800;letter-spacing:-.035em}
+.top-actions{gap:8px;flex-wrap:nowrap!important}
+.pill{background:#E8F3F4;color:#377184;border:1px solid #D7E8EB}
+.hero{background:linear-gradient(125deg,#fff,#F0F7F7);border-color:#E1ECEE;box-shadow:none}
+.hero h2,.card h3,.stat .value{color:#234454}
+.stat,.card,.mission{border-color:var(--line);box-shadow:var(--shadow);background:#fff}
+.stat:before{background:#EBF4F5;color:#39748B;border-color:#DDE9EC}
+.dark-promo{background:linear-gradient(125deg,#EEF5F7,#E3F0EF);color:#2A5260;border-color:#D9E8E9}
+.dark-promo p{color:#607F88}
+.primary{background:linear-gradient(135deg,#3B8191,#2F6C7E);color:white;box-shadow:0 5px 13px rgba(48,106,124,.12)}
+.primary:hover{background:linear-gradient(135deg,#347588,#285E72)}
+.soft{background:#E8F3F1;color:#287564}.soft:hover{background:#DCEEEA}
+.ghost{background:#EDF3F5;color:#3A6678}.ghost:hover{background:#E2EEF0}
+.danger{background:#FFF0F0;color:#B84350}
+button{border-radius:11px;transition:background .18s,box-shadow .18s,transform .18s,border-color .18s;min-height:39px}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:focus-visible,.nav button:focus-visible{outline:2px solid #3D8D95;outline-offset:2px}
+.mission .right button,.actions button{border:1px solid transparent}
+.mission .right .primary{border-color:#2F6C7E}.mission .right .soft{border-color:#D2E7E2}.mission .right .ghost{border-color:#D9E7EB}
+.badge.done{background:#E3F5ED;color:#167653}.badge.planned{background:#E8F1FA;color:#356B96}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#3A8894;box-shadow:0 0 0 3px rgba(68,145,153,.12)}
+th,.dash-head{background:#F1F7F8;color:#637E89}.dash-row:hover{background:#F5FAF9}
+.week-day{background:#FAFCFC;border-color:#E4ECEF}.week-day:hover{background:#F1F8F7}.week-day.is-today{background:#EDF6F5;border-color:#8EC5B8}
+.week-day .wd-bar{background:#90AEBB}.week-day .wd-bar.done-bar{background:#32A27D}.week-legend i{background:#90AEBB}.week-legend i.green{background:#32A27D}
+.ama-ca-details summary{background:#EAF4F3;color:#336C78;border-color:#D1E7E4}
+.reminder,.mission-note{background:#FFF9EF;border-color:#E9D8B9;color:#856137}
+.login-screen{background:radial-gradient(circle at 10% 10%,#DDEEEE,transparent 45%),linear-gradient(130deg,#F8FBFC,#E9F2F4)}
+.login .ama-logo{background:#EFF6F6}
+.top .brand .ama-logo{background:#EFF6F6}
+.ama-icon-button,.ama-avatar-button{position:relative;display:grid;place-items:center;flex:0 0 auto;width:43px;height:43px;padding:0;border:1px solid #D7E6E9;border-radius:13px;background:#fff;color:#386B7D;box-shadow:0 3px 11px rgba(37,94,113,.05)}
+.ama-icon-button svg{width:21px;height:21px}.ama-icon-button:hover,.ama-avatar-button:hover{background:#EAF5F3}
+.ama-avatar-button{border-radius:50%;overflow:hidden;background:#E2F2EE;color:#256F60;font-weight:800;font-size:12px}
+.ama-avatar-button img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ama-bell-badge{position:absolute;top:5px;right:5px;min-width:16px;height:16px;padding:0 3px;border:2px solid white;border-radius:99px;background:#E67B65;color:#fff;font-size:9px;line-height:12px;font-weight:800}
+#logoutBtn,#refreshBtn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#fff;border:1px solid #D9E7EA;color:#346778;border-radius:12px;box-shadow:0 2px 8px rgba(23,69,87,.045);font-size:12px;min-height:43px}
+#logoutBtn:hover{background:#FFF2F2;border-color:#F0D9D9;color:#AF4D53}
+#refreshBtn:hover{background:#EAF5F3}
+#notificationCard.ama-popover{position:fixed;right:16px;top:75px;width:min(420px,calc(100vw - 32px));max-height:min(65vh,570px);overflow:auto;z-index:80;padding:15px;border-radius:18px;box-shadow:0 20px 58px rgba(25,67,85,.18);border:1px solid #DAE7E9;background:#fff;margin:0}
+#notificationCard.ama-popover:not(.ama-open){display:none!important}
+#notificationCard.ama-popover #notificationToggle{background:#EAF4F3;color:#285F6C;border:0;border-radius:11px}
+.ama-worker-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#E1F1ED;border:1px solid #D9E9E7;margin-right:8px;vertical-align:middle}
+.ama-photo-action{display:inline-flex;align-items:center;gap:5px}
+@media(max-width:700px){
+  .sidebar{display:block!important;position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;height:auto!important;min-height:0!important;padding:8px 7px calc(8px + env(safe-area-inset-bottom))!important;border:0!important;border-top:1px solid #DBE7E9!important;background:rgba(255,255,255,.97)!important;box-shadow:0 -5px 28px rgba(42,92,108,.08)!important;z-index:40!important;overflow:visible!important}
+  .sidebar .side-brand,.sidebar .side-label,.sidebar .side-foot{display:none!important}
+  #nav,#nav.mobile-open{display:flex!important;position:static!important;width:100%!important;max-height:none!important;overflow-x:hidden!important;overflow-y:visible!important;flex-direction:row!important;justify-content:space-around!important;gap:2px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+  #nav button{flex:1 1 0!important;width:auto!important;min-width:0!important;max-width:none!important;min-height:62px!important;padding:8px 1px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;text-align:center!important;font-size:10px!important;line-height:1.25!important;white-space:normal!important;border-radius:13px!important;color:#8799A2}
+  #nav button.active{background:#E8F4F1!important;box-shadow:none!important;color:#237761!important}
+  .mobile-menu-toggle,.mobile-menu-backdrop{display:none!important}
+  .wrap{padding-bottom:calc(93px + env(safe-area-inset-bottom))!important}
+  .workspace{padding:0 12px 20px!important;overflow:visible!important}
+  .top{position:sticky!important;top:0;z-index:30;background:rgba(248,251,251,.97)!important;backdrop-filter:blur(14px);padding:10px 12px!important;margin:0 -12px 14px!important;min-height:70px;gap:7px}
+  .top .brand h1{font-size:1.02rem!important}
+  .top .brand p,.top-actions .pill,#backBtn{display:none!important}
+  .top-actions{gap:6px!important}
+  #logoutBtn,#refreshBtn{font-size:0!important;width:41px;min-width:41px;height:41px;padding:0!important}
+  #logoutBtn .ama-top-label,#refreshBtn .ama-top-label{display:none}
+  #notificationCard.ama-popover{top:76px;right:12px}
+  .hero{padding:16px!important}.weekly-card{padding:14px!important}
+  .week-day{border-color:#E4ECEF}.week-day.is-today{background:#EDF6F5}
+  #amaAvatarButton,.ama-icon-button{width:40px;height:40px}
+}
 </style>
-<link rel="stylesheet" href="./ama-elegance.css?v=20261018">
+
 </head>
 <body>
 <div id="loginScreen" class="login-screen">
@@ -171,7 +245,7 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
   <header class="top">
     <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav">☰ <span>Menu</span></button>
     <div class="brand"><div><h1>AMA Company</h1><p>Gestion des plannings et interventions</p></div></div>
-    <div class="top-actions"><button class="ghost ama-top-btn" id="backBtn" type="button" title="Retour à la vue précédente">← <span>Retour</span></button><button class="soft ama-top-btn" id="refreshBtn" type="button" title="Actualiser les données">↻ <span>Actualiser</span></button><span class="pill" id="rolePill">Administrateur</span><button class="ghost" id="logoutBtn">↪ Déconnexion</button></div>
+    <div class="top-actions"><button type="button" id="amaBell" class="ama-icon-button" aria-label="Ouvrir les notifications" title="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span id="amaBellBadge" class="ama-bell-badge hidden"></span></button><button type="button" id="amaAvatarButton" class="ama-avatar-button" aria-label="Modifier ma photo de profil" title="Ma photo de profil"><span id="amaAvatarInitials">AM</span><img id="amaAvatarImg" class="hidden" alt="Photo de profil"></button><input type="file" id="amaAvatarInput" accept="image/png,image/jpeg,image/webp" hidden><button class="ghost ama-top-btn" id="backBtn" type="button" title="Retour à la vue précédente">← <span>Retour</span></button><button class="soft ama-top-btn" id="refreshBtn" type="button" title="Actualiser les données">↻ <span>Actualiser</span></button><span class="pill" id="rolePill">Administrateur</span><button class="ghost" id="logoutBtn">↪ Déconnexion</button></div>
   </header>
   <section class="hero"><div><h2 id="welcomeTitle">Bonjour 👋</h2><p id="welcomeText">Organisez vos missions et suivez leur réalisation.</p></div><div class="date" id="todayLabel"></div></section>
   <section class="stats" id="stats">
@@ -1013,6 +1087,79 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
   const button=event.target.closest('[data-ama-tab]');
   if(button) document.querySelector('#nav [data-tab="' + button.dataset.amaTab + '"]')?.click();
 });
+</script>
+<script>
+/* AMA : surcouche ergonomique. Le moteur existant reste inchangé. */
+(function(){
+ 'use strict';
+ const byId=id=>document.getElementById(id);
+ const bell=byId('amaBell'),panel=byId('notificationCard'),badge=byId('amaBellBadge'),count=byId('notificationCount');
+ if(bell&&panel){
+  panel.classList.add('ama-popover');document.body.appendChild(panel);
+  const toggle=()=>{const opening=!panel.classList.contains('ama-open');panel.classList.toggle('ama-open',opening);if(opening&&byId('notificationContent')?.classList.contains('hidden'))byId('notificationToggle')?.click()};
+  bell.addEventListener('click',toggle);
+  document.addEventListener('click',e=>{if(!panel.contains(e.target)&&!bell.contains(e.target))panel.classList.remove('ama-open')});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')panel.classList.remove('ama-open')});
+  if(count){const sync=()=>{const n=Number((count.textContent||'').match(/\d+/)?.[0]||0);badge.textContent=n>9?'9+':String(n);badge.classList.toggle('hidden',n===0);bell.setAttribute('aria-label',n?`${n} notifications non lues`:'Notifications')};new MutationObserver(sync).observe(count,{childList:true,characterData:true,subtree:true});sync()}
+ }
+ // Dessins vectoriels autonomes : aucune librairie externe ni changement des handlers.
+ const paths={dashboard:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',planning:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M7 14h3M14 14h3"/>',history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l4 3"/>',invoices:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/>',admin:'<circle cx="10" cy="8" r="4"/><path d="M3 21v-2a7 7 0 0 1 14 0v2M19 8v6M16 11h6"/>'};
+ document.querySelectorAll('#nav button[data-tab]').forEach(b=>{const path=paths[b.dataset.tab];if(!path||b.querySelector('svg'))return;const label=b.textContent.trim();b.textContent='';b.insertAdjacentHTML('afterbegin',`<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`);b.appendChild(document.createTextNode(label))});
+ const ico=(path)=>`<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+ const refresh=byId('refreshBtn'),logout=byId('logoutBtn');
+ if(refresh)refresh.innerHTML=ico('<path d="M20 7v5h-5M4 17v-5h5"/><path d="M5 9a8 8 0 0 1 13-3l2 2M4 16l2 2a8 8 0 0 0 13-3"/>')+'<span class="ama-top-label">Actualiser</span>';
+ if(logout)logout.innerHTML=ico('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>')+'<span class="ama-top-label">Déconnexion</span>';
+ // L'affichage du panneau app est déjà piloté par la connexion ; le CSS respecte son attribut hidden.
+ // Photos de profil : Supabase Storage + profils (migration SQL fournie dans l'archive).
+ const avatarButton=byId('amaAvatarButton'),avatarInput=byId('amaAvatarInput'),avatarImg=byId('amaAvatarImg'),initials=byId('amaAvatarInitials');
+ let selectedProfile=null;let pictureUrls=new Map();
+ // Réutiliser la session Supabase déjà présente dans l'application, sans nouvelle connexion.
+ async function clientForAvatar(){
+   const sup=window.supabase;if(!sup?.createClient)return null;
+   // Le client partagé par l'application n'est pas exporté. Le jeton public se lit uniquement dans la configuration existante.
+   const scripts=Array.from(document.scripts).map(s=>s.textContent||'').join('');
+   const m=scripts.match(/createClient\(\s*['"]https:\/\/bleixaoiyoxvatsimkrw\.supabase\.co['"]\s*,\s*['"]([^'"]+)['"]/);
+   if(!m)return null;
+   return sup.createClient('https://bleixaoiyoxvatsimkrw.supabase.co',m[1]);
+ }
+ let photoClientPromise;
+ function photoClient(){return photoClientPromise||(photoClientPromise=clientForAvatar())}
+ async function refreshAvatar(){
+  if(byId('app')?.hidden)return;
+  const client=await photoClient();if(!client)return;
+  const {data:{user}}=await client.auth.getUser();if(!user)return;
+  const {data:rows,error}=await client.from('profiles').select('id,full_name,avatar_url').eq('id',user.id).limit(1);
+  if(error)return;
+  const p=rows?.[0];if(!p)return;
+  initials.textContent=(p.full_name||user.email||'AM').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  if(p.avatar_url){avatarImg.src=p.avatar_url;avatarImg.classList.remove('hidden')}else{avatarImg.classList.add('hidden');avatarImg.removeAttribute('src')}
+ }
+ avatarButton?.addEventListener('click',()=>{selectedProfile=null;avatarInput?.click()});
+ avatarInput?.addEventListener('change',async()=>{
+  const file=avatarInput.files?.[0];if(!file)return;
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>3*1024*1024){alert('Choisissez une image JPG, PNG ou WebP de 3 Mo maximum.');avatarInput.value='';return}
+  avatarButton.disabled=true;
+  try{
+   const client=await photoClient();if(!client)throw Error('Connexion Supabase indisponible.');
+   const {data:{user},error:authError}=await client.auth.getUser();if(authError||!user)throw Error('Connectez-vous pour modifier une photo.');
+   const target=selectedProfile||user.id;
+   const path=target+'/profil-'+Date.now()+'.'+({ 'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type]);
+   const upload=await client.storage.from('profile-photos').upload(path,file,{contentType:file.type,upsert:false});if(upload.error)throw upload.error;
+   const {data:url}=client.storage.from('profile-photos').getPublicUrl(path);
+   const updated=await client.rpc('ama_set_profile_avatar',{target_user_id:target,avatar_public_url:url.publicUrl});
+   if(updated.error)throw updated.error;
+   pictureUrls.set(target,url.publicUrl);
+   if(target===user.id)await refreshAvatar();else updateWorkerPictures();
+  }catch(e){alert('Photo non enregistrée : '+(e.message||e)+'\nVérifiez la configuration SQL du dossier.')}finally{avatarButton.disabled=false;avatarInput.value='';selectedProfile=null}
+ });
+ const workerList=byId('workerList');let busy=false;
+ async function fetchWorkerPictures(){if(byId('app')?.hidden||!workerList)return;const c=await photoClient();if(!c)return;const {data,error}=await c.from('profiles').select('id,avatar_url');if(!error){pictureUrls=new Map((data||[]).filter(p=>p.avatar_url).map(p=>[p.id,p.avatar_url]));updateWorkerPictures()}}
+ function updateWorkerPictures(){if(!workerList||busy)return;busy=true;try{workerList.querySelectorAll('.mission').forEach(row=>{const btn=row.querySelector('button[data-id]');if(!btn)return;const id=btn.dataset.id;const strong=row.querySelector('strong');if(!strong)return;let photo=row.querySelector('.ama-worker-avatar');const url=pictureUrls.get(id);if(url){if(!photo){photo=document.createElement('img');photo.className='ama-worker-avatar';photo.alt='Photo de profil';strong.prepend(photo)}if(photo.src!==url)photo.src=url}else photo?.remove();if(!row.querySelector('.ama-photo-action')){const action=document.createElement('button');action.type='button';action.className='ghost mini ama-photo-action';action.textContent='📷 Photo';action.title='Ajouter ou modifier la photo de cet intervenant';action.addEventListener('click',()=>{selectedProfile=id;avatarInput.click()});row.querySelector('.inline')?.prepend(action)}})}finally{busy=false}}
+ if(workerList)new MutationObserver(()=>updateWorkerPictures()).observe(workerList,{childList:true,subtree:false});
+ // Déclenché à la connexion, sans altérer les fonctions internes de session.
+ const app=byId('app');if(app){new MutationObserver(()=>{if(!app.hidden){refreshAvatar().catch(()=>{});fetchWorkerPictures().catch(()=>{})}else{panel?.classList.remove('ama-open');avatarImg?.classList.add('hidden')}}).observe(app,{attributes:true,attributeFilter:['hidden']})}
+ if(app&&!app.hidden){refreshAvatar();fetchWorkerPictures()}
+})();
 </script>
 </body>
 </html>
