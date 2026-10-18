@@ -454,6 +454,28 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 .ama-auto-refresh-status svg{width:17px;height:17px;color:#398b7b;animation:ama-refresh-spin .85s linear infinite}
 @keyframes ama-refresh-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.ama-auto-refresh-status svg{animation:none}}
+</style><style id="ama-notification-ios-overflow-fix">
+/* The swipe action stays completely covered until a deliberate reveal. */
+#notificationCard .ama-ios-notification{position:relative;isolation:isolate;overflow:hidden!important;background:#d95059!important;border:1px solid #e5edf0;min-width:0;width:100%;box-sizing:border-box}
+#notificationCard .ama-ios-notification .ama-swipe-content{position:relative;z-index:2;background:#f3f7f8!important;width:100%;box-sizing:border-box;min-width:0;transform:translate3d(0,0,0);will-change:transform;touch-action:pan-y}
+#notificationCard .ama-ios-notification.ama-is-read .ama-swipe-content{background:#fafbfc!important}
+#notificationCard .ama-ios-notification.ama-revealed .ama-swipe-content{transform:translate3d(-88px,0,0)}
+#notificationCard .ama-ios-notification .ama-swipe-delete{z-index:1;right:0;width:88px;box-sizing:border-box;white-space:normal;overflow:hidden}
+#notificationCard .ama-ios-notification .ama-swipe-tools{flex:0 0 auto;min-width:0;gap:4px}
+#notificationCard .ama-ios-notification .ama-swipe-copy{flex:1 1 0;min-width:0;overflow:hidden}
+#notificationCard .ama-ios-notification .ama-swipe-copy p{overflow-wrap:anywhere}
+#notificationCard .ama-ios-notification .ama-reveal-delete{flex:0 0 auto;padding:8px 10px}
+#notificationCard.ama-popover{max-height:min(72dvh,620px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;box-sizing:border-box}
+@media(max-width:700px){#notificationCard.ama-popover{top:clamp(76px,11vh,120px);max-height:calc(100dvh - clamp(76px,11vh,120px) - 92px);max-height:calc(100svh - clamp(76px,11vh,120px) - 92px)} }
+@media(max-width:360px){#notificationCard .ama-ios-notification .ama-swipe-content{padding:10px 7px;gap:6px}#notificationCard .ama-ios-notification .ama-swipe-tools .soft{padding:8px 5px}}
+</style>
+<style id="ama-pull-to-refresh-style">
+#notificationCard .ama-pull-indicator{display:flex;align-items:center;justify-content:center;gap:9px;min-height:38px;margin:0 0 8px;color:#398b7b;font-size:12px;font-weight:600;transform:translateY(var(--ama-pull-offset,0px));transition:transform .15s ease}
+#notificationCard .ama-pull-indicator[hidden]{display:none!important}
+#notificationCard .ama-pull-indicator svg{width:17px;height:17px;flex:none}
+#notificationCard .ama-pull-loading svg{animation:ama-refresh-spin .8s linear infinite}
+#notificationCard #amaAutoRefreshStatus{display:none!important}
+@media(prefers-reduced-motion:reduce){#notificationCard .ama-pull-loading svg{animation:none}}
 </style></head>
 <body>
 <div id="loginScreen" class="login-screen">
@@ -487,7 +509,7 @@ body.ama-worker #tab-planning .grid{margin-top:0}
     <div class="stat ama-stat"><div class="ama-stat-head"><div class="label">CLÔTURÉES (MOIS)</div><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></div><div class="ama-stat-main"><div class="value" id="statDone">0</div></div><div class="sub">Interventions validées</div></div>
     <div class="stat ama-stat"><div class="ama-stat-head"><div class="label">HEURES DÉCLARÉES</div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 2.7 2 3.4-.2.6 3.3 2.4 2.4-1.6 3 1.6 3-2.4 2.4-.6 3.3-3.4-.2L12 22l-2.7-2-3.4.2-.6-3.3-2.4-2.4 1.6-3-1.6-3 2.4-2.4.6-3.3 3.4.2z"/><path d="m9 12 2 2 4-4"/></svg></div><div class="ama-stat-main"><div class="value" id="statHours">0 h</div></div><div class="sub">D'après les heures déclarées</div></div>
   </section>
-    <div class="card hidden" id="notificationCard"><div class="section-title"><button type="button" id="notificationToggle" aria-expanded="false" aria-controls="notificationContent" class="ghost" style="display:flex;align-items:center;gap:8px;flex:1;text-align:left;justify-content:space-between;padding:8px 4px"><span class="ama-notif-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><strong>Notifications</strong></span><span class="ama-notif-unread" id="notificationUnreadText" aria-live="polite"></span><span id="notificationCount" class="ama-count-hidden" aria-hidden="true"></span><span id="notificationChevron" aria-hidden="true">⌄</span></button></div><div id="notificationContent" class="hidden"><p class="desc">Alertes liées aux interventions et aux missions.</p><button type="button" class="soft mini" id="notificationRefresh">↻ Actualiser</button><div id="notificationList" style="margin-top:12px"></div><div id="amaAutoRefreshStatus" class="ama-auto-refresh-status" role="status" aria-live="polite" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg><span>Actualisation automatique…</span></div><div id="amaUndoToast" hidden class="ama-undo-toast">Notification supprimée <button type="button">Annuler</button></div></div></div>
+    <div class="card hidden" id="notificationCard"><div class="section-title"><button type="button" id="notificationToggle" aria-expanded="false" aria-controls="notificationContent" class="ghost" style="display:flex;align-items:center;gap:8px;flex:1;text-align:left;justify-content:space-between;padding:8px 4px"><span class="ama-notif-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><strong>Notifications</strong></span><span class="ama-notif-unread" id="notificationUnreadText" aria-live="polite"></span><span id="notificationCount" class="ama-count-hidden" aria-hidden="true"></span><span id="notificationChevron" aria-hidden="true">⌄</span></button></div><div id="notificationContent" class="hidden"><p class="desc">Alertes liées aux interventions et aux missions.</p><div id="amaPullIndicator" class="ama-pull-indicator" aria-live="polite" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg><span id="amaPullText">Tirez pour actualiser</span></div><div id="notificationList" style="margin-top:12px"></div><div id="amaAutoRefreshStatus" class="ama-auto-refresh-status" role="status" aria-live="polite" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg><span>Actualisation automatique…</span></div><div id="amaUndoToast" hidden class="ama-undo-toast">Notification supprimée <button type="button">Annuler</button></div></div></div>
     
 <div class="ama-quick-actions" id="amaQuickActions" aria-label="Accès rapide"><div class="ama-quick-heading">Accès rapide</div><div class="ama-quick-grid">
 <button type="button" class="ama-quick-action" data-ama-tab="planning"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Programmer</span></button>
@@ -807,34 +829,56 @@ $('#notificationToggle').addEventListener('click',()=>{
  content.classList.toggle('hidden',!expanded);
  $('#notificationToggle').setAttribute('aria-expanded',String(expanded));
  $('#notificationChevron').textContent=expanded?'⌃':'⌄';
- if(expanded)amaAutoRefreshArmed=true;else amaAutoRefreshArmed=false;
+ if(!expanded){amaPullStart=null;amaPullSet(false,'');$('#notificationList').querySelectorAll('.ama-revealed').forEach(row=>row.classList.remove('ama-revealed'));}
 });
-// Rafraîchissement Apple discret lorsque la fin de la liste devient visible.
-// Déclenché seulement après un vrai défilement et avec limitation des requêtes.
-let amaAutoRefreshBusy=false,amaAutoRefreshArmed=false,amaAutoRefreshLast=0;
-const amaAutoRefreshDelay=12000;
-async function amaAutoRefreshNotifications(){
- if(amaAutoRefreshBusy||!session||$('#notificationContent').classList.contains('hidden'))return;
- if(Date.now()-amaAutoRefreshLast<amaAutoRefreshDelay)return;
- amaAutoRefreshBusy=true;amaAutoRefreshLast=Date.now();
- const status=$('#amaAutoRefreshStatus');status.hidden=false;
+// Actualisation par geste vertical depuis le haut du panneau de notifications.
+// Le glissement horizontal de suppression reste géré séparément.
+let amaPullBusy=false,amaPullLast=0,amaPullStart=null;
+const amaPullCooldown=3500,amaPullThreshold=65;
+const amaPullIndicator=$('#amaPullIndicator'),amaPullText=$('#amaPullText');
+function amaPullSet(visible,message,progress=0){
+ amaPullIndicator.hidden=!visible;
+ if(visible){amaPullText.textContent=message;amaPullIndicator.style.setProperty('--ama-pull-offset',Math.min(26,progress*.28)+'px');}
+ else amaPullIndicator.style.removeProperty('--ama-pull-offset');
+}
+function amaNotifScrollAtTop(){
+ const card=$('#notificationCard'),content=$('#notificationContent');
+ return card.scrollTop<=2&&content.scrollTop<=2;
+}
+async function amaPullRefresh(){
+ if(amaPullBusy||!session||Date.now()-amaPullLast<amaPullCooldown)return;
+ amaPullBusy=true;amaPullLast=Date.now();
+ amaPullIndicator.classList.add('ama-pull-loading');
+ amaPullSet(true,'Actualisation…',0);
  try{await loadNotifications();renderNotifications();}
- catch(e){console.warn('Actualisation automatique des notifications impossible :',e);}
- finally{status.hidden=true;amaAutoRefreshBusy=false;}
+ catch(e){console.warn('Actualisation des notifications impossible :',e);amaPullSet(true,'Actualisation impossible',0);}
+ finally{
+  amaPullBusy=false;
+  amaPullIndicator.classList.remove('ama-pull-loading');
+  // L'indicateur disparaît sans intervention supplémentaire.
+  setTimeout(()=>{if(!amaPullBusy)amaPullSet(false,'');},900);
+ }
 }
-function amaCheckNotificationBottom(){
- if(!session||$('#notificationContent').classList.contains('hidden'))return;
- const list=$('#notificationList');if(!list||!list.children.length)return;
- const rect=list.getBoundingClientRect();
- const visible=rect.bottom<=window.innerHeight+90&&rect.bottom>=0;
- // Réarmement lorsque l'utilisateur remonte suffisamment haut.
- if(rect.bottom>window.innerHeight+170){amaAutoRefreshArmed=true;return;}
- if(visible&&amaAutoRefreshArmed){amaAutoRefreshArmed=false;amaAutoRefreshNotifications();}
-}
-window.addEventListener('scroll',amaCheckNotificationBottom,{passive:true});
-$('#notificationContent').addEventListener('scroll',amaCheckNotificationBottom,{passive:true});
-$('#notificationList').addEventListener('touchmove',amaCheckNotificationBottom,{passive:true});
-$('#notificationRefresh').addEventListener('click',async()=>{try{await loadNotifications();renderNotifications()}catch(e){alert(e.message)}});
+const amaPullTarget=$('#notificationCard');
+amaPullTarget.addEventListener('touchstart',e=>{
+ if(e.touches.length!==1||!session||$('#notificationContent').classList.contains('hidden')||!amaNotifScrollAtTop()||amaPullBusy){amaPullStart=null;return;}
+ const t=e.touches[0];amaPullStart={x:t.clientX,y:t.clientY,distance:0,axis:null};
+},{passive:true});
+amaPullTarget.addEventListener('touchmove',e=>{
+ if(!amaPullStart||e.touches.length!==1)return;
+ const t=e.touches[0],dx=t.clientX-amaPullStart.x,dy=t.clientY-amaPullStart.y;
+ if(!amaPullStart.axis&&Math.max(Math.abs(dx),Math.abs(dy))>9)amaPullStart.axis=Math.abs(dx)>Math.abs(dy)*1.2?'horizontal':'vertical';
+ if(amaPullStart.axis!=='vertical'||dy<=0||!amaNotifScrollAtTop()){amaPullSet(false,'');amaPullStart.distance=0;return;}
+ amaPullStart.distance=dy;
+ amaPullSet(true,dy>=amaPullThreshold?'Relâchez pour actualiser':'Tirez pour actualiser',dy);
+},{passive:true});
+amaPullTarget.addEventListener('touchend',()=>{
+ if(!amaPullStart)return;
+ const trigger=amaPullStart.axis==='vertical'&&amaPullStart.distance>=amaPullThreshold&&amaNotifScrollAtTop();
+ amaPullStart=null;
+ if(trigger)amaPullRefresh();else if(!amaPullBusy)amaPullSet(false,'');
+},{passive:true});
+amaPullTarget.addEventListener('touchcancel',()=>{amaPullStart=null;if(!amaPullBusy)amaPullSet(false,'');},{passive:true});
 $('#notificationList').addEventListener('click',async e=>{
  const reveal=e.target.closest('[data-notification-reveal]');
  if(reveal){const row=reveal.closest('.ama-swipe-shell');row?.classList.toggle('ama-revealed');return;}
