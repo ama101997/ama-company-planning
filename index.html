@@ -448,7 +448,13 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 #notificationCard .ama-swipe-delete{background:#d95059;color:#fff}
 @media(max-width:400px){#notificationCard.ama-popover{right:8px;width:calc(100vw - 16px);padding:10px}#notificationCard .ama-ios-notification .ama-swipe-content{gap:7px;padding:11px 8px}#notificationCard .ama-ios-icon{width:32px;height:32px;min-width:32px}}
 </style>
-</head>
+<style id="ama-auto-refresh-style">
+.ama-auto-refresh-status{display:flex;align-items:center;justify-content:center;gap:9px;padding:16px 8px;color:#8195a0;font-size:12px}
+.ama-auto-refresh-status[hidden]{display:none!important}
+.ama-auto-refresh-status svg{width:17px;height:17px;color:#398b7b;animation:ama-refresh-spin .85s linear infinite}
+@keyframes ama-refresh-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.ama-auto-refresh-status svg{animation:none}}
+</style></head>
 <body>
 <div id="loginScreen" class="login-screen">
   <form class="login" id="loginForm">
@@ -481,7 +487,7 @@ body.ama-worker #tab-planning .grid{margin-top:0}
     <div class="stat ama-stat"><div class="ama-stat-head"><div class="label">CLÔTURÉES (MOIS)</div><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></div><div class="ama-stat-main"><div class="value" id="statDone">0</div></div><div class="sub">Interventions validées</div></div>
     <div class="stat ama-stat"><div class="ama-stat-head"><div class="label">HEURES DÉCLARÉES</div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 2.7 2 3.4-.2.6 3.3 2.4 2.4-1.6 3 1.6 3-2.4 2.4-.6 3.3-3.4-.2L12 22l-2.7-2-3.4.2-.6-3.3-2.4-2.4 1.6-3-1.6-3 2.4-2.4.6-3.3 3.4.2z"/><path d="m9 12 2 2 4-4"/></svg></div><div class="ama-stat-main"><div class="value" id="statHours">0 h</div></div><div class="sub">D'après les heures déclarées</div></div>
   </section>
-    <div class="card hidden" id="notificationCard"><div class="section-title"><button type="button" id="notificationToggle" aria-expanded="false" aria-controls="notificationContent" class="ghost" style="display:flex;align-items:center;gap:8px;flex:1;text-align:left;justify-content:space-between;padding:8px 4px"><span class="ama-notif-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><strong>Notifications</strong></span><span class="ama-notif-unread" id="notificationUnreadText" aria-live="polite"></span><span id="notificationCount" class="ama-count-hidden" aria-hidden="true"></span><span id="notificationChevron" aria-hidden="true">⌄</span></button></div><div id="notificationContent" class="hidden"><p class="desc">Alertes liées aux interventions et aux missions.</p><button type="button" class="soft mini" id="notificationRefresh">↻ Actualiser</button><div id="notificationList" style="margin-top:12px"></div><div id="amaUndoToast" hidden class="ama-undo-toast">Notification supprimée <button type="button">Annuler</button></div></div></div>
+    <div class="card hidden" id="notificationCard"><div class="section-title"><button type="button" id="notificationToggle" aria-expanded="false" aria-controls="notificationContent" class="ghost" style="display:flex;align-items:center;gap:8px;flex:1;text-align:left;justify-content:space-between;padding:8px 4px"><span class="ama-notif-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><strong>Notifications</strong></span><span class="ama-notif-unread" id="notificationUnreadText" aria-live="polite"></span><span id="notificationCount" class="ama-count-hidden" aria-hidden="true"></span><span id="notificationChevron" aria-hidden="true">⌄</span></button></div><div id="notificationContent" class="hidden"><p class="desc">Alertes liées aux interventions et aux missions.</p><button type="button" class="soft mini" id="notificationRefresh">↻ Actualiser</button><div id="notificationList" style="margin-top:12px"></div><div id="amaAutoRefreshStatus" class="ama-auto-refresh-status" role="status" aria-live="polite" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg><span>Actualisation automatique…</span></div><div id="amaUndoToast" hidden class="ama-undo-toast">Notification supprimée <button type="button">Annuler</button></div></div></div>
     
 <div class="ama-quick-actions" id="amaQuickActions" aria-label="Accès rapide"><div class="ama-quick-heading">Accès rapide</div><div class="ama-quick-grid">
 <button type="button" class="ama-quick-action" data-ama-tab="planning"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Programmer</span></button>
@@ -801,7 +807,33 @@ $('#notificationToggle').addEventListener('click',()=>{
  content.classList.toggle('hidden',!expanded);
  $('#notificationToggle').setAttribute('aria-expanded',String(expanded));
  $('#notificationChevron').textContent=expanded?'⌃':'⌄';
+ if(expanded)amaAutoRefreshArmed=true;else amaAutoRefreshArmed=false;
 });
+// Rafraîchissement Apple discret lorsque la fin de la liste devient visible.
+// Déclenché seulement après un vrai défilement et avec limitation des requêtes.
+let amaAutoRefreshBusy=false,amaAutoRefreshArmed=false,amaAutoRefreshLast=0;
+const amaAutoRefreshDelay=12000;
+async function amaAutoRefreshNotifications(){
+ if(amaAutoRefreshBusy||!session||$('#notificationContent').classList.contains('hidden'))return;
+ if(Date.now()-amaAutoRefreshLast<amaAutoRefreshDelay)return;
+ amaAutoRefreshBusy=true;amaAutoRefreshLast=Date.now();
+ const status=$('#amaAutoRefreshStatus');status.hidden=false;
+ try{await loadNotifications();renderNotifications();}
+ catch(e){console.warn('Actualisation automatique des notifications impossible :',e);}
+ finally{status.hidden=true;amaAutoRefreshBusy=false;}
+}
+function amaCheckNotificationBottom(){
+ if(!session||$('#notificationContent').classList.contains('hidden'))return;
+ const list=$('#notificationList');if(!list||!list.children.length)return;
+ const rect=list.getBoundingClientRect();
+ const visible=rect.bottom<=window.innerHeight+90&&rect.bottom>=0;
+ // Réarmement lorsque l'utilisateur remonte suffisamment haut.
+ if(rect.bottom>window.innerHeight+170){amaAutoRefreshArmed=true;return;}
+ if(visible&&amaAutoRefreshArmed){amaAutoRefreshArmed=false;amaAutoRefreshNotifications();}
+}
+window.addEventListener('scroll',amaCheckNotificationBottom,{passive:true});
+$('#notificationContent').addEventListener('scroll',amaCheckNotificationBottom,{passive:true});
+$('#notificationList').addEventListener('touchmove',amaCheckNotificationBottom,{passive:true});
 $('#notificationRefresh').addEventListener('click',async()=>{try{await loadNotifications();renderNotifications()}catch(e){alert(e.message)}});
 $('#notificationList').addEventListener('click',async e=>{
  const reveal=e.target.closest('[data-notification-reveal]');
