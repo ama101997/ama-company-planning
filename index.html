@@ -155,7 +155,7 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
 .ama-ca-details .tablewrap{margin-top:12px}
 @media(max-width:700px){#adminDashboardRevenue .ama-ca-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}#adminDashboardRevenue .ama-ca-summary .stat{padding:10px;min-height:80px}}
 </style>
-<link rel="stylesheet" href="ama-stitch.css">
+<link rel="stylesheet" href="./ama-elegance.css?v=20261018">
 </head>
 <body>
 <div id="loginScreen" class="login-screen">
@@ -182,14 +182,21 @@ button:focus-visible,.nav button:focus-visible{outline:3px solid #e8b32b;outline
   </section>
   <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
   <nav class="nav" id="nav">
-    <button class="active" data-tab="dashboard">⌂ Tableau de bord</button><button data-tab="planning">📅 Mon planning</button><button data-tab="history">☑️ Historique</button><button data-tab="invoices" id="invoicesTab">🧾 Factures</button><button data-tab="admin" id="adminTab">⚙️ Administration</button>
+    <button class="active" data-tab="dashboard"><span class="ama-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="ama-nav-label">Accueil</span></button><button data-tab="planning"><span class="ama-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="M8 14h3m-3 4h3m3-4h3"/></svg></span><span class="ama-nav-label">Planning</span></button><button data-tab="history"><span class="ama-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></span><span class="ama-nav-label">Historique</span></button><button data-tab="invoices" id="invoicesTab"><span class="ama-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h3m4 0h1"/></svg></span><span class="ama-nav-label">Factures</span></button><button data-tab="admin" id="adminTab"><span class="ama-nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5.5 20v-2a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v2M19 8h3M20.5 6.5v3"/></svg></span><span class="ama-nav-label">Gestion</span></button>
   </nav>
   <section id="tab-invoices" class="hidden"><div class="card"><h3>🧾 Factures par client</h3><p class="desc">Sélectionnez le mois, renseignez les informations de votre entreprise, puis générez le PDF de chaque client. Les missions sans montant ne peuvent pas être facturées automatiquement.</p>
 <div class="formgrid"><div class="field"><label for="invoiceMonth">Mois des prestations</label><input type="month" id="invoiceMonth"></div><div class="field"><label for="invoiceNumber">Numéro de facture *</label><input id="invoiceNumber" placeholder="Ex. F102026-001"></div><div class="field"><label for="invoiceIssuer">Entreprise émettrice *</label><input id="invoiceIssuer" value="AMA Company"></div><div class="field"><label for="invoiceSiret">Votre SIRET *</label><input id="invoiceSiret" placeholder="14 chiffres" inputmode="numeric"></div><div class="field full"><label for="invoiceIssuerAddress">Votre adresse professionnelle *</label><textarea id="invoiceIssuerAddress" rows="2"></textarea></div><div class="field"><label for="invoiceIssuerEmail">Email de l’émetteur</label><input type="email" id="invoiceIssuerEmail" placeholder="contact@entreprise.fr"></div><div class="field"><label for="invoiceIssuerPhone">Téléphone de l’émetteur</label><input id="invoiceIssuerPhone" placeholder="06 00 00 00 00"></div><div class="field"><label for="invoiceLogo">Parcourir un logo pour la facture (facultatif)</label><input id="invoiceLogo" type="file" accept="image/png,image/jpeg,image/webp"><img id="invoiceLogoPreview" alt="Aperçu du logo" style="display:none;max-width:160px;max-height:75px;object-fit:contain;margin-top:7px"></div><div class="field"><label for="invoicePaid">Montant déjà payé (€)</label><input id="invoicePaid" type="number" min="0" step="0.01" value="0"></div><div class="field"><label for="invoiceDueDate">Date limite de paiement *</label><input id="invoiceDueDate" type="date"></div><div class="field"><label for="invoicePayment">Modalités de règlement</label><input id="invoicePayment" placeholder="Ex. Virement bancaire"></div></div>
 <p class="muted" style="margin-top:12px">Numérotation à saisir manuellement : vérifiez qu'elle est unique et suit votre chronologie. Les informations ci-dessus restent sur cet appareil et ne sont pas enregistrées dans Supabase.</p><div id="invoiceSummary" style="margin-top:16px"></div></div></section>
 <section id="tab-dashboard">
     <div class="card hidden" id="notificationCard"><div class="section-title"><button type="button" id="notificationToggle" aria-expanded="false" aria-controls="notificationContent" class="ghost" style="display:flex;align-items:center;gap:8px;flex:1;text-align:left;justify-content:space-between;padding:8px 4px"><span><strong>🔔 Notifications <span id="notificationCount"></span></strong></span><span id="notificationChevron" aria-hidden="true">⌄</span></button></div><div id="notificationContent" class="hidden"><p class="desc">Alertes liées aux interventions et aux missions.</p><button type="button" class="soft mini" id="notificationRefresh">↻ Actualiser</button><div id="notificationList" style="margin-top:12px"></div></div></div>
-    <div class="card weekly-card" id="weeklyCard">
+    
+<div class="ama-quick-actions" id="amaQuickActions" aria-label="Accès rapide"><div class="ama-quick-heading">Accès rapide</div><div class="ama-quick-grid">
+<button type="button" class="ama-quick-action" data-ama-tab="planning"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Programmer</span></button>
+<button type="button" class="ama-quick-action" data-ama-tab="planning"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 2v4m10-4v4M3 10h18m-13 5 2 2 5-5"/></svg></span><span>Missions</span></button>
+<button type="button" class="ama-quick-action ama-admin-only" data-ama-tab="admin"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 21V6l9-3 9 3v15M3 10h18M8 10v11m8-11v11"/></svg></span><span>Logements</span></button>
+<button type="button" class="ama-quick-action ama-admin-only" data-ama-tab="invoices"><span class="ama-quick-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-4 2-4-2-3 2zM8 8h8M8 12h8"/></svg></span><span>Facturation</span></button>
+</div></div>
+<div class="card weekly-card" id="weeklyCard">
       <div class="weekly-header"><div><h3>📊 Activité de la semaine</h3><p class="desc" style="margin:3px 0 0">Missions planifiées et réalisées, jour par jour</p></div><div class="weekly-controls"><button type="button" id="weekPrev" aria-label="Semaine précédente">‹</button><span class="weekly-range" id="weekRange"></span><button type="button" id="weekNext" aria-label="Semaine suivante">›</button><button type="button" id="weekCurrent">Cette semaine</button></div></div>
       <div class="weekly-metrics" id="weekMetrics"></div><div class="week-bars" id="weekBars"></div>
       <div class="week-legend"><i></i>À réaliser <i class="green"></i>Réalisées · Touchez un jour pour voir ses missions</div>
@@ -1000,5 +1007,12 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+<script>
+/* Raccourcis d'interface : renvoient simplement à l'onglet existant. */
+document.getElementById('amaQuickActions')?.addEventListener('click', function(event){
+  const button=event.target.closest('[data-ama-tab]');
+  if(button) document.querySelector('#nav [data-tab="' + button.dataset.amaTab + '"]')?.click();
+});
+</script>
 </body>
 </html>

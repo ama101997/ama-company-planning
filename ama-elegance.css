@@ -1,0 +1,197 @@
+/* AMA Company Planning — Édition Bleu Sauge 2026
+   Couche VISUELLE : ne remplace aucun gestionnaire de missions ou service Supabase.
+   Palette : bleu pétrole #315A72, sauge #398B7B, sable #C8A57A. */
+:root{
+  --bg:#F5F8FA;--card:#fff;--ink:#20374B;--muted:#7C8D9C;
+  --line:#E5EDF0;--brand:#315A72;--brand2:#244A63;
+  --green:#27816A;--amber:#B78540;--red:#C05059;
+  --radius:16px;--shadow:0 3px 20px rgba(32,67,87,.035);
+  --ama-ocean:#315A72;--ama-deep:#244A63;--ama-sage:#398B7B;
+  --ama-mist:#EAF4F3;--ama-sand:#C8A57A;--ama-canvas:#F5F8FA;
+}
+html{scroll-behavior:smooth}
+body{background:var(--ama-canvas);color:var(--ink);font-family:'Plus Jakarta Sans','Inter',system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+::selection{background:#CEE9E3;color:#244A63}
+button,input,select,textarea{font-family:inherit}
+button{transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.nav button:focus-visible{outline:2px solid #398B7B;outline-offset:3px}
+.primary{background:var(--ama-ocean);border:1px solid var(--ama-ocean);color:#fff;box-shadow:0 3px 11px rgba(49,90,114,.12);font-weight:700}
+.primary:hover{background:var(--ama-deep);box-shadow:0 6px 16px rgba(49,90,114,.15)}
+.soft{background:#EAF4F3;color:#2E776B;border:1px solid #D7E9E5}
+.soft:hover{background:#DBEDE8}
+.ghost{background:#F2F6F8;color:#466176;border:1px solid #E2EAED}
+.ghost:hover{background:#E9F0F4}
+.pill{background:#EBF4F3;color:#39786E;border:1px solid #D7E9E5}
+.danger{background:#FFF1F1;color:#B13E4C}
+
+/* Sidebar desktop, sans blocs sombres */
+.sidebar{background:#fff!important;color:var(--ink)!important;border-right:1px solid #E5EDF0;box-shadow:none!important;padding:28px 12px 20px}
+.side-brand{background:transparent!important;border:0!important;padding:4px 13px 16px!important;margin:0 0 18px!important;position:relative;display:flex;align-items:center;gap:11px}
+.side-brand .ama-logo{height:47px!important;width:59px!important;max-width:59px;object-fit:contain}
+.side-brand:after{content:'PLANNING';font-size:12px;font-weight:800;letter-spacing:.12em;color:#315A72}
+.side-label{color:#98A8B4!important;font-size:10px;letter-spacing:.18em}
+.side-foot{border-top:1px solid var(--line)!important;color:#315A72!important;font-size:12px}
+.side-foot small{color:#8B9DA9!important;font-weight:500}
+.nav{gap:6px}
+.nav button,.nav button:hover{transform:none;filter:none}
+.nav button{color:#738A9A!important;background:transparent!important;box-shadow:none!important;padding:13px 12px!important;border:1px solid transparent!important;border-radius:12px!important;font-size:13px;font-weight:650;display:flex;align-items:center;gap:12px}
+.nav button .ama-nav-ico{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:21px;height:21px}
+.ama-nav-ico svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.nav button .ama-nav-label{white-space:nowrap}
+.nav button:hover{background:#F2F7F8!important;color:#315A72!important}
+.nav button.active{background:#EAF4F3!important;color:#247566!important;border-color:#DDEDE9!important;box-shadow:inset 3px 0 #398B7B!important}
+.nav button.active .ama-nav-ico svg{stroke-width:2.2}
+
+/* Main area, softly structured */
+.workspace{max-width:1530px;padding:22px clamp(17px,3vw,52px)!important;overflow:visible}
+.top{background:#F5F8FA!important;padding:10px 0 18px!important;margin-bottom:22px!important;border-bottom:1px solid #E6ECEF!important;box-shadow:none!important;position:relative}
+.top .brand h1{color:#26485D;letter-spacing:-.04em;font-size:1.16rem;font-weight:780}
+.top .brand p{font-size:.78rem;color:#8195A4}
+.top-actions{gap:7px}
+.top-actions .pill{color:#398B7B}
+.top-actions button{border-radius:10px}
+.hero{background:transparent!important;border:0!important;box-shadow:none!important;padding:10px 0 19px!important;margin-bottom:2px!important;align-items:center}
+.hero:before{content:'VOTRE ESPACE AMA';display:block;position:absolute;transform:translateY(-57px);font-size:10px;letter-spacing:.16em;font-weight:750;color:#93A4B1;pointer-events:none}
+.hero h2{color:#243D52!important;font-size:clamp(1.42rem,2.8vw,2.08rem)!important;font-weight:750;letter-spacing:-.047em;line-height:1.24}
+.hero p{color:#8193A1!important;font-size:.86rem;margin-top:6px;line-height:1.5}
+.hero .date{border-color:#DDEAE7!important;background:#F0F7F4!important;color:#47806F!important;font-size:.77rem;border-radius:100px;padding:8px 13px}
+.stats{gap:12px;margin-bottom:24px}
+.stat,.card{background:#fff!important;border:1px solid #E4ECEF!important;border-radius:16px!important;box-shadow:0 3px 18px rgba(39,78,102,.033)!important}
+.stat{padding:20px!important;min-height:133px}
+.stat:before{float:right;background:#EAF2F7!important;color:#315A72!important;border:0!important;border-radius:11px!important;width:35px!important;height:35px!important;font-size:19px!important}
+.stat:nth-child(1):before{content:'◷';background:#EAF2F7!important;color:#47758D!important}
+.stat:nth-child(2):before{content:'⌛';background:#FBF4E9!important;color:#BA965A!important;font-size:15px!important}
+.stat:nth-child(3):before{content:'✓';background:#E9F6F0!important;color:#32846C!important}
+.stat:nth-child(4):before{content:'◈';background:#EFF1FB!important;color:#687FA8!important}
+.stat .label{font-size:.73rem!important;text-transform:uppercase;letter-spacing:.075em;line-height:1.45;font-weight:750;color:#8A9EAB!important;max-width:75%}
+.stat .value{color:#213C50!important;font-size:2.08rem!important;letter-spacing:-.055em;line-height:1.25;font-weight:780;margin-top:12px}
+.stat .sub{font-size:.73rem;color:#96A6B2!important;margin-top:6px}
+.card{padding:21px;margin-bottom:16px}
+.card h3{color:#294459!important;font-size:1.02rem;letter-spacing:-.025em;font-weight:750}
+.desc{color:#8A9BA9!important;line-height:1.55}
+.section-title{align-items:center}
+.section-title h3{margin-bottom:4px}
+.dashboard-grid{gap:15px;grid-template-columns:minmax(0,1.75fr) minmax(255px,.7fr)}
+.dashboard-main{min-height:230px}
+.dark-promo{background:linear-gradient(145deg,#EAF5F3,#F7FAFB)!important;color:#315A72!important;border-color:#DCECE8!important}
+.dark-promo h3{color:#2E746C!important}.dark-promo p{color:#668A89!important}.promo-logo{background:#fff!important;border:1px solid #E2EDE9!important;box-shadow:none!important}
+.reminder{background:#F0F7F5!important;color:#487A71!important;border:1px solid #DDEBE6!important}
+.progress{background:#EEF3F5;height:7px}
+.progress span{background:linear-gradient(90deg,#5B8BA4,#5CA58C)}
+.big-number{color:#315A72;font-weight:750;letter-spacing:-.045em}
+.weekly-card{background:#fff!important}
+.weekly-card .week-day{background:#FBFDFD;border:1px solid #ECF1F3;color:#667E8D}
+.weekly-card .week-day.is-today{background:#EDF6F4!important;border-color:#A8CDC3!important;color:#2C7669}
+.week-day .wd-bar{background:#92B0C1!important}.week-day .wd-bar.done-bar{background:#65A78F!important}
+#weekCurrent,.weekly-controls button{background:#F1F7F7;color:#416D79;border:1px solid #E4EEED;border-radius:9px}
+.dash-head{background:#F3F8F9!important;color:#8194A3;border:1px solid #E9EFF1}
+.dash-row{border-color:#EBF0F2!important}.dash-row:hover{background:#F8FCFC!important}
+.mission{border:1px solid #E5EDEF!important;border-radius:13px;background:#fff!important}
+.mission:hover{border-color:#BAD6D1!important;box-shadow:0 7px 22px rgba(42,98,104,.075)!important}
+.mission-note{background:#F3F8F5!important;border:1px solid #CDE4D9!important;border-left:3px solid #398B7B!important;color:#37675B!important;animation:none!important}
+.priority-label{background:#F6F0E7!important;color:#8A6E47!important;border-color:#E8D9C7!important}
+.badge.done{background:#EAF6F0!important;color:#2B8768!important}
+.badge.planned{background:#EDF3F8!important;color:#4B7189!important}
+.apt-details{background:#F7FAFB!important;border-color:#E5ECEF!important}
+.map-link{background:#EAF4F3!important;color:#377D6F!important}
+.field label{color:#6D8493;font-weight:650;font-size:.78rem}
+.field input,.field select,.field textarea{border:1px solid #DDE7EB!important;border-radius:10px;color:#29485C;background:#fff;box-shadow:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#6C9A91!important;box-shadow:0 0 0 3px rgba(83,156,140,.11)!important}
+.tablewrap{border-radius:12px}
+table th{background:#F3F8F9;color:#6C8796}
+table td{border-color:#E9EFF2}
+#adminDashboardRevenue{background:linear-gradient(125deg,#EFF7F5,#F9FBFD)!important;border:1px solid #D5E7E3!important;box-shadow:0 4px 23px rgba(36,104,98,.055)!important;padding:21px!important}
+#adminDashboardRevenue h3{color:#2B6B67!important}
+#adminDashboardRevenue .ama-ca-summary .stat{background:#fff!important;border-color:#DEEBE9!important}
+#adminDashboardRevenue .ama-ca-summary .stat .value{color:#315A72!important}
+.ama-ca-details summary{background:#E4F1ED!important;color:#2A7263!important;border-color:#CFE6DF!important}
+.login-screen{background:radial-gradient(circle at 85% 0%,#E3F2ED,transparent 44%),linear-gradient(130deg,#F4F8FB,#F0F6F5)!important}
+.login{border-color:#E0E9ED!important;box-shadow:0 25px 75px rgba(30,78,99,.085)!important}
+.login .ama-logo{background:#fff!important}
+
+/* Raccourcis reliés aux onglets existants, sans changer le fonctionnement */
+.ama-quick-actions{margin:1px 0 22px}
+.ama-quick-heading{font-size:.68rem;letter-spacing:.13em;font-weight:760;color:#8B9CA9;text-transform:uppercase;margin:0 0 11px 3px}
+.ama-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.ama-quick-action{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:16px 7px 13px;border-radius:15px;background:white!important;border:1px solid #E4ECEF!important;color:#637F8E!important;font-size:.77rem;font-weight:650;box-shadow:0 2px 12px rgba(32,67,87,.025);min-width:0}
+.ama-quick-action:hover{border-color:#A5CCC3!important;background:#F8FCFB!important;transform:translateY(-2px)!important}
+.ama-quick-icon{display:grid;place-items:center;border-radius:11px;width:41px;height:41px;background:#F0F6F8;color:#3F7890}
+.ama-quick-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ama-quick-action:nth-child(2) .ama-quick-icon{background:#EDF7F3;color:#398B7B}
+.ama-quick-action:nth-child(3) .ama-quick-icon{background:#F7F2EA;color:#A58356}
+.ama-quick-action:nth-child(4) .ama-quick-icon{background:#F0F1FA;color:#6F80A8}
+#app:has(#adminTab.hidden) .ama-quick-action.ama-admin-only{display:none!important}
+#tab-dashboard{display:flex;flex-direction:column}
+#notificationCard{order:0}#amaQuickActions{order:1}#weeklyCard{order:2}.dashboard-grid{order:3}#adminDashboardRevenue{order:4}
+
+/* Tablet */
+@media (max-width:1050px) and (min-width:701px){
+ .sidebar{width:224px}.workspace{padding:20px 22px!important}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}
+}
+/* Mobile native-like bottom tab bar. Current navigation is reused intact. */
+@media (max-width:700px){
+ html{scroll-padding-bottom:106px}
+ body{background:#F6F9FA!important;font-size:14px}
+ #app.wrap{padding:0 0 calc(93px + env(safe-area-inset-bottom,0px))!important;min-height:100dvh}
+ #app .sidebar{display:block!important;position:static!important;width:0!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;overflow:visible!important}
+ #app .sidebar .side-brand,#app .sidebar .side-label,#app .sidebar .side-foot{display:none!important}
+ #app .workspace{padding:0 16px 24px!important;width:100%!important;max-width:620px!important;overflow:visible!important;margin:0 auto!important}
+ #app .mobile-menu-toggle,#app #mobileMenuBackdrop{display:none!important}
+ #app #nav,#app #nav.mobile-open{display:flex!important;position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;z-index:99!important;width:100%!important;max-height:none!important;overflow:visible!important;flex-direction:row!important;align-items:stretch!important;justify-content:space-around!important;gap:2px!important;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px))!important;margin:0!important;background:rgba(255,255,255,.97)!important;border:0!important;border-top:1px solid #E5EDEF!important;border-radius:0!important;box-shadow:0 -6px 25px rgba(34,73,91,.055)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+ #app #nav button{flex:1 1 0!important;max-width:none!important;min-width:0!important;width:0!important;min-height:54px!important;padding:5px 1px 4px!important;margin:0!important;border:1px solid transparent!important;border-radius:10px!important;background:transparent!important;box-shadow:none!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;white-space:nowrap!important;color:#94A6B3!important;text-align:center!important;font-size:10px!important;line-height:1.15!important;transition:color .17s ease,background .17s ease}
+ #app #nav button .ama-nav-ico{width:22px;height:22px}
+ #app #nav button .ama-nav-ico svg{width:21px;height:21px}
+ #app #nav button .ama-nav-label{white-space:nowrap;font-size:10px;letter-spacing:-.02em;font-weight:630}
+ #app #nav button.active{background:#EDF6F4!important;color:#2F826F!important;box-shadow:none!important;border-color:#E1EFEB!important}
+ #app #nav button:hover{color:#2C7669!important;background:#F6FAF9!important}
+ #app #nav button.hidden{display:none!important}
+ #app .top{position:sticky!important;top:0!important;z-index:16!important;background:rgba(246,249,250,.96)!important;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);margin:0 -16px 16px!important;padding:11px 16px!important;border-bottom:1px solid #E7ECEF!important;box-shadow:none!important;display:flex;align-items:center;flex-wrap:nowrap!important;gap:7px}
+ #app .top .brand{min-width:0;flex:1}
+ #app .top .brand h1{font-size:1.02rem!important;letter-spacing:-.035em;color:#2E596C}
+ #app .top .brand p{font-size:.64rem!important;line-height:1.3;color:#8197A4}
+ #app .top-actions{flex-wrap:nowrap!important;gap:5px!important}
+ #app .top-actions .pill,#app #backBtn{display:none!important}
+ #app .top-actions .ama-top-btn{font-size:17px!important;padding:7px!important;background:transparent!important;border:1px solid transparent!important;color:#527384;box-shadow:none!important;min-height:37px;min-width:35px}
+ #app .top-actions .ama-top-btn span{display:none!important}
+ #app #logoutBtn{font-size:0!important;border:1px solid #E4ECEE!important;background:white!important;color:#4D6D7F!important;padding:8px!important;min-width:35px;min-height:35px;box-shadow:none!important}
+ #app #logoutBtn::first-letter{font-size:18px!important}
+ #app .hero{padding:16px 1px 16px!important;margin:0!important;gap:10px;min-width:0}
+ #app .hero:before{display:none!important}
+ #app .hero h2{font-size:1.52rem!important;line-height:1.2!important;letter-spacing:-.04em}
+ #app .hero p{font-size:.77rem!important;max-width:340px}
+ #app .hero .date{display:none!important}
+ #app .stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-bottom:23px!important}
+ #app .stat{padding:15px 13px!important;min-height:131px!important;border-radius:14px!important}
+ #app .stat:before{width:27px!important;height:27px!important;border-radius:9px!important;font-size:16px!important;margin-left:2px}
+ #app .stat .label{font-size:.63rem!important;letter-spacing:.063em!important;max-width:76%}
+ #app .stat .value{font-size:1.78rem!important;margin-top:19px!important;white-space:nowrap;letter-spacing:-.045em}
+ #app .stat .sub{font-size:.67rem!important;line-height:1.35;margin-top:6px}
+ #app .card{padding:16px!important;border-radius:15px!important;margin-bottom:13px!important}
+ #app .card h3{font-size:.93rem!important}
+ #app .dashboard-grid,#app .grid{grid-template-columns:minmax(0,1fr)!important;gap:0!important}
+ #app .ama-quick-actions{margin:0 0 19px}
+ #app .ama-quick-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+ #app .ama-quick-action{padding:11px 2px 9px!important;min-height:89px!important;font-size:10px!important;border-radius:12px!important;gap:7px}
+ #app .ama-quick-icon{width:36px;height:36px;border-radius:10px}
+ #app .ama-quick-icon svg{width:19px;height:19px}
+ #app .weekly-card{padding:15px 13px!important}
+ #app #adminDashboardRevenue{padding:17px 14px!important}
+ #app #adminDashboardRevenue .section-title{flex-direction:column;align-items:stretch}
+ #app .weekly-controls{width:100%!important}
+ #app .week-bars{gap:4px}
+ #app .week-day{min-height:140px!important}
+ #app .section-title{gap:11px}
+ #app .section-title .actions{width:auto}
+ #app .mission{border-radius:13px!important}
+ #app .tablewrap{max-width:100%;overflow-x:auto}
+}
+@media(max-width:375px){
+ #app .workspace{padding-left:11px!important;padding-right:11px!important}
+ #app .top{margin-left:-11px!important;margin-right:-11px!important;padding-left:11px!important;padding-right:11px!important}
+ #app #nav{padding-left:3px!important;padding-right:3px!important}
+ #app #nav button .ama-nav-label{font-size:9px!important}
+ #app .stat .value{font-size:1.57rem!important}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.stat,.card,.mission,.ama-quick-action{animation:none!important;transition:none!important}}
+/* Notification flottante : jamais sur la barre de navigation mobile. */
+@media(max-width:700px){#activer-notifications{bottom:calc(86px + env(safe-area-inset-bottom,0px))!important;right:13px!important;border-color:#D7E7E3!important;color:#348070!important}}
