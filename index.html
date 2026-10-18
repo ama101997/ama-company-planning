@@ -499,6 +499,14 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 .ama-account-dialog input{background:#f8fafb}
 @media(max-width:480px){#amaAccountModal{padding:12px!important}.ama-account-dialog{padding:17px!important;max-height:calc(100dvh - 35px)!important}.ama-profile-preview{gap:11px;padding:11px}.ama-profile-photo-wrap{flex-basis:62px;width:62px;height:62px}}
 </style>
+<style id="ama-dashboard-mission-icons-2026">
+.ama-dash-date{display:inline-flex;align-items:center;gap:7px;min-width:0;white-space:nowrap}
+.ama-mission-calendar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;border-radius:7px}
+.ama-mission-calendar svg{display:block;width:19px;height:19px}
+.ama-calendar-pending{background:#e8f0f7;color:#315a72}
+.ama-calendar-done{background:#e6f4ee;color:#398b7b}
+@media(max-width:700px){.ama-dash-date{gap:5px}.ama-mission-calendar{width:22px;height:22px}.ama-mission-calendar svg{width:18px;height:18px}}
+</style>
 </head>
 <body>
 <div id="loginScreen" class="login-screen">
@@ -999,7 +1007,7 @@ function renderDashboard(){
   const detail=$('#amaNextMissionDetail');
   if(detail)detail.innerHTML=next?`<div class="ama-next-name">${esc(next.apartmentName||'Logement')}</div><div class="ama-next-sub">${dateFr(next.date)} · ${hours(sharedHours(next))}</div>${String(next.notes||'').trim()?'<span class="ama-next-note">Consignes à consulter</span>':''}`:'<p class="desc">Aucune mission à venir pour le moment.</p>';
  }
- $('#dashMissions').innerHTML=future.length?'<div class="dash-table"><div class="dash-head"><span>Date</span><span>Logement</span><span>Durée</span><span>Statut</span></div>'+future.map(m=>`<div class="dash-row"><span>📅 ${dateFr(m.date)}</span><span><strong>${esc(m.apartmentName||'Logement')}</strong><small>${esc(m.workerName||'')}</small>${session.role==='worker'&&String(m.notes||'').trim()?`<small class="priority-label">📌 Consignes à lire</small>`:''}</span><span>◷ ${hours(session.role==='worker'?sharedHours(m):m.hours)}</span><span>${statusBadge(m.status)}</span></div>`).join('')+'</div>':'<div class="empty">Aucune intervention à venir. Vous pouvez en programmer depuis « Mon planning ».</div>';
+ $('#dashMissions').innerHTML=future.length?'<div class="dash-table"><div class="dash-head"><span>Date</span><span>Logement</span><span>Durée</span><span>Statut</span></div>'+future.map(m=>`<div class="dash-row"><span class="ama-dash-date"><span class="ama-mission-calendar ${m.status==='done'?'ama-calendar-done':'ama-calendar-pending'}" aria-label="${m.status==='done'?'Mission réalisée':'Mission à réaliser'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/>${m.status==='done'?'<path d="m8 16 3 3 5-5"/>':'<path d="M12 14v5m-2.5-2.5h5"/>'}</svg></span><span>${dateFr(m.date)}</span></span><span><strong>${esc(m.apartmentName||'Logement')}</strong><small>${esc(m.workerName||'')}</small>${session.role==='worker'&&String(m.notes||'').trim()?`<small class="priority-label">📌 Consignes à lire</small>`:''}</span><span>◷ ${hours(session.role==='worker'?sharedHours(m):m.hours)}</span><span>${statusBadge(m.status)}</span></div>`).join('')+'</div>':'<div class="empty">Aucune intervention à venir. Vous pouvez en programmer depuis « Mon planning ».</div>';
  const month=ms.filter(m=>m.date?.startsWith(monthNow())),done=month.filter(m=>m.status==='done'),pending=month.filter(m=>m.status==='planned'&&!m.prolonged);
  $('#dashHours').textContent=hours(done.reduce((s,m)=>s+sharedHours(m),0));$('#dashSummary').textContent=`${done.length} terminées · ${pending.length} à venir`;
  $('#dashProgress').style.width=(month.length?Math.round(done.length/month.length*100):0)+'%';
