@@ -791,8 +791,8 @@ function showAmaWelcome(fullName){
  loading.querySelectorAll('.ama-welcome-arc').forEach(arc=>{arc.classList.remove('ama-run');void arc.getBoundingClientRect();arc.classList.add('ama-run');});
  layer.style.display='flex';layer.classList.remove('ama-fade');layer.classList.add('ama-show');
  amaWelcomeTimers.push(setTimeout(()=>{loading.hidden=true;success.hidden=false},3050));
- amaWelcomeTimers.push(setTimeout(()=>layer.classList.add('ama-fade'),2500));
- amaWelcomeTimers.push(setTimeout(stopAmaWelcome,2900));
+ amaWelcomeTimers.push(setTimeout(()=>layer.classList.add('ama-fade'),3900));
+ amaWelcomeTimers.push(setTimeout(stopAmaWelcome,4300));
 }
 async function login(){
  const email=$('#loginEmail').value.trim().toLowerCase(),password=$('#loginPin').value;
