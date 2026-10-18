@@ -533,6 +533,16 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 @keyframes amaRefinedB{0%{transform:rotate(120deg);animation-timing-function:linear}43%{transform:rotate(-113deg);animation-timing-function:cubic-bezier(.36,0,.64,1)}50%{transform:rotate(-133deg);animation-timing-function:cubic-bezier(.36,0,.64,1)}57%{transform:rotate(-113deg);animation-timing-function:linear}100%{transform:rotate(120deg)}}
 @media(prefers-reduced-motion:reduce){.ama-welcome-arc-a.ama-run,.ama-welcome-arc-b.ama-run{animation:none!important}#amaWelcomeOverlay{transition:none}}
 </style>
+<style id="ama-push-role-design">
+.ama-push-worker-intro{background:#fff;border:1px solid #edf1f1;border-radius:18px;padding:23px 18px;text-align:center;margin:14px 0 12px}
+.ama-push-worker-intro[hidden],#amaPushAdminChoices[hidden],#amaPushDevice[hidden]{display:none!important}
+.ama-push-worker-icon{width:66px;height:66px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:#e7f2ed;color:#398b7b;font-size:30px}
+.ama-push-worker-intro strong{display:block;color:#315a72;font-size:17px}
+.ama-push-worker-intro p{color:#8197a0;font-size:13px;line-height:1.6;margin:9px 0 0}
+.ama-push-settings:not(:has(#amaPushAdminChoices:not([hidden]))) .ama-push-enable:not([hidden]){margin-top:-3px}
+.ama-push-worker-active{padding:11px 12px;border:1px solid #e6efeb;border-radius:12px;background:#fff}
+.ama-push-worker-active .ama-push-device-icon{background:#e7f4ec}
+</style>
 </head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
@@ -1403,6 +1413,12 @@ fillSelects();
 <style id="ama-push-settings-style">
 .ama-push-settings{background:#f7faf9;border:1px solid #e3edeb;border-radius:17px;padding:15px;margin:16px 0;color:#315a72}
 .ama-push-heading{display:flex;align-items:center;gap:11px}.ama-push-heading strong{display:block;font-size:15px}.ama-push-heading small,.ama-push-choices small{display:block;color:#8196a0;font-size:11px;line-height:1.5}.ama-push-bell{display:grid;place-items:center;width:37px;height:37px;background:#e3f1ea;border-radius:12px;color:#398b7b;font-size:23px}.ama-push-status{font-size:12px;color:#647f8a;margin:13px 0 9px}.ama-push-enable{width:100%;background:#315a72;color:white;border:0;border-radius:11px;padding:12px;font-size:13px;font-weight:650;cursor:pointer}.ama-push-enable:disabled{background:#b5c6cb;cursor:default}.ama-push-choices{margin-top:13px}.ama-push-choices label{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid #e7efee;cursor:pointer}.ama-push-choices b{font-size:12px;font-weight:650}.ama-push-choices input{appearance:none;flex:none;width:42px;height:25px;border-radius:20px;background:#d5e0e2;position:relative;cursor:pointer;transition:background .2s}.ama-push-choices input:checked{background:#398b7b}.ama-push-choices input:before{content:'';position:absolute;left:3px;top:3px;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px #0002;transition:transform .2s}.ama-push-choices input:checked:before{transform:translateX(17px)}.ama-push-footnote{font-size:11px;line-height:1.5;color:#8296a0;margin:9px 0 0}
+.ama-push-device{display:flex;align-items:flex-start;gap:12px;margin:16px 0 12px}
+.ama-push-device-icon{width:36px;height:36px;flex:none;border-radius:11px;background:#e8f2ef;color:#398b7b;display:grid;place-items:center;font-size:21px}
+.ama-push-device strong{display:block;font-size:13px;color:#315a72}
+.ama-push-device .ama-push-status{margin:4px 0 0;line-height:1.55}
+.ama-push-help{background:#eef4f6;border-radius:11px;color:#557a8b;padding:12px;font-size:12px;line-height:1.6;margin:10px 0}
+.ama-push-enable[hidden],.ama-push-help[hidden]{display:none!important}
 </style>
 <div id="amaAccountMenu" hidden role="menu" aria-label="Compte utilisateur">
   <div class="ama-account-summary"><strong id="amaAccountName">Mon compte</strong><small id="amaAccountEmail"></small></div>
@@ -1423,16 +1439,25 @@ fillSelects();
   </div>
   <button type="button" class="ama-account-photo" id="amaChangePhoto">Importer ma propre photo</button>
     <section class="ama-push-settings" aria-labelledby="amaPushTitle">
-      <div class="ama-push-heading"><span class="ama-push-bell">♧</span><div><strong id="amaPushTitle">Notifications</strong><small>Alertes sur cet appareil et préférences du compte</small></div></div>
-      <div id="amaPushStatus" class="ama-push-status" role="status" aria-live="polite">Vérification des autorisations…</div>
-      <button type="button" id="amaPushEnable" class="ama-push-enable">Activer les notifications sur cet appareil</button>
-      <div class="ama-push-choices">
-        <label><span><b>Nouvelles missions</b><small>Notification Compact + lors d’une attribution</small></span><input type="checkbox" data-ama-push-pref="assignment" checked></label>
-        <label><span><b>Changements de planning</b><small>Report, transfert et fusion</small></span><input type="checkbox" data-ama-push-pref="planning" checked></label>
-        <label><span><b>Missions terminées</b><small>Confirmation pour l’administrateur</small></span><input type="checkbox" data-ama-push-pref="completed" checked></label>
-        <label><span><b>Rappels de missions</b><small>Si un service de rappel est configuré</small></span><input type="checkbox" data-ama-push-pref="reminder"></label>
+      <div class="ama-push-heading"><span class="ama-push-bell" aria-hidden="true">♧</span><div><strong id="amaPushTitle">Notifications</strong><small id="amaPushSubtitle">Alertes de votre compte</small></div></div>
+      <div id="amaPushWorkerIntro" class="ama-push-worker-intro" hidden>
+        <div class="ama-push-worker-icon" aria-hidden="true">♧</div>
+        <strong>Ne manquez aucune mission</strong>
+        <p>Recevez les nouvelles missions, les modifications de planning et les rappels importants.</p>
       </div>
-      <p class="ama-push-footnote">Sur iPhone, les alertes hors application nécessitent l’ajout à l’écran d’accueil et l’autorisation iOS. Les préférences sont enregistrées pour ce compte si la migration Supabase est installée.</p>
+      <div id="amaPushDevice" class="ama-push-device">
+        <span class="ama-push-device-icon" aria-hidden="true">♧</span>
+        <div><strong id="amaPushDeviceTitle">Vérification des notifications…</strong>
+        <p id="amaPushStatus" class="ama-push-status" role="status" aria-live="polite">Vérification des autorisations…</p></div>
+      </div>
+      <button type="button" id="amaPushEnable" class="ama-push-enable">Activer les notifications</button>
+      <div id="amaPushHelp" class="ama-push-help" hidden></div>
+      <div id="amaPushAdminChoices" class="ama-push-choices" hidden>
+        <label><span><b>Missions réalisées</b><small>Lorsqu’un intervenant valide une mission</small></span><input type="checkbox" data-ama-push-pref="completed" checked></label>
+        <label><span><b>Modifications d’équipe</b><small>Transfert, fusion ou report</small></span><input type="checkbox" data-ama-push-pref="planning" checked></label>
+        <label><span><b>Alertes importantes</b><small>Non-entrée ou incident signalé</small></span><input type="checkbox" data-ama-push-pref="alerts" checked></label>
+      </div>
+      <p class="ama-push-footnote">Les alertes hors application nécessitent un service d’envoi push actif.</p>
     </section>
     <form id="amaAccountForm">
       <label for="amaAccountFullName">Nom complet</label><input id="amaAccountFullName" autocomplete="name" maxlength="120" required>
@@ -1473,6 +1498,7 @@ fillSelects();
    $('amaAccountNewEmail').value=user.email||''; $('amaAccountFullName').defaultValue=$('amaAccountFullName').value;
    updateProfilePreview(window.amaAvatarSrc?.(p?.avatar_url||'')||'',p?.full_name||user.user_metadata?.full_name||user.email||'Mon profil',p?.role||'intervenant');
    modal.dataset.role=p?.role||'intervenant';
+   window.amaPushUpdateRole?.();
    const restricted=modal.dataset.role!=='admin';
    $('amaAccountFullName').readOnly=restricted;
    $('amaAccountNewEmail').readOnly=restricted;
@@ -1579,28 +1605,76 @@ const legacyNotificationButton = document.getElementById('activer-notifications'
 if (legacyNotificationButton) legacyNotificationButton.style.display = 'none';
 
 // Le bouton n'apparaît que si cet appareil n'est pas encore abonné.
+function amaPushUpdateRole(){
+  const isAdmin=document.getElementById('amaAccountModal')?.dataset.role==='admin';
+  document.getElementById('amaPushAdminChoices').hidden=!isAdmin;
+  document.getElementById('amaPushSubtitle').textContent=isAdmin?'Paramètres administrateur':'Espace intervenant';
+  refreshNotificationButton();
+}
+window.amaPushUpdateRole=amaPushUpdateRole;
 async function refreshNotificationButton() {
+  const modal=document.getElementById('amaAccountModal');
+  const isAdmin=modal?.dataset.role==='admin';
+  const status=document.getElementById('amaPushStatus');
+  const title=document.getElementById('amaPushDeviceTitle');
+  const help=document.getElementById('amaPushHelp');
+  const intro=document.getElementById('amaPushWorkerIntro');
+  const device=document.getElementById('amaPushDevice');
+  const setState=(heading,message,button,helpText='',active=false)=>{
+    title.textContent=heading;
+    status.textContent=message;
+    notificationButton.hidden=!button;
+    notificationButton.disabled=false;
+    notificationButton.textContent=isAdmin?'Activer les notifications':'Activer les notifications';
+    help.hidden=!helpText;
+    help.textContent=helpText;
+    // Intervenant : après activation, la grande carte disparaît et laisse un statut discret.
+    intro.hidden=isAdmin||active||!button;
+    device.classList.toggle('ama-push-worker-active',!isAdmin&&active);
+    device.hidden=!isAdmin&&!active&&button;
+  };
   try {
-    if (!('Notification' in window) ||
-        !('serviceWorker' in navigator) ||
-        !('PushManager' in window)) { document.getElementById('amaPushStatus').textContent = 'Push indisponible ici. Sur iPhone, ouvrez AMA Planning depuis l’écran d’accueil.'; notificationButton.disabled = true; return; }
-    if (Notification.permission === 'denied') { document.getElementById('amaPushStatus').textContent = 'Autorisation refusée : activez-la dans Réglages iPhone → Notifications.'; notificationButton.disabled = true; return; }
-    if (Notification.permission === 'granted') {
-      const registration = await navigator.serviceWorker.ready;
-      if (await registration.pushManager.getSubscription()) {
-        notificationButton.disabled = true; notificationButton.textContent = 'Notifications activées sur cet appareil';
-        document.getElementById('amaPushStatus').textContent = '✓ Autorisation accordée · appareil abonné';
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||
+      (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+    if(isIOS&&!standalone){
+      setState('Application ouverte dans Safari',
+        'Ouvrez AMA Planning depuis son icône sur l’écran d’accueil pour recevoir les alertes.',false,
+        'Dans Safari : Partager → Sur l’écran d’accueil → Ajouter, puis ouvrez l’application depuis son icône.');
+      return;
+    }
+    if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
+      setState('Notifications indisponibles',
+        'Cet appareil ou navigateur ne prend pas en charge les notifications push.',false);
+      return;
+    }
+    if(Notification.permission==='denied'){
+      setState('Notifications désactivées',
+        'L’autorisation a été refusée.',false,
+        'Sur iPhone : Réglages → Notifications → AMA Planning → Autoriser les notifications, si l’application y figure.');
+      return;
+    }
+    if(Notification.permission==='granted'){
+      const registration=await navigator.serviceWorker.ready;
+      const subscription=await registration.pushManager.getSubscription();
+      if(subscription){
+        setState('Notifications activées',
+          isAdmin?'Cet appareil est autorisé et abonné.':'Vous recevrez les alertes de vos missions.',false,'',true);
         return;
       }
+      setState('Autorisation accordée','Finalisez l’abonnement pour recevoir les alertes.',true);
+      return;
     }
-    notificationButton.disabled = false; notificationButton.textContent = 'Activer les notifications sur cet appareil';
-    document.getElementById('amaPushStatus').textContent = Notification.permission === 'granted' ? 'Autorisation accordée · abonnement à terminer' : 'Autorisation à demander';
-  } catch (error) {
-    console.warn('État des notifications indisponible :', error);
+    setState('Prêt à activer',
+      'Autorisez les alertes pour recevoir les informations importantes de vos missions.',true);
+  }catch(error){
+    console.warn('État des notifications indisponible :',error);
+    setState('État indisponible','Impossible de vérifier les notifications pour le moment.',true);
   }
 }
 window.addEventListener('load', refreshNotificationButton);
 window.addEventListener('pageshow', refreshNotificationButton);
+document.getElementById('amaOpenSettings')?.addEventListener('click',()=>setTimeout(refreshNotificationButton,80));
 
 notificationButton.addEventListener('click', async () => {
     try {
@@ -1658,9 +1732,14 @@ notificationButton.addEventListener('click', async () => {
         });
 
       if (error) throw error;
-
-      notificationButton.disabled = true; notificationButton.textContent = 'Notifications activées sur cet appareil';
-      document.getElementById('amaPushStatus').textContent = '✓ Autorisation accordée · appareil abonné';
+      const modal=document.getElementById('amaAccountModal');
+      if(modal?.dataset.role!=='admin'){
+        const prefs={assignment:true,planning:true,completed:false,reminder:true};
+        localStorage.setItem('ama_push_prefs_'+user.id,JSON.stringify(prefs));
+        const {error:prefError}=await pushClient.from('push_preferences').upsert({user_id:user.id,...prefs},{onConflict:'user_id'});
+        if(prefError) console.warn('Préférences intervenant non synchronisées :',prefError);
+      }
+      await refreshNotificationButton();
 
     } catch (error) {
       console.error('Erreur abonnement push :', error);
@@ -1821,9 +1900,9 @@ for(const el of switches)if(typeof values[el.dataset.amaPushPref]==='boolean')el
 }catch(e){console.warn('Préférences push:',e)}finally{loading=false}}
 for(const el of switches)el.addEventListener('change',async()=>{const c=db();if(!c)return;const {data:{user}}=await c.auth.getUser();if(!user){el.checked=!el.checked;return}
 const prefs=Object.fromEntries(switches.map(x=>[x.dataset.amaPushPref,x.checked]));localStorage.setItem('ama_push_prefs_'+user.id,JSON.stringify(prefs));
-const {error}=await c.from('push_preferences').upsert({user_id:user.id,...prefs},{onConflict:'user_id'});
+const {error}=await c.from('push_preferences').upsert({user_id:user.id,planning:prefs.planning,completed:prefs.completed},{onConflict:'user_id'});
 if(error){status.dataset.prefs='local';status.textContent='Préférences enregistrées uniquement sur cet appareil (migration SQL requise).'}
-else{status.dataset.prefs='cloud';status.textContent='Préférences enregistrées pour votre compte.'}
+else{status.dataset.prefs='cloud';status.textContent='Préférences enregistrées (alertes importantes : réglage local uniquement).'}
 });
 new MutationObserver(()=>{if(!modal.hidden){load();if(typeof refreshNotificationButton==='function')refreshNotificationButton()}}).observe(modal,{attributes:true,attributeFilter:['hidden']});
 })();
