@@ -1420,6 +1420,36 @@ fillSelects();
 .ama-push-help{background:#eef4f6;border-radius:11px;color:#557a8b;padding:12px;font-size:12px;line-height:1.6;margin:10px 0}
 .ama-push-enable[hidden],.ama-push-help[hidden]{display:none!important}
 </style>
+<style id="ama-push-compact-final">
+/* Paramètres de notifications : carte légère et adaptée aux petits écrans */
+.ama-push-settings{background:#f7faf9;border:1px solid #e1eae7;border-radius:18px;padding:14px;margin:14px 0;color:#315a72}
+.ama-push-heading{gap:10px}
+.ama-push-heading strong{font-size:15px;line-height:1.3}
+.ama-push-heading small{font-size:11px;font-weight:400}
+.ama-push-bell{width:38px;height:38px;flex-shrink:0;border-radius:12px;font-size:17px;background:#e7f2ed}
+.ama-push-device{margin:13px 0 7px;gap:10px;align-items:center;background:#fff;border:1px solid #ebf1ef;border-radius:12px;padding:10px 11px}
+.ama-push-device-icon{width:31px;height:31px;border-radius:50%;font-size:17px;font-weight:700;background:#e7f4ec}
+.ama-push-device strong{font-size:12px;line-height:1.3}
+.ama-push-device .ama-push-status{font-size:11px;line-height:1.4;margin:3px 0 0}
+.ama-push-help{font-size:11px;padding:9px 10px;margin:8px 0}
+.ama-push-choices{background:#fff;border:1px solid #ebf1ef;border-radius:13px;margin-top:11px;padding:2px 12px}
+.ama-push-choices label{display:flex;align-items:center;gap:10px;padding:12px 0;min-height:55px;border-top:0}
+.ama-push-choices label+label{border-top:1px solid #edf1f1}
+.ama-push-choices label>span{flex:1;min-width:0}
+.ama-push-choices b{display:block;font-size:12px;line-height:1.35;color:#38596b}
+.ama-push-choices small{font-size:10.5px;line-height:1.4;margin-top:2px}
+.ama-push-pref-icon{width:32px;height:32px;flex:none;display:grid;place-items:center;background:#eff5f3;border-radius:10px;color:#398b7b;font-size:17px;font-style:normal;font-weight:700}
+.ama-push-choices input{width:39px;height:23px;margin:0;flex:none}
+.ama-push-choices input:before{width:17px;height:17px}
+.ama-push-choices input:checked:before{transform:translateX(16px)}
+.ama-push-worker-intro{padding:20px 16px 12px;margin:13px 0 0}
+.ama-push-worker-intro strong{font-size:16px}
+.ama-push-worker-intro p{font-size:12px;margin:8px 0 0}
+.ama-push-worker-icon{font-size:27px}
+.ama-push-enable{font-size:12px;padding:11px;margin-top:10px}
+.ama-push-worker-active{margin:12px 0 0;padding:10px 12px}
+.ama-push-footnote{display:none!important}
+</style>
 <div id="amaAccountMenu" hidden role="menu" aria-label="Compte utilisateur">
   <div class="ama-account-summary"><strong id="amaAccountName">Mon compte</strong><small id="amaAccountEmail"></small></div>
   <button type="button" class="ama-account-menu-btn" id="amaOpenSettings"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg> Paramètres du compte</button>
@@ -1439,25 +1469,24 @@ fillSelects();
   </div>
   <button type="button" class="ama-account-photo" id="amaChangePhoto">Importer ma propre photo</button>
     <section class="ama-push-settings" aria-labelledby="amaPushTitle">
-      <div class="ama-push-heading"><span class="ama-push-bell" aria-hidden="true">♧</span><div><strong id="amaPushTitle">Notifications</strong><small id="amaPushSubtitle">Alertes de votre compte</small></div></div>
+      <div class="ama-push-heading"><span class="ama-push-bell" aria-hidden="true">🔔</span><div><strong id="amaPushTitle">Notifications</strong><small id="amaPushSubtitle">Alertes de votre compte</small></div></div>
       <div id="amaPushWorkerIntro" class="ama-push-worker-intro" hidden>
-        <div class="ama-push-worker-icon" aria-hidden="true">♧</div>
+        <div class="ama-push-worker-icon" aria-hidden="true">🔔</div>
         <strong>Ne manquez aucune mission</strong>
         <p>Recevez les nouvelles missions, les modifications de planning et les rappels importants.</p>
       </div>
       <div id="amaPushDevice" class="ama-push-device">
-        <span class="ama-push-device-icon" aria-hidden="true">♧</span>
+        <span class="ama-push-device-icon" aria-hidden="true">✓</span>
         <div><strong id="amaPushDeviceTitle">Vérification des notifications…</strong>
         <p id="amaPushStatus" class="ama-push-status" role="status" aria-live="polite">Vérification des autorisations…</p></div>
       </div>
       <button type="button" id="amaPushEnable" class="ama-push-enable">Activer les notifications</button>
       <div id="amaPushHelp" class="ama-push-help" hidden></div>
       <div id="amaPushAdminChoices" class="ama-push-choices" hidden>
-        <label><span><b>Missions réalisées</b><small>Lorsqu’un intervenant valide une mission</small></span><input type="checkbox" data-ama-push-pref="completed" checked></label>
-        <label><span><b>Modifications d’équipe</b><small>Transfert, fusion ou report</small></span><input type="checkbox" data-ama-push-pref="planning" checked></label>
-        <label><span><b>Alertes importantes</b><small>Non-entrée ou incident signalé</small></span><input type="checkbox" data-ama-push-pref="alerts" checked></label>
+        <label><i class="ama-push-pref-icon" aria-hidden="true">✓</i><span><b>Missions réalisées</b><small>Validation des interventions</small></span><input type="checkbox" data-ama-push-pref="completed" checked></label>
+        <label><i class="ama-push-pref-icon" aria-hidden="true">⇄</i><span><b>Modifications d’équipe</b><small>Transfert, fusion ou report</small></span><input type="checkbox" data-ama-push-pref="planning" checked></label>
+        <label><i class="ama-push-pref-icon" aria-hidden="true">!</i><span><b>Alertes importantes</b><small>Incidents et non-entrées</small></span><input type="checkbox" data-ama-push-pref="alerts" checked></label>
       </div>
-      <p class="ama-push-footnote">Les alertes hors application nécessitent un service d’envoi push actif.</p>
     </section>
     <form id="amaAccountForm">
       <label for="amaAccountFullName">Nom complet</label><input id="amaAccountFullName" autocomplete="name" maxlength="120" required>
@@ -1638,9 +1667,8 @@ async function refreshNotificationButton() {
       (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
     const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
     if(isIOS&&!standalone){
-      setState('Application ouverte dans Safari',
-        'Ouvrez AMA Planning depuis son icône sur l’écran d’accueil pour recevoir les alertes.',false,
-        'Dans Safari : Partager → Sur l’écran d’accueil → Ajouter, puis ouvrez l’application depuis son icône.');
+      setState('Ouvert dans Safari',
+        'Pour activer les alertes, ouvrez AMA Planning depuis son icône sur l’écran d’accueil.',false);
       return;
     }
     if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
