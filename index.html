@@ -261,6 +261,10 @@ body.ama-worker #financePanel,body.ama-worker #adminDashboardRevenue{display:non
 
 /* Fiche mission photos — intervenant */
 .ama-photo-modal[hidden]{display:none!important}.ama-photo-modal{position:fixed;inset:0;z-index:10000;background:rgba(22,43,55,.64);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:18px 12px 36px}.ama-photo-sheet{background:#f4f8fa;color:#315a72;width:min(100%,510px);border-radius:22px;padding:18px;box-shadow:0 18px 55px #152d3b45;margin:auto}.ama-photo-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.ama-photo-card{background:white;border:1px solid #dce7ec;border-radius:17px;padding:15px;margin-top:12px}.ama-photo-details{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.ama-photo-sub{font-size:12px;color:#8195a1}.ama-photo-card h3{margin:0 0 7px;font-size:16px;color:#315a72}.ama-photo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}.ama-photo-tile{aspect-ratio:1;border-radius:12px;background:#f0f5f7;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#8195a1;font-size:12px}.ama-photo-tile img{width:100%;height:100%;object-fit:cover}.ama-photo-btn{width:100%;border:1px solid #b7d3ce;background:#fff;color:#398b7b;padding:12px;border-radius:12px;font-weight:700;cursor:pointer}.ama-photo-submit{width:100%;background:#398b7b;color:white;border:0;border-radius:12px;padding:14px;font-weight:700;cursor:pointer;margin-top:12px}.ama-photo-submit:disabled{opacity:.45;cursor:not-allowed}.ama-photo-note{background:#e8f4ef;color:#356f5c;padding:12px;border-radius:12px;font-size:13px;margin-top:12px}.ama-photo-status{font-size:13px;line-height:1.5;margin-top:9px;color:#486777}.ama-photo-close{border:0;background:#e9f1f3;border-radius:9px;padding:8px 12px;color:#315a72;cursor:pointer}.ama-photo-open{display:inline-flex;gap:7px;align-items:center;border:1px solid #b8d5d0;background:#e9f5f0;color:#287c67;border-radius:11px;padding:11px 13px;font-weight:700;cursor:pointer}.ama-photo-modal a{color:#287c67}.ama-photo-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ama-photo-actions .ama-photo-btn{font-size:12px;padding:12px 6px}@media(max-width:360px){.ama-photo-actions{grid-template-columns:1fr}}
+
+#amaNextMission.ama-next-clickable{cursor:pointer;transition:box-shadow .15s ease,transform .15s ease}
+#amaNextMission.ama-next-clickable:active{transform:scale(.995)}
+#amaNextMission.ama-next-clickable:focus-visible{outline:3px solid #398b7b;outline-offset:3px}
 </style>
 
 
@@ -703,6 +707,23 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 #tab-dashboard #amaCaHomeMonth{grid-column:auto;grid-row:auto;width:auto;max-width:100%;min-height:29px;padding:2px 22px 2px 2px;border:0;border-radius:5px;background:transparent;color:#e1eeed;font-size:13px;cursor:pointer}
 #tab-dashboard #amaCaHomeMonth option{color:#315a72;background:#fff}
 </style>
+<style id="ama-compact-missions-2026">
+#missionList .ama-compact-worker{gap:7px!important;padding:13px 14px!important;cursor:pointer;transition:background .15s,border-color .15s}
+#missionList .ama-compact-worker:active{background:#edf5f2!important}
+#missionList .ama-compact-worker:focus-visible{outline:3px solid #398b7b;outline-offset:2px}
+.ama-compact-worker .ama-mission-meta{margin-top:7px!important;gap:7px 12px!important}
+.ama-compact-worker .ama-mission-meta span{font-size:12px!important}
+.ama-compact-consigne{font-size:12px;color:#9b7436;margin-top:7px;font-weight:650}
+.ama-compact-open{color:#398b7b;font-weight:700;font-size:12px;margin-top:9px;display:flex;justify-content:space-between;align-items:center}
+.ama-compact-open span{font-size:21px;line-height:12px}
+.ama-compact-worker .ama-compact-actions{margin-top:5px}
+.ama-photo-sheet{padding:14px!important;border-radius:18px!important}
+.ama-photo-card{padding:12px!important;margin-top:9px!important;border-radius:14px!important}
+.ama-photo-details{margin:8px 0!important}
+.ama-photo-grid{gap:6px!important;margin:9px 0!important}
+.ama-photo-tile{border-radius:9px!important}
+.ama-photo-submit:disabled{opacity:.4!important}
+</style>
 </head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
@@ -812,9 +833,9 @@ body.ama-worker #tab-planning .grid{margin-top:0}
   <div class="ama-photo-top"><span class="ama-photo-sub">AMA Planning · Espace intervenant</span><button type="button" class="ama-photo-close" id="amaPhotoClose">✕ Fermer</button></div>
   <h2 id="amaPhotoTitle" style="margin:13px 0 2px;color:#315a72;font-size:22px">Détails de la mission</h2><div id="amaPhotoState" class="ama-photo-sub">À réaliser</div>
   <div class="ama-photo-card"><h3 id="amaPhotoApartment"></h3><div class="ama-photo-sub">Ménage de fin de séjour</div><div class="ama-photo-details"><div><div class="ama-photo-sub">Date</div><strong id="amaPhotoDate"></strong></div><div><div class="ama-photo-sub">Durée prévue</div><strong id="amaPhotoHours"></strong></div></div><div id="amaPhotoApartmentInfo"></div><div id="amaPhotoNotes" style="margin-top:12px"></div></div>
-  <div class="ama-photo-card"><h3>📷 Photos de fin de ménage</h3><p class="ama-photo-sub">Photographiez le logement une fois prêt. Les images ne sont pas stockées sur Supabase.</p><div class="ama-photo-grid" id="amaPhotoPreview"><div class="ama-photo-tile">Photo 1</div><div class="ama-photo-tile">Photo 2</div><div class="ama-photo-tile">Photo 3</div></div><input id="amaPhotoFiles" type="file" accept="image/*" multiple hidden><input id="amaPhotoCamera" type="file" accept="image/*" capture="environment" hidden><div class="ama-photo-actions"><button type="button" class="ama-photo-btn" id="amaPhotoCameraBtn">📷 Prendre une photo</button><button type="button" class="ama-photo-btn" id="amaPhotoChoose">▧ Ajouter depuis la galerie</button></div><p class="ama-photo-sub">Appareil photo : jusqu’à 50 prises par mission. Galerie : pas de limite fixée par AMA Planning. Photos facultatives.</p><div class="ama-photo-sub" id="amaPhotoCount" style="margin-top:8px">0 photo sélectionnée</div></div>
+  <div class="ama-photo-card"><h3>📷 Photos de fin de ménage</h3><p class="ama-photo-sub">Ajoutez au moins une photo du logement prêt. Les images ne sont pas stockées sur Supabase.</p><div class="ama-photo-grid" id="amaPhotoPreview"><div class="ama-photo-tile">Photo 1</div><div class="ama-photo-tile">Photo 2</div><div class="ama-photo-tile">Photo 3</div></div><input id="amaPhotoFiles" type="file" accept="image/*" multiple hidden><input id="amaPhotoCamera" type="file" accept="image/*" capture="environment" hidden><div class="ama-photo-actions"><button type="button" class="ama-photo-btn" id="amaPhotoCameraBtn">📷 Prendre une photo</button><button type="button" class="ama-photo-btn" id="amaPhotoChoose">▧ Ajouter depuis la galerie</button></div><p class="ama-photo-sub">Appareil photo : jusqu’à 50 prises par mission. Galerie : pas de limite fixée par AMA Planning. Au moins une photo obligatoire pour terminer la mission.</p><div class="ama-photo-sub" id="amaPhotoCount" style="margin-top:8px">0 photo sélectionnée</div></div>
   <div class="ama-photo-note" id="amaPhotoWhatsAppNote" hidden><strong>Partage WhatsApp</strong><div>Le message contient le logement, l’intervenant et la date. Sélectionnez WhatsApp et votre groupe, puis confirmez l’envoi. Si le texte ne suit pas les photos sur iPhone, utilisez « Copier le message ».</div><button type="button" class="ama-photo-btn" id="amaPhotoCopyText" style="margin-top:10px">Copier le message WhatsApp</button></div>
-  <button type="button" class="ama-photo-submit" id="amaPhotoFinish">✓ Terminer la mission</button><div id="amaPhotoFeedback" class="ama-photo-status" role="status" aria-live="polite"></div><div id="amaPhotoConfirm" class="ama-photo-card" hidden role="group" aria-label="Confirmer la fin de mission"><h3>Terminer cette mission ?</h3><p class="ama-photo-sub">Confirmez que le ménage est terminé. Aucune photo n’est obligatoire.</p><div id="amaPhotoConfirmInfo" class="ama-photo-sub" style="margin:10px 0"></div><button type="button" class="ama-photo-submit" id="amaPhotoConfirmYes">✓ Confirmer la fin de mission</button><button type="button" class="ama-photo-btn" id="amaPhotoConfirmNo" style="margin-top:8px">Retour à la mission</button></div>
+  <button type="button" class="ama-photo-submit" id="amaPhotoFinish">✓ Terminer la mission</button><div id="amaPhotoFeedback" class="ama-photo-status" role="status" aria-live="polite"></div><div id="amaPhotoConfirm" class="ama-photo-card" hidden role="group" aria-label="Confirmer la fin de mission"><h3>Terminer cette mission ?</h3><p class="ama-photo-sub">Une photo et son partage sont nécessaires pour terminer la mission.</p><div id="amaPhotoConfirmInfo" class="ama-photo-sub" style="margin:10px 0"></div><button type="button" class="ama-photo-submit" id="amaPhotoConfirmYes">✓ Confirmer la fin de mission</button><button type="button" class="ama-photo-btn" id="amaPhotoConfirmNo" style="margin-top:8px">Retour à la mission</button></div>
  </div>
 </div>
   <section id="tab-history" class="hidden">
@@ -1069,6 +1090,16 @@ function renderPlanning(){
  $('#missionList').innerHTML=ms.length?ms.map(m=>{
  const isMine=m.workerId===session.id,isParticipant=sharedIds(m).includes(session.id),canValidate=(session.role==='admin'||(session.role==='worker'&&isParticipant))&&m.status==='planned'&&!m.prolonged;
   const workerActions=session.role==='worker'&&isMine&&m.status==='planned'?`<div class="ama-mission-actions"><button class="ama-mini-action ama-prolong-action" data-action="prolong" data-id="${esc(m.id)}" title="${m.prolonged?'Annuler le signalement de prolongation':'Voyageur a prolongé'}"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M12 13v5m-2.5-2.5h5"/></svg><span>${m.prolonged?'Annuler':'Prolongé'}</span></button>${!m.prolonged?`<button class="ama-mini-action" data-action="reschedule" data-id="${esc(m.id)}"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h4"/></svg><span>Reporter</span></button><button class="ama-mini-action" data-action="transfer" data-id="${esc(m.id)}"><svg viewBox="0 0 24 24"><path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/></svg><span>Transférer</span></button><button class="ama-mini-action" data-action="fusion" data-id="${esc(m.id)}"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 6a3 3 0 0 1 0 6M18 15c2 0 3 2 3 4v1"/></svg><span>Fusionner</span></button><button class="ama-mini-action ama-non-entry-action" data-action="non-entry" data-id="${esc(m.id)}"><svg viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M9 3v18M13 12h2"/></svg><span>Non entrés</span></button>`:''}</div>`:'';
+ if(session.role==='worker'){
+  const detailAllowed=isParticipant;
+  return `<article class="mission ama-mission-card ama-compact-worker ${detailAllowed?'ama-tappable':''}" ${detailAllowed?`data-open-mission="${esc(m.id)}" tabindex="0" role="button" aria-label="Ouvrir la mission ${esc(m.apartmentName||'Logement')}"`:''}>
+    <div class="ama-mission-main"><div class="ama-mission-overview"><h4>${esc(m.apartmentName||'Logement')}</h4><span class="ama-mission-overview-badge">${missionBadge(m)}</span></div>
+    <div class="ama-mission-meta"><span>📅 ${dateFr(m.date)}</span><span>◷ ${hours(m.status==='not_entered'?0:sharedHours(m))}</span><span>👤 ${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</span></div>
+    ${m.notes?'<div class="ama-compact-consigne">📌 Consignes à lire</div>':''}${fusionLabel(m)}
+    <div class="ama-compact-open">Voir la fiche de mission <span aria-hidden="true">›</span></div></div>
+    ${workerActions?`<div class="right ama-compact-actions">${workerActions}</div>`:''}
+  </article>`;
+ }
  return `<article class="mission ama-mission-card"><div class="ama-mission-main"><div class="ama-mission-overview"><h4>${esc(m.apartmentName||'Logement')}</h4><span class="ama-mission-overview-badge">${missionBadge(m)}</span></div><div class="ama-mission-meta"><span><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>${dateFr(m.date)}</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${hours(m.status==='not_entered'&&session.role==='worker'?0:session.role==='worker'?sharedHours(m):m.hours)}${session.role==='worker'&&sharedIds(m).length>1?' (ma part)':''}</span></div>${fusionLabel(m)}${m.notes?`<div class="mission-note" role="note"><strong>📌 Consignes importantes pour cette mission</strong><div class="note-body">${esc(m.notes)}</div></div>`:''}${m.status==='not_entered'?`<div class="ama-non-entry-note"><strong>Voyageurs non entrés</strong><p>${esc(m.nonEntryComment||'Les voyageurs ne sont pas entrés dans le logement.')}</p><small>Intervenant : 0 h · Référence admin conservée</small></div>`:''}${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${canValidate?`<button class="primary mini ama-validate" data-action="${session.role==='worker'?'details':'complete'}" data-id="${esc(m.id)}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg> ${session.role==='worker'?'Ouvrir la mission':'Valider la mission'}</button>`:''}${workerActions}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
  }).join(''):'<div class="empty">Aucune mission à afficher pour ce filtre. Les missions terminées restent dans l’historique.</div>';
  $('#planningTitle').textContent=session.role==='admin'?'Planning des équipes · missions à traiter':'Mon planning';
@@ -1300,10 +1331,13 @@ function renderDashboard(){
   return a.date.localeCompare(b.date);
  }).slice(0,session.role==='admin'?3:6);
  const nextCard=$('#amaNextMission');
+ let amaNextWorkerMission=null;
  if(nextCard){
   nextCard.classList.toggle('hidden',session.role==='admin');
   const next=ms.filter(m=>m.status==='planned'&&!m.prolonged&&m.date>=today()).sort((a,b)=>a.date.localeCompare(b.date))[0];
   const detail=$('#amaNextMissionDetail');
+  amaNextWorkerMission=next;
+  if(nextCard){nextCard.dataset.nextMissionId=next?.id||'';nextCard.classList.toggle('ama-next-clickable',Boolean(next));nextCard.setAttribute('aria-label',next?'Ouvrir la mission '+(next.apartmentName||''): 'Aucune mission à ouvrir');nextCard.tabIndex=next?0:-1;}
   if(detail)detail.innerHTML=next?`<div class="ama-next-name">${esc(next.apartmentName||'Logement')}</div><div class="ama-next-sub">${dateFr(next.date)} · ${hours(sharedHours(next))}</div>${String(next.notes||'').trim()?'<span class="ama-next-note">Consignes à consulter</span>':''}`:'<p class="desc">Aucune mission à venir pour le moment.</p>';
  }
  $('#dashMissions').innerHTML=future.length?'<div class="dash-table"><div class="dash-head"><span>Date</span><span>Logement</span><span>Durée</span><span>Statut</span></div>'+future.map(m=>`<div class="dash-row"><span class="ama-dash-date"><span class="ama-mission-calendar ${m.status==='done'?'ama-calendar-done':'ama-calendar-pending'}" aria-label="${m.status==='done'?'Mission réalisée':'Mission à réaliser'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/>${m.status==='done'?'<path d="m8 16 3 3 5-5"/>':'<path d="M12 14v5m-2.5-2.5h5"/>'}</svg></span><span>${dateFr(m.date)}</span></span><span><strong>${esc(m.apartmentName||'Logement')}</strong><small>${esc(m.workerName||'')}</small>${session.role==='worker'&&String(m.notes||'').trim()?`<small class="priority-label">📌 Consignes à lire</small>`:''}</span><span>◷ ${hours(session.role==='worker'?sharedHours(m):m.hours)}</span><span>${statusBadge(m.status)}</span></div>`).join('')+'</div>':'<div class="empty">Aucune intervention à venir. Vous pouvez en programmer depuis « Mon planning ».</div>';
@@ -1399,7 +1433,20 @@ $('#reportWorker').addEventListener('change',reportTotal);
 $('#backBtn').addEventListener('click',()=>{if(!session)return;setTab(amaTabHistory.pop()||'dashboard',true)});
 $('#refreshBtn').addEventListener('click',async()=>{if(!session)return;const b=$('#refreshBtn');b.disabled=true;try{await reload();render()}catch(e){alert('Actualisation impossible : '+e.message)}finally{b.disabled=false}});
 $('#loginForm').addEventListener('submit',e=>{e.preventDefault();login()});$('#logoutBtn').addEventListener('click',logout);
-document.querySelector('#tab-dashboard').addEventListener('click',e=>{if(e.target.closest('[data-jump]'))setTab('planning')});
+document.querySelector('#tab-dashboard').addEventListener('click',e=>{
+ const next=e.target.closest('#amaNextMission');
+ if(next&&session?.role==='worker'&&next.dataset.nextMissionId){
+  const m=data.missions.find(x=>x.id===next.dataset.nextMissionId);
+  if(m){amaOpenPhotoMission(m);return;}
+ }
+ if(e.target.closest('[data-jump]'))setTab('planning');
+});
+document.getElementById('amaNextMission').addEventListener('keydown',e=>{
+ if((e.key==='Enter'||e.key===' ')&&session?.role==='worker'){
+  const m=data.missions.find(x=>x.id===e.currentTarget.dataset.nextMissionId);
+  if(m){e.preventDefault();amaOpenPhotoMission(m);}
+ }
+});
 function invoiceRows(clientId,month){
  return data.missions.filter(m=>['done','not_entered'].includes(m.status)&&!m.prolonged&&String(m.date).startsWith(month)).map(m=>{
   const apt=data.apartments.find(a=>a.id===m.apartmentId);
@@ -1498,7 +1545,7 @@ function amaPhotoRender(){
  amaPhotoUrls.slice(0,12).forEach((url,i)=>{const d=document.createElement('div');d.className='ama-photo-tile';const img=document.createElement('img');img.src=url;img.alt='Photo sélectionnée '+(i+1);d.appendChild(img);grid.appendChild(d)});
  for(let i=Math.min(12,amaPhotoUrls.length);i<Math.max(3,Math.min(12,amaPhotoUrls.length));i++){const d=document.createElement('div');d.className='ama-photo-tile';d.textContent='Photo '+(i+1);grid.appendChild(d)}
  document.getElementById('amaPhotoCount').textContent=amaSelectedPhotoFiles.length+' photo'+(amaSelectedPhotoFiles.length>1?'s':'')+' sélectionnée'+(amaSelectedPhotoFiles.length>1?'s':'')+' · '+amaCameraShots+'/50 prises appareil photo'+(amaSelectedPhotoFiles.length>12?' · 12 aperçus affichés':'');
- document.getElementById('amaPhotoFinish').disabled=false;document.getElementById('amaPhotoFinish').textContent=amaSelectedPhotoFiles.length?'✓ Terminer et partager':'✓ Terminer la mission';document.getElementById('amaPhotoWhatsAppNote').hidden=!amaSelectedPhotoFiles.length;
+ document.getElementById('amaPhotoFinish').disabled=!amaSelectedPhotoFiles.length;document.getElementById('amaPhotoFinish').textContent='✓ Terminer et partager';document.getElementById('amaPhotoWhatsAppNote').hidden=!amaSelectedPhotoFiles.length;
 }
 function amaOpenPhotoMission(m){
  if(!session||session.role!=='worker'||!sharedIds(m).includes(session.id)||m.status!=='planned'||m.prolonged)return;
@@ -1550,13 +1597,8 @@ function amaPhotoValidMission(){
 }
 document.getElementById('amaPhotoFinish').addEventListener('click',async()=>{
  const m=amaPhotoValidMission();if(!m)return;
- if(!amaSelectedPhotoFiles.length){
-  document.getElementById('amaPhotoConfirmInfo').textContent=(m.apartmentName||'Logement')+' · '+dateFr(m.date)+' · '+hours(sharedHours(m))+' · Aucune photo ajoutée';
-  document.getElementById('amaPhotoConfirm').hidden=false;
-  document.getElementById('amaPhotoConfirm').scrollIntoView({behavior:'smooth',block:'nearest'});
-  return;
- }
- if(!navigator.share||!navigator.canShare||!navigator.canShare({files:amaSelectedPhotoFiles}))return amaPhotoMessage('Ce navigateur ne peut pas partager cette sélection de photos. Essayez un lot plus petit ou validez la mission sans photos. Vous pouvez aussi copier le message WhatsApp.');
+ if(!amaSelectedPhotoFiles.length){amaPhotoMessage('Ajoutez au moins une photo pour terminer cette mission.');return;}
+ if(!navigator.share||!navigator.canShare||!navigator.canShare({files:amaSelectedPhotoFiles}))return amaPhotoMessage('Ce navigateur ne peut pas partager cette sélection de photos. Essayez un lot plus petit. Vous pouvez aussi copier le message WhatsApp.');
  const btn=document.getElementById('amaPhotoFinish');btn.disabled=true;
  try{
   await navigator.share({files:amaSelectedPhotoFiles,title:'AMA Company — '+(m.apartmentName||'Mission'),text:amaPhotoWhatsAppText(m)});
@@ -1565,13 +1607,20 @@ document.getElementById('amaPhotoFinish').addEventListener('click',async()=>{
  }catch(err){if(err?.name==='AbortError')amaPhotoMessage('Partage annulé. La mission n’a pas été validée.');else amaPhotoMessage('Partage impossible : '+(err?.message||'Erreur inconnue'));}
  finally{btn.disabled=false;}
 });
-document.getElementById('amaPhotoConfirmYes').addEventListener('click',async()=>{
- const m=amaPhotoValidMission();if(!m)return;
- if(amaSelectedPhotoFiles.length){document.getElementById('amaPhotoConfirm').hidden=true;return;}
- document.getElementById('amaPhotoConfirmYes').disabled=true;
- try{await amaPhotoComplete(m)}finally{document.getElementById('amaPhotoConfirmYes').disabled=false;}
-});
+document.getElementById('amaPhotoConfirmYes').addEventListener('click',()=>{amaPhotoMessage('Ajoutez au moins une photo et partagez-la avant la validation.');document.getElementById('amaPhotoConfirm').hidden=true;});
 document.getElementById('amaPhotoConfirmNo').addEventListener('click',()=>{document.getElementById('amaPhotoConfirm').hidden=true;});
+document.getElementById('missionList').addEventListener('click',e=>{
+ if(e.target.closest('button, a, input, select'))return;
+ const card=e.target.closest('[data-open-mission]');if(!card||session?.role!=='worker')return;
+ const m=data.missions.find(x=>x.id===card.dataset.openMission);
+ if(m&&sharedIds(m).includes(session.id))amaOpenPhotoMission(m);
+});
+document.getElementById('missionList').addEventListener('keydown',e=>{
+ if(e.key!=='Enter'&&e.key!==' ')return;
+ const card=e.target.closest('[data-open-mission]');if(!card||e.target!==card||session?.role!=='worker')return;
+ const m=data.missions.find(x=>x.id===card.dataset.openMission);
+ if(m&&sharedIds(m).includes(session.id)){e.preventDefault();amaOpenPhotoMission(m);}
+});
 $('#missionList').addEventListener('click',async e=>{
  const reply=e.target.closest('[data-fusion-reply]');
  if(reply){if(!confirm(reply.dataset.fusionReply==='yes'?'Accepter et partager les heures de cette mission ?':'Refuser cette invitation ?'))return;
