@@ -245,6 +245,19 @@ body.ama-worker #financePanel,body.ama-worker #adminDashboardRevenue{display:non
 #financePanel[hidden],#adminDashboardRevenue[hidden]{display:none!important}
 #amaWalletEye{cursor:pointer;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;touch-action:manipulation;border:0;background:transparent;color:inherit;font-size:1.45rem}
 #amaWalletEye:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:9px}
+
+/* Carte gains intervenant compacte — même style, hauteur réduite */
+#stats > #amaWorkerEarnings.ama-wallet{padding:17px 19px 16px!important;margin:4px 0 0!important;border-radius:19px!important;min-height:0!important;box-shadow:0 7px 19px #315a7219}
+#amaWorkerEarnings .ama-wallet-top{font-size:.98rem;line-height:1.35}
+#amaWorkerEarnings .ama-wallet-top>span{display:flex;align-items:center;gap:9px}
+#amaWorkerEarnings .ama-wallet-top>span:before{content:"";display:inline-block;width:19px;height:19px;flex:none;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C7 2 3 3.8 3 6v12c0 2.2 4 4 9 4s9-1.8 9-4V6c0-2.2-4-4-9-4Zm0 2c4.6 0 7 1.5 7 2s-2.4 2-7 2-7-1.5-7-2 2.4-2 7-2ZM5 9c1.8 1 4.2 1.5 7 1.5s5.2-.5 7-1.5v3c0 .6-2.4 2-7 2s-7-1.4-7-2V9Zm0 6c1.8 1 4.2 1.5 7 1.5s5.2-.5 7-1.5v3c0 .6-2.4 2-7 2s-7-1.4-7-2v-3Z'/%3E%3C/svg%3E") center/contain no-repeat}
+#amaWorkerEarnings .ama-wallet-top>span{font-size:0}
+#amaWorkerEarnings .ama-wallet-top>span:after{content:"Mes gains estimés";font-size:.98rem}
+#amaWorkerEarnings #amaWalletEye{width:40px;height:40px;min-width:40px;min-height:40px;background:#ffffff1c;border:1px solid #ffffff1a;border-radius:50%;color:#eaf4f5;padding:0}
+#amaWorkerEarnings #amaWalletEye svg{width:21px;height:21px}
+#amaWorkerEarnings #amaWalletAmount{font-size:2.05rem;line-height:1.2;margin:10px 0 9px!important;font-weight:750}
+#amaWorkerEarnings .ama-wallet-bottom{font-size:.79rem;line-height:1.35}
+@media(max-width:390px){#stats > #amaWorkerEarnings.ama-wallet{padding:15px 16px 14px!important}#amaWorkerEarnings .ama-wallet-bottom{font-size:.73rem}}
 </style>
 
 
@@ -671,6 +684,22 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 .ama-home-signature .ama-signature-dot{width:4px;height:4px;border-radius:50%;background:#398b7b}
 .ama-home-signature span:first-child{font-weight:600}
 </style>
+<style id="ama-ca-coins-petrol-v2">
+/* Admin CA card: same petrol blue palette as the worker gains card. */
+#tab-dashboard .ama-ca-home-mini{display:flex;flex-direction:column;align-items:stretch;gap:12px;background:#315a72;border:0;border-radius:19px;padding:16px 17px;color:#fff;box-shadow:0 8px 22px #315a721b}
+#tab-dashboard .ama-ca-home-mini[hidden]{display:none!important}
+#tab-dashboard .ama-ca-home-heading{display:flex;align-items:center;gap:9px;min-width:0}
+#tab-dashboard .ama-ca-coins-icon{display:flex;align-items:center;justify-content:center;width:33px;height:33px;border-radius:10px;background:#ffffff1c;flex:none;color:#fff}
+#tab-dashboard .ama-ca-coins-icon svg{width:21px;height:21px}
+#tab-dashboard .ama-ca-home-label{grid-column:auto;grid-row:auto;flex:1;min-width:0;color:#e1eeed;font-size:14px;font-weight:650}
+#tab-dashboard .ama-ca-home-value{grid-column:auto;grid-row:auto;font-size:29px;line-height:1.15;font-weight:750;letter-spacing:-.025em;color:#fff}
+#tab-dashboard #amaCaHomeDetails{grid-column:auto;grid-row:auto;display:flex;align-items:center;justify-content:center;flex:none;width:34px;height:34px;padding:8px;background:#ffffff1c;color:#fff;border-radius:10px;border:0;cursor:pointer}
+#tab-dashboard #amaCaHomeDetails svg{width:19px;height:19px}
+#tab-dashboard .ama-ca-home-footer{display:flex;align-items:center;gap:8px;color:#d0e0e5}
+#tab-dashboard .ama-ca-home-footer svg{width:15px;height:15px;flex:none}
+#tab-dashboard #amaCaHomeMonth{grid-column:auto;grid-row:auto;width:auto;max-width:100%;min-height:29px;padding:2px 22px 2px 2px;border:0;border-radius:5px;background:transparent;color:#e1eeed;font-size:13px;cursor:pointer}
+#tab-dashboard #amaCaHomeMonth option{color:#315a72;background:#fff}
+</style>
 </head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
@@ -723,7 +752,7 @@ body.ama-worker #tab-planning .grid{margin-top:0}
     <div class="stat ama-stat"><div class="ama-stat-head"><div class="label">À RÉALISER</div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10M7 21h10M8 3c0 5 4 6 4 9s-4 4-4 9M16 3c0 5-4 6-4 9s4 4 4 9"/></svg></div><div class="ama-stat-main"><div class="value" id="statPending">0</div><span class="ama-stat-tag amber">À initier</span></div><div class="sub">Missions en attente</div></div>
     <div class="stat ama-stat"><div class="ama-stat-head"><div class="label">CLÔTURÉES (MOIS)</div><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></div><div class="ama-stat-main"><div class="value" id="statDone">0</div></div><div class="sub">Interventions validées</div></div>
     <div class="stat ama-stat"><div class="ama-stat-head"><div class="label">HEURES DÉCLARÉES</div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 2.7 2 3.4-.2.6 3.3 2.4 2.4-1.6 3 1.6 3-2.4 2.4-.6 3.3-3.4-.2L12 22l-2.7-2-3.4.2-.6-3.3-2.4-2.4 1.6-3-1.6-3 2.4-2.4.6-3.3 3.4.2z"/><path d="m9 12 2 2 4-4"/></svg></div><div class="ama-stat-main"><div class="value" id="statHours">0 h</div></div><div class="sub">D'après les heures déclarées</div></div>
-  <div id="amaWorkerEarnings" class="ama-wallet" hidden><div class="ama-wallet-top"><span>♧ Mes gains estimés</span><button type="button" id="amaWalletEye" aria-label="Masquer ou afficher le montant">◉</button></div><strong id="amaWalletAmount">—</strong><div class="ama-wallet-bottom"><span id="amaWalletPeriod">Ce mois</span><span id="amaWalletHours">Heures validées</span></div></div>
+  <div id="amaWorkerEarnings" class="ama-wallet" hidden><div class="ama-wallet-top"><span>♧ Mes gains estimés</span><button type="button" id="amaWalletEye" aria-label="Afficher le montant" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.2A10.9 10.9 0 0 1 12 5c5.2 0 9.2 4.3 10 7-0.4 1.3-1.5 3.1-3.2 4.6"/><path d="M6.1 6.2C3.9 7.7 2.5 10 2 12c.8 2.7 4.8 7 10 7 1.6 0 3.1-.4 4.4-1.1"/><path d="M10 10a2.8 2.8 0 0 0 4 4"/></svg></button></div><strong id="amaWalletAmount">—</strong><div class="ama-wallet-bottom"><span id="amaWalletPeriod">Ce mois</span><span id="amaWalletHours">Heures validées</span></div></div>
   </section>
     <div class="card hidden" id="notificationCard"><div class="section-title"><button type="button" id="notificationToggle" aria-expanded="false" aria-controls="notificationContent" class="ghost" style="display:flex;align-items:center;gap:8px;flex:1;text-align:left;justify-content:space-between;padding:8px 4px"><span class="ama-notif-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><strong>Notifications</strong></span><span class="ama-notif-unread" id="notificationUnreadText" aria-live="polite"></span><span id="notificationCount" class="ama-count-hidden" aria-hidden="true"></span><span id="notificationChevron" aria-hidden="true">⌄</span></button></div><div id="notificationContent" class="hidden"><p class="desc">Alertes liées aux interventions et aux missions.</p><div id="amaPullIndicator" class="ama-pull-indicator" aria-live="polite" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg><span id="amaPullText">Tirez pour actualiser</span></div><div id="notificationList" style="margin-top:12px"></div><div id="amaAutoRefreshStatus" class="ama-auto-refresh-status" role="status" aria-live="polite" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg><span>Actualisation automatique…</span></div><div id="amaUndoToast" hidden class="ama-undo-toast">Notification supprimée <button type="button">Annuler</button></div></div></div>
     
@@ -739,10 +768,13 @@ body.ama-worker #tab-planning .grid{margin-top:0}
     </div>
 
 <div class="ama-ca-home-mini" id="amaCaHomeMini" hidden>
-  <div class="ama-ca-home-label">Chiffre d’affaires</div>
+  <div class="ama-ca-home-heading">
+    <span class="ama-ca-coins-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="6" rx="5" ry="2.5"/><path d="M3 6v4c0 1.4 2.2 2.5 5 2.5 1.1 0 2.1-.2 3-.5M3 10v4c0 1.4 2.2 2.5 5 2.5"/><ellipse cx="16" cy="14" rx="5" ry="2.5"/><path d="M11 14v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5v-4M11 18v-4"/></svg></span>
+    <span class="ama-ca-home-label">Chiffre d’affaires estimé</span>
+    <button type="button" id="amaCaHomeDetails" aria-label="Voir le chiffre d’affaires détaillé dans Gestion" title="Voir les détails"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></button>
+  </div>
   <strong class="ama-ca-home-value" id="amaCaHomeValue">0 €</strong>
-  <select id="amaCaHomeMonth" aria-label="Choisir le mois du chiffre d’affaires"></select>
-  <button type="button" id="amaCaHomeDetails" aria-label="Voir le chiffre d’affaires détaillé dans Gestion" title="Voir les détails">↗</button>
+  <div class="ama-ca-home-footer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg><select id="amaCaHomeMonth" aria-label="Choisir le mois du chiffre d’affaires"></select></div>
 </div>
 <div class="card weekly-card" id="weeklyCard">
       <div class="weekly-header"><div><h3 class="ama-weekly-title"><span class="ama-weekly-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V11m5 9V5m5 15v-8m5 8V8"/><path d="M2 21h20"/></svg></span>Activité de la semaine</h3><p class="desc" style="margin:3px 0 0">Missions planifiées et réalisées, jour par jour</p></div><div class="weekly-controls"><button type="button" id="weekPrev" aria-label="Semaine précédente">‹</button><span class="weekly-range" id="weekRange"></span><button type="button" id="weekNext" aria-label="Semaine suivante">›</button><button type="button" id="weekCurrent">Cette semaine</button></div></div>
@@ -1190,7 +1222,9 @@ async function amaRefreshWallet(){
  try{const {data,error}=await client.rpc('ama_my_earnings',{p_month:monthNow()+'-01'});if(error)throw error;if(seq!==amaWalletRequest)return;const row=Array.isArray(data)?data[0]:data;if(!row||!row.allowed)return;amaWalletLastAmount=Number(row.earnings||0);card.hidden=false;document.getElementById('amaWalletAmount').textContent=amaWalletHidden?'•••• €':euro(amaWalletLastAmount);document.getElementById('amaWalletHours').textContent=hours(Number(row.validated_hours||0))+' validées';document.getElementById('amaWalletPeriod').textContent=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'});}
  catch(e){console.warn('Gains sécurisés indisponibles',e.message);card.hidden=true;}
 }
-document.getElementById('amaWalletEye').addEventListener('click',(event)=>{event.preventDefault();event.stopPropagation();amaWalletHidden=!amaWalletHidden;const amount=document.getElementById('amaWalletAmount');if(!amaWalletHidden && amaWalletLastAmount!==null){amount.textContent=euro(amaWalletLastAmount)}else if(amaWalletHidden){amount.textContent='•••• €'}const eye=document.getElementById('amaWalletEye');eye.textContent=amaWalletHidden?'◉':'◌';eye.setAttribute('aria-label',amaWalletHidden?'Afficher le montant':'Masquer le montant');eye.setAttribute('aria-pressed',String(!amaWalletHidden));});
+const AMA_WALLET_EYE_OFF='<svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.2A10.9 10.9 0 0 1 12 5c5.2 0 9.2 4.3 10 7-0.4 1.3-1.5 3.1-3.2 4.6"/><path d="M6.1 6.2C3.9 7.7 2.5 10 2 12c.8 2.7 4.8 7 10 7 1.6 0 3.1-.4 4.4-1.1"/><path d="M10 10a2.8 2.8 0 0 0 4 4"/></svg>';
+const AMA_WALLET_EYE_ON='<svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+document.getElementById('amaWalletEye').addEventListener('click',(event)=>{event.preventDefault();event.stopPropagation();amaWalletHidden=!amaWalletHidden;const amount=document.getElementById('amaWalletAmount');if(!amaWalletHidden && amaWalletLastAmount!==null){amount.textContent=euro(amaWalletLastAmount)}else if(amaWalletHidden){amount.textContent='•••• €'}const eye=document.getElementById('amaWalletEye');eye.innerHTML=amaWalletHidden?AMA_WALLET_EYE_OFF:AMA_WALLET_EYE_ON;eye.setAttribute('aria-label',amaWalletHidden?'Afficher le montant':'Masquer le montant');eye.setAttribute('aria-pressed',String(!amaWalletHidden));});
 document.getElementById('amaWorkerShowEarnings').addEventListener('change',async e=>{if(!session||session.role!=='admin')return;const id=document.getElementById('amaWorkerEditId').value,checked=e.target.checked,status=document.getElementById('amaWorkerEarningsStatus');e.target.disabled=true;try{const {error}=await client.rpc('ama_set_worker_earnings_permission',{p_worker_id:id,p_allowed:checked});if(error)throw error;status.textContent=checked?'Gains autorisés pour cet intervenant.':'Gains masqués pour cet intervenant.';}catch(err){e.target.checked=!checked;status.textContent='Échec de l’enregistrement sécurisé : '+err.message;}finally{e.target.disabled=false;}});
 document.getElementById('amaAptToggle').addEventListener('click',()=>{const content=document.getElementById('amaAptContents');content.hidden=!content.hidden;const open=!content.hidden;document.getElementById('amaAptToggle').setAttribute('aria-expanded',String(open));document.getElementById('amaAptToggle').firstChild.textContent=open?'🏠 Masquer les logements ':'🏠 Afficher les logements ';});
 document.getElementById('amaAptSearch').addEventListener('input',e=>{const q=e.target.value.toLocaleLowerCase('fr').trim();document.querySelectorAll('#apartmentList [data-apt-name]').forEach(el=>{el.hidden=!el.dataset.aptName.includes(q)});});
