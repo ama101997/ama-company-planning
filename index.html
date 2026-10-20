@@ -775,6 +775,31 @@ body.ama-worker #tab-planning .grid{margin-top:0}
 .ama-live-camera .ama-live-bottom #amaLiveShoot{width:68px!important;height:68px!important;min-width:68px!important;min-height:68px!important}
 .ama-live-camera .ama-live-bottom #amaLiveShoot span{width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important}}
 </style>
+
+<style id="ama-revenue-navigation-2026">
+body .top-actions #backBtn{display:inline-flex!important;align-items:center;gap:5px;min-height:40px;padding:8px 11px}
+#backBtn:disabled{opacity:.45;cursor:default}
+body.ama-worker #amaDailyRevenue,#amaDailyRevenue[hidden]{display:none!important}
+#amaDailyRevenue{margin-bottom:18px;padding:clamp(15px,3vw,23px);border:1px solid #dce6e9;border-radius:20px;background:white;color:#315a72;overflow:hidden}
+.ama-curve-head,.ama-curve-nav,.ama-curve-day{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ama-curve-head h3{margin:0;font-size:19px;color:#315a72}.ama-curve-head small{font-size:11px;color:#398b7b;background:#e8f3f0;padding:6px 10px;border-radius:99px}
+.ama-curve-nav{justify-content:center;margin:18px 0}.ama-curve-nav button{width:39px;height:39px;border:1px solid #dce6e9;border-radius:11px;background:#f5f8fa;color:#315a72;font-size:24px;cursor:pointer}
+.ama-curve-nav input{width:180px;max-width:60%;padding:8px;border:1px solid #dce6e9;border-radius:11px;color:#315a72;background:#fff;min-height:39px}
+.ama-curve-value{text-align:center;font-size:clamp(28px,6vw,40px);font-weight:750;color:#315a72;letter-spacing:-.025em;min-height:49px;font-variant-numeric:tabular-nums}
+.ama-curve-caption{text-align:center;color:#8195a0;font-size:12px;margin:4px 0 10px}.ama-curve-today{text-align:center;margin:0 auto 10px;padding:6px 10px;border-radius:99px;background:#e8f3f0;color:#398b7b;font-size:12px;width:fit-content}
+#amaCurveSvg{display:block;width:100%;height:auto;max-height:300px;touch-action:pan-y}
+#amaCurveReadout{display:block;min-height:32px;color:#315a72;font-size:12px;text-align:center;margin:6px 0}
+#amaCurveDay{width:100%;accent-color:#398b7b;margin:0 0 12px}.ama-curve-months{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}.ama-curve-months button{border:1px solid #dce6e9;border-radius:99px;background:#f5f8fa;padding:8px 10px;color:#315a72;font-size:12px;cursor:pointer}.ama-curve-months button.selected{background:#315a72;color:white;border-color:#315a72}
+#amaCurveForecast,#amaCurveNotice{font-size:12px;color:#8195a0;line-height:1.5;margin:12px 0 0}.ama-curve-legend{font-size:11px;text-align:center;color:#8195a0;margin:8px 0}.ama-curve-legend span{color:#398b7b}
+#amaCurveDaily{max-height:235px;overflow:auto;margin-top:9px}.ama-curve-day{padding:11px 4px;border-bottom:1px solid #edf2f4;font-size:13px}.ama-curve-day strong{color:#398b7b}
+.ama-profile-remove{position:absolute;right:-9px;top:-9px;z-index:2;width:32px;height:32px;min-width:32px;border:2px solid #fff;border-radius:50%;background:#fff0ee;color:#aa4949;font-size:22px;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px #294b5c20}
+.ama-profile-remove[hidden]{display:none!important}.ama-profile-remove:focus-visible{outline:2px solid #aa4949;outline-offset:2px}
+.ama-worker-editor-photo{position:relative}.ama-worker-remove-photo{border:1px solid #ecd6d3;background:#fff5f3;color:#aa4949;border-radius:99px;width:36px;height:36px;min-width:36px;font-size:23px;cursor:pointer}
+#amaWalletAmount.ama-wallet-masked{filter:blur(5px);user-select:none;pointer-events:none}
+@media(max-width:600px){body .top-actions #backBtn{width:auto!important;min-width:40px;padding:8px!important}body .top-actions #backBtn span{display:inline!important;font-size:11px}.ama-curve-head h3{font-size:17px}}
+@media(prefers-reduced-motion:reduce){#amaDailyRevenue *{animation:none!important;transition:none!important}}
+</style>
+
 </head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
@@ -913,6 +938,17 @@ body.ama-worker #tab-planning .grid{margin-top:0}
     </div>
   </section>
   <section id="tab-admin" class="hidden">
+    <div class="card" id="amaDailyRevenue" hidden aria-label="Suivi privé du chiffre d’affaires">
+      <div class="ama-curve-head"><h3>Chiffre d’affaires</h3><small id="amaCurveState"></small></div>
+      <div class="ama-curve-nav"><button type="button" id="amaCurvePrev" aria-label="Mois précédent">‹</button><input type="month" id="amaCurveMonth" aria-label="Mois du chiffre d’affaires"><button type="button" id="amaCurveNext" aria-label="Mois suivant">›</button></div>
+      <div id="amaCurveAmount" class="ama-curve-value" data-private-value>0 €</div><p id="amaCurveCaption" class="ama-curve-caption"></p><div id="amaCurveToday" class="ama-curve-today" data-private-value></div>
+      <svg id="amaCurveSvg" viewBox="0 0 600 220" role="img" aria-label="Courbe du chiffre d’affaires"></svg>
+      <div class="ama-curve-legend"><span>━ Réalisé estimé</span> &nbsp; ┄ Prévisionnel</div>
+      <output id="amaCurveReadout" data-private-value></output><input type="range" id="amaCurveDay" min="1" max="31" value="1" aria-label="Consulter un jour du mois">
+      <div id="amaCurveMonths" class="ama-curve-months" aria-label="Navigation entre les mois"></div><p id="amaCurveForecast" data-private-value></p>
+      <details><summary style="margin-top:15px;cursor:pointer;font-size:13px">Suivi quotidien</summary><div id="amaCurveDaily" data-private-value></div></details><p id="amaCurveNotice"></p>
+    </div>
+
     <div class="grid">
       <div class="card"><h3>👥 Comptes intervenants</h3><p class="desc">Créez un compte par personne. Communiquez son code en privé.</p>
         <form id="workerForm" class="formgrid"><div class="field"><label for="workerName">Nom complet *</label><input id="workerName" required placeholder="Ex. : Hafida"></div><div class="field"><label for="workerEmail">Adresse e-mail *</label><input id="workerEmail" type="email" required placeholder="intervenant@exemple.fr"></div><div class="field"><label for="workerPin">Mot de passe (géré dans Supabase) *</label><input id="workerPin" type="password" required minlength="4" maxlength="72" placeholder="4 caractères minimum"></div><div class="full"><button class="primary">＋ Ajouter l'intervenant</button></div></form>
@@ -920,7 +956,7 @@ body.ama-worker #tab-planning .grid{margin-top:0}
       </div>
       <div id="amaWorkerEditor" class="ama-worker-editor" hidden>
         <div class="ama-worker-editor-head"><h3>Fiche intervenant</h3><button type="button" id="amaWorkerEditorClose" aria-label="Fermer">×</button></div>
-        <div class="ama-worker-editor-photo"><div id="amaWorkerEditorPhoto" class="ama-worker-avatar-fallback" aria-label="Photo de profil">👤</div><button type="button" id="amaWorkerEditorPhotoButton" class="ama-worker-photo-button">📷 Modifier la photo</button></div>
+        <div class="ama-worker-editor-photo"><div id="amaWorkerEditorPhoto" class="ama-worker-avatar-fallback" aria-label="Photo de profil">👤</div><button type="button" id="amaRemoveWorkerPhoto" class="ama-worker-remove-photo" aria-label="Supprimer la photo de cet intervenant" title="Supprimer la photo" hidden>×</button><button type="button" id="amaWorkerEditorPhotoButton" class="ama-worker-photo-button">📷 Modifier la photo</button></div>
         <form id="amaWorkerEditForm">
           <input type="hidden" id="amaWorkerEditId">
           <label for="amaWorkerEditName">Nom complet</label><input id="amaWorkerEditName" required maxlength="120">
@@ -1099,9 +1135,9 @@ async function startSession(authUser){
  $('#adminTab').classList.toggle('hidden',u.role!=='admin');$('#invoicesTab').classList.toggle('hidden',u.role!=='admin');$('#createMissionCard').classList.toggle('hidden',u.role!=='admin');
  $('#planningWorkerFilterWrap').classList.toggle('hidden',u.role!=='admin');$('#historyWorkerWrap').classList.toggle('hidden',u.role!=='admin');
  if(u.role==='worker'){$('#planningWorkerFilter').value=u.id;$('#historyWorker').value=u.id}
- amaTabHistory=[];render();setTab('dashboard',true);if(u.role==='worker')amaRefreshWallet();
+ amaTabHistory=[];amaWalletHidden=true;document.getElementById('amaWalletEye').innerHTML=AMA_WALLET_EYE_OFF;document.getElementById('amaWalletEye').setAttribute('aria-label','Afficher le montant');document.getElementById('amaWalletEye').setAttribute('aria-pressed','false');render();setTab('dashboard',true);if(u.role==='worker')amaRefreshWallet();
 }
-async function logout(){stopAmaWelcome();await client?.auth.signOut();session=null;document.getElementById('amaWorkerEarnings').hidden=true;document.getElementById('financePanel').hidden=true;document.body.classList.remove('ama-worker');$('#app').hidden=true;$('#loginScreen').classList.remove('hidden');$('#loginPin').value='';$('#loginEmail').value='';}
+async function logout(){stopAmaWelcome();await client?.auth.signOut();session=null;amaWalletHidden=true;amaWalletRequest++;amaWalletLastAmount=null;renderRevenueCurve();document.getElementById('amaWorkerEarnings').hidden=true;document.getElementById('financePanel').hidden=true;document.body.classList.remove('ama-worker');$('#app').hidden=true;$('#loginScreen').classList.remove('hidden');$('#loginPin').value='';$('#loginEmail').value='';}
 function canSee(m){return session.role==='admin'||m.workerId===session.id||sharedIds(m).includes(session.id)}
 function getVisibleMissions(){return data.missions.filter(canSee)}
 function missionBadge(m){return m.prolonged?'<span class="badge cancelled">↗ Prolongation du séjour</span>':statusBadge(m.status)}
@@ -1312,7 +1348,7 @@ function setFinanceInputType(inputId,periodId){
 }
 function amaCompactEuro(amount){const n=Number(amount)||0;return Math.abs(n)>=1000?(n/1000).toLocaleString('fr-FR',{maximumFractionDigits:2})+' k€':euro(n)}
 
-let amaWalletHidden=false;let amaWalletRequest=0;let amaWalletLastAmount=null;
+let amaWalletHidden=true;let amaWalletRequest=0;let amaWalletLastAmount=null;
 async function amaLoadWorkerPermission(id){
  const label=document.getElementById('amaWorkerEarningsStatus');
  try{const {data,error}=await client.rpc('ama_get_worker_earnings_permission',{p_worker_id:id});if(error)throw error;if(document.getElementById('amaWorkerEditId').value!==id)return;document.getElementById('amaWorkerShowEarnings').checked=Boolean(data);label.textContent='Autorisation enregistrée dans Supabase.';}
@@ -1321,16 +1357,99 @@ async function amaLoadWorkerPermission(id){
 async function amaRefreshWallet(){
  const card=document.getElementById('amaWorkerEarnings');if(!card||!session||session.role!=='worker')return;
  const seq=++amaWalletRequest;card.hidden=true;amaWalletLastAmount=null;
- try{const {data,error}=await client.rpc('ama_my_earnings',{p_month:monthNow()+'-01'});if(error)throw error;if(seq!==amaWalletRequest)return;const row=Array.isArray(data)?data[0]:data;if(!row||!row.allowed)return;amaWalletLastAmount=Number(row.earnings||0);card.hidden=false;document.getElementById('amaWalletAmount').textContent=amaWalletHidden?'•••• €':euro(amaWalletLastAmount);document.getElementById('amaWalletHours').textContent=hours(Number(row.validated_hours||0))+' validées';document.getElementById('amaWalletPeriod').textContent=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'});}
+ try{const {data,error}=await client.rpc('ama_my_earnings',{p_month:monthNow()+'-01'});if(error)throw error;if(seq!==amaWalletRequest)return;const row=Array.isArray(data)?data[0]:data;if(!row||!row.allowed)return;amaWalletLastAmount=Number(row.earnings||0);card.hidden=false;document.getElementById('amaWalletAmount').textContent=amaWalletHidden?'•••• €':euro(amaWalletLastAmount);document.getElementById('amaWalletAmount').classList.toggle('ama-wallet-masked',amaWalletHidden);document.getElementById('amaWalletHours').textContent=hours(Number(row.validated_hours||0))+' validées';document.getElementById('amaWalletPeriod').textContent=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'});}
  catch(e){console.warn('Gains sécurisés indisponibles',e.message);card.hidden=true;}
 }
 const AMA_WALLET_EYE_OFF='<svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.2A10.9 10.9 0 0 1 12 5c5.2 0 9.2 4.3 10 7-0.4 1.3-1.5 3.1-3.2 4.6"/><path d="M6.1 6.2C3.9 7.7 2.5 10 2 12c.8 2.7 4.8 7 10 7 1.6 0 3.1-.4 4.4-1.1"/><path d="M10 10a2.8 2.8 0 0 0 4 4"/></svg>';
 const AMA_WALLET_EYE_ON='<svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
-document.getElementById('amaWalletEye').addEventListener('click',(event)=>{event.preventDefault();event.stopPropagation();amaWalletHidden=!amaWalletHidden;const amount=document.getElementById('amaWalletAmount');if(!amaWalletHidden && amaWalletLastAmount!==null){amount.textContent=euro(amaWalletLastAmount)}else if(amaWalletHidden){amount.textContent='•••• €'}const eye=document.getElementById('amaWalletEye');eye.innerHTML=amaWalletHidden?AMA_WALLET_EYE_OFF:AMA_WALLET_EYE_ON;eye.setAttribute('aria-label',amaWalletHidden?'Afficher le montant':'Masquer le montant');eye.setAttribute('aria-pressed',String(!amaWalletHidden));});
+document.getElementById('amaWalletEye').addEventListener('click',(event)=>{event.preventDefault();event.stopPropagation();amaWalletHidden=!amaWalletHidden;const amount=document.getElementById('amaWalletAmount');if(!amaWalletHidden && amaWalletLastAmount!==null){amount.textContent=euro(amaWalletLastAmount)}else if(amaWalletHidden){amount.textContent='•••• €'}amount.classList.toggle('ama-wallet-masked',amaWalletHidden);const eye=document.getElementById('amaWalletEye');eye.innerHTML=amaWalletHidden?AMA_WALLET_EYE_OFF:AMA_WALLET_EYE_ON;eye.setAttribute('aria-label',amaWalletHidden?'Afficher le montant':'Masquer le montant');eye.setAttribute('aria-pressed',String(!amaWalletHidden));});
 document.getElementById('amaWorkerShowEarnings').addEventListener('change',async e=>{if(!session||session.role!=='admin')return;const id=document.getElementById('amaWorkerEditId').value,checked=e.target.checked,status=document.getElementById('amaWorkerEarningsStatus');e.target.disabled=true;try{const {error}=await client.rpc('ama_set_worker_earnings_permission',{p_worker_id:id,p_allowed:checked});if(error)throw error;status.textContent=checked?'Gains autorisés pour cet intervenant.':'Gains masqués pour cet intervenant.';}catch(err){e.target.checked=!checked;status.textContent='Échec de l’enregistrement sécurisé : '+err.message;}finally{e.target.disabled=false;}});
 document.getElementById('amaAptToggle').addEventListener('click',()=>{const content=document.getElementById('amaAptContents');content.hidden=!content.hidden;const open=!content.hidden;document.getElementById('amaAptToggle').setAttribute('aria-expanded',String(open));document.getElementById('amaAptToggle').firstChild.textContent=open?'🏠 Masquer les logements ':'🏠 Afficher les logements ';});
 document.getElementById('amaAptSearch').addEventListener('input',e=>{const q=e.target.value.toLocaleLowerCase('fr').trim();document.querySelectorAll('#apartmentList [data-apt-name]').forEach(el=>{el.hidden=!el.dataset.aptName.includes(q)});});
 document.getElementById('amaFinanceToggle').addEventListener('click',()=>{window.amaShowAllFinances=!window.amaShowAllFinances;renderFinances()});
+
+// Private to the existing application closure: financial values never leave admin data.
+let amaCurveMonth=monthNow(),amaCurveFrame=0,amaCurveSignature='';
+function amaRevenueDays(month){
+ const [year,mon]=month.split('-').map(Number),days=new Date(year,mon,0).getDate();
+ const actual=Array(days).fill(0),forecast=Array(days).fill(0);let missing=0;
+ const now=today();
+ for(const m of data.missions){
+  if(!m.date?.startsWith(month+'-')||m.prolonged)continue;
+  const day=Number(m.date.slice(8,10))-1;if(day<0||day>=days)continue;
+  if(['done','not_entered'].includes(m.status)&&m.date<=now){
+   const f=missionFinances.get(m.id);
+   if(!f){missing++;continue;}
+   const value=Number(f.revenue??Number(f.reference_hours)*Number(f.hourly_rate));
+   if(Number.isFinite(value))actual[day]+=Math.round(value*100);else missing++;
+  }else if(m.status==='planned'&&m.date>=now){
+   const f=missionFinances.get(m.id)||apartmentFinances.get(m.apartmentId);
+   if(!f){missing++;continue;}
+   const value=Number(f.revenue??Number(f.reference_hours)*Number(f.hourly_rate));
+   if(Number.isFinite(value))forecast[day]+=Math.round(value*100);else missing++;
+  }
+ }
+ return {actual,forecast,days,missing};
+}
+function renderRevenueCurve(force=false){
+ const panel=document.getElementById('amaDailyRevenue');if(!panel)return;
+ const allowed=session?.role==='admin';panel.hidden=!allowed;
+ if(!allowed){cancelAnimationFrame(amaCurveFrame);panel.querySelectorAll('[data-private-value]').forEach(n=>n.textContent='');document.getElementById('amaCurveSvg').innerHTML='';return;}
+ const result=amaRevenueDays(amaCurveMonth),{actual,forecast,days,missing}=result;
+ const now=today(),current=now.slice(0,7),past=amaCurveMonth<current,future=amaCurveMonth>current;
+ const cutoff=past?days:future?0:Number(now.slice(8,10));
+ let sum=0;const cumulative=actual.map(n=>(sum+=n));
+ let predicted=0;const projected=actual.map((n,i)=>(predicted+=n+forecast[i]));
+ const total=cumulative.at(-1)||0,planned=forecast.reduce((a,b)=>a+b,0);
+ const signature=JSON.stringify([amaCurveMonth,actual,forecast,missing]);
+ document.getElementById('amaCurveMonth').value=amaCurveMonth;
+ document.getElementById('amaCurveState').textContent=past?'Mois terminé':future?'À venir':'En cours';
+ document.getElementById('amaCurveCaption').textContent=past?'Total du mois · interventions réalisées':future?'Aucune intervention réalisée':`Cumul au ${dateFr(now)}`;
+ document.getElementById('amaCurveToday').textContent=future?'Prévisionnel : '+euro(planned/100):past?'Courbe complète du mois':'Aujourd’hui : '+euro(actual[cutoff-1]/100);
+ document.getElementById('amaCurveForecast').textContent=planned?'Prévision de fin de mois : '+euro((total+planned)/100)+' · missions planifiées':'Aucune prévision chiffrée sur les missions restantes.';
+ document.getElementById('amaCurveNotice').textContent='CA estimé des interventions, avant charges et impôts ; il ne représente pas les encaissements. '+(missing?missing+' mission(s) sans données financières exclue(s). ':'')+'Les pointillés indiquent uniquement les prévisions. Prolongations exclues.';
+ const dateLabel=d=>dateFr(amaCurveMonth+'-'+String(d).padStart(2,'0'));
+ const slider=document.getElementById('amaCurveDay');slider.max=days;slider.value=Math.max(1,cutoff);slider.disabled=future;
+ function showDay(day){document.getElementById('amaCurveReadout').textContent=future?'Prévisions issues des missions planifiées':`${dateLabel(day)} · Jour : ${euro(actual[day-1]/100)} · Cumul : ${euro(cumulative[day-1]/100)}`;}
+ slider.oninput=()=>showDay(Number(slider.value));showDay(Math.max(1,cutoff));
+ const entries=actual.map((n,i)=>({n,day:i+1})).filter(v=>v.n!==0).reverse();
+ document.getElementById('amaCurveDaily').innerHTML=entries.length?entries.map(v=>`<div class="ama-curve-day"><span>${dateLabel(v.day)}</span><strong>${esc(euro(v.n/100))}</strong></div>`).join(''):'<p class="desc">Aucune intervention réalisée valorisée sur ce mois.</p>';
+ const chips=document.getElementById('amaCurveMonths');chips.innerHTML='';
+ const [y,m]=amaCurveMonth.split('-').map(Number);
+ for(let offset=-2;offset<=2;offset++){
+  const date=new Date(y,m-1+offset,1),key=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
+  const b=document.createElement('button');b.type='button';b.textContent=date.toLocaleDateString('fr-FR',{month:'short',year:'2-digit'});b.className=offset===0?'selected':'';b.setAttribute('aria-pressed',String(offset===0));b.onclick=()=>{amaCurveMonth=key;renderRevenueCurve(true)};chips.appendChild(b);
+ }
+ if(!force&&signature===amaCurveSignature)return;amaCurveSignature=signature;
+ cancelAnimationFrame(amaCurveFrame);
+ const W=600,H=220,L=18,R=582,T=18,B=184;
+ const max=Math.max(100,...cumulative,...projected),min=Math.min(0,...cumulative,...projected),span=max-min||1;
+ const x=d=>L+(R-L)*d/days,yv=n=>B-(n-min)/span*(B-T);
+ const points=(values,end,start=0)=>{let path=`M ${x(start)} ${yv(start?values[start-1]:0)}`;for(let i=start;i<end;i++)path+=` L ${x(i+1)} ${yv(values[i])}`;return path;};
+ const actualPath=cutoff?points(cumulative,cutoff):'';
+ const forecastStart=future?0:cutoff;
+ const forecastPath=planned?points(projected,days,forecastStart):'';
+ const svg=document.getElementById('amaCurveSvg');
+ svg.innerHTML=`<defs><linearGradient id="amaRevenueFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#398b7b" stop-opacity=".22"/><stop offset="100%" stop-color="#398b7b" stop-opacity=".02"/></linearGradient></defs>`+
+ [0,.5,1].map(p=>`<line x1="${L}" y1="${T+(B-T)*p}" x2="${R}" y2="${T+(B-T)*p}" stroke="#e5edef"/>`).join('')+
+ (actualPath?`<path d="${actualPath} L ${x(cutoff)} ${B} L ${L} ${B} Z" fill="url(#amaRevenueFill)"/><path id="amaCurveLine" d="${actualPath}" fill="none" stroke="#398b7b" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${x(cutoff)}" cy="${yv(cumulative[cutoff-1])}" r="5" fill="#398b7b" stroke="white" stroke-width="2"/>`:'')+
+ (forecastPath?`<path d="${forecastPath}" fill="none" stroke="#8195a0" stroke-width="2.5" stroke-dasharray="6 6"/>`:'')+
+ [1,Math.round(days/2),days].map(d=>`<text x="${x(d)}" y="211" text-anchor="${d===1?'start':d===days?'end':'middle'}" fill="#8195a0" font-size="13">${d}</text>`).join('');
+ svg.setAttribute('aria-label',`Chiffre d’affaires cumulé : ${euro(total/100)}. ${planned?'Prévision : '+euro((total+planned)/100):''}`);
+ svg.onpointermove=e=>{const rect=svg.getBoundingClientRect(),px=(e.clientX-rect.left)*W/rect.width;showDay(Math.max(1,Math.min(days,Math.round((px-L)/(R-L)*days))));};
+ const amount=document.getElementById('amaCurveAmount'),line=document.getElementById('amaCurveLine');
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const visible=tab==='admin'&&!document.getElementById('app').hidden;
+ if(line&&visible&&!reduced){const len=line.getTotalLength();line.style.strokeDasharray=len;line.style.strokeDashoffset=len;line.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:1400,easing:'ease-out',fill:'forwards'});}
+ if(!visible||reduced){amount.textContent=euro(total/100);return;}
+ const start=performance.now();function tick(time){if(session?.role!=='admin')return;const p=Math.min(1,(time-start)/950);amount.textContent=euro(Math.round(total*(1-Math.pow(1-p,3)))/100);if(p<1)amaCurveFrame=requestAnimationFrame(tick);}amaCurveFrame=requestAnimationFrame(tick);
+}
+function amaShiftRevenueMonth(offset){const [y,m]=amaCurveMonth.split('-').map(Number),d=new Date(y,m-1+offset,1);amaCurveMonth=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');renderRevenueCurve(true);}
+document.getElementById('amaCurvePrev').onclick=()=>amaShiftRevenueMonth(-1);
+document.getElementById('amaCurveNext').onclick=()=>amaShiftRevenueMonth(1);
+document.getElementById('amaCurveMonth').onchange=e=>{if(/^\d{4}-\d{2}$/.test(e.target.value)&&Number(e.target.value.slice(5))>=1&&Number(e.target.value.slice(5))<=12){amaCurveMonth=e.target.value;renderRevenueCurve(true)}};
+// Crossing midnight refreshes the daily cutoff while Gestion is open.
+let amaCurveLastDay=today();setInterval(()=>{if(session?.role==='admin'&&tab==='admin'&&today()!==amaCurveLastDay){amaCurveLastDay=today();renderRevenueCurve(true)}},30000);
 
 function renderFinances(){
  const select=$('#financeApartment'),prev=select.value;
@@ -1357,6 +1476,7 @@ function renderFinances(){
 $('#financeMonth').addEventListener('change',renderFinances);$('#financePeriod').addEventListener('change',()=>{setFinanceInputType('financeMonth','financePeriod');renderFinances()});
 $('#financeApartment').addEventListener('change',renderFinances);
 function renderAdminDashboardRevenue(){
+ renderRevenueCurve();
  const panel=$('#adminDashboardRevenue');
  if(!session||session.role!=='admin'){panel.classList.add('hidden');return;}
  panel.classList.remove('hidden');
@@ -1427,7 +1547,37 @@ $('#weekNext').addEventListener('click',()=>{weekOffset++;renderWeek()});
 $('#weekCurrent').addEventListener('click',()=>{weekOffset=0;renderWeek()});
 $('#weekBars').addEventListener('click',e=>{const day=e.target.closest('[data-week-date]');if(!day)return;$('#planningDate').value=day.dataset.weekDate;renderPlanning();setTab('planning')});
 let amaTabHistory=[];
-function setTab(t,fromBack=false){if(session&&!fromBack&&tab!==t)amaTabHistory.push(tab);closeMobileMenu();if((t==='admin'||t==='invoices')&&session.role!=='admin')t='planning';tab=t;if(t==='dashboard'&&session?.role==='worker')amaRefreshWallet();document.body.dataset.amaTab=t;$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));['dashboard','planning','history','admin','invoices'].forEach(x=>$('#tab-'+x).classList.toggle('hidden',x!==t));}
+function amaCaptureView(){
+ const section=document.getElementById('tab-'+tab),fields={};
+ section?.querySelectorAll('input[id],select[id]').forEach(el=>{if(/^(planning|history|report|finance|dashRevenue|amaCurve|amaAptSearch)/.test(el.id)&&!['password','file','hidden'].includes(el.type))fields[el.id]=el.value});
+ return {tab,x:window.scrollX,y:window.scrollY,fields,curveMonth:amaCurveMonth,details:[...(section?.querySelectorAll('details')||[])].map(el=>el.open),scrolls:[...(section?.querySelectorAll('[id]')||[])].filter(el=>el.scrollHeight>el.clientHeight+1).map(el=>({id:el.id,top:el.scrollTop,left:el.scrollLeft})),focus:document.activeElement?.id||''};
+}
+function amaRestoreScroll(state){requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!session)return;for(const item of state.scrolls||[]){const el=document.getElementById(item.id);if(el){el.scrollTop=item.top;el.scrollLeft=item.left}}if(state.focus){try{document.getElementById(state.focus)?.focus({preventScroll:true})}catch(_){}}window.scrollTo({left:state.x||0,top:state.y||0,behavior:'instant'})}));}
+function setTab(t,fromBack=false){
+ if(!session)return;
+ if((t==='admin'||t==='invoices')&&session.role!=='admin')t='planning';
+ if(!fromBack&&tab!==t)amaTabHistory.push(amaCaptureView());
+ closeMobileMenu();tab=t;
+ if(t==='dashboard'&&session.role==='worker')amaRefreshWallet();
+ document.body.dataset.amaTab=t;$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+ ['dashboard','planning','history','admin','invoices'].forEach(x=>$('#tab-'+x).classList.toggle('hidden',x!==t));
+ document.getElementById('backBtn').disabled=amaTabHistory.length===0;
+ if(t==='admin')renderRevenueCurve(true);
+}
+function amaGoBack(){
+ if(!session)return;
+ const photo=document.getElementById('amaPhotoModal');if(photo&&!photo.hidden){amaClosePhotoMission();return;}
+ const account=document.getElementById('amaAccountModal');if(account&&!account.hidden){account.hidden=true;return;}
+ const editor=document.getElementById('amaWorkerEditor');if(editor&&!editor.hidden){document.getElementById('amaWorkerEditorClose').click();return;}
+ const state=amaTabHistory.pop();if(!state)return;
+ if(typeof state==='string'){setTab(state,true);return;}
+ for(const [id,value] of Object.entries(state.fields)){const el=document.getElementById(id);if(el)el.value=value;}
+ amaCurveMonth=state.curveMonth||monthNow();setTab(state.tab,true);
+ renderPlanning();renderHistory();renderAdminDashboardRevenue();if(session.role==='admin')renderFinances();reportTotal();
+ const section=document.getElementById('tab-'+tab);[...(section?.querySelectorAll('details')||[])].forEach((el,i)=>el.open=!!state.details[i]);
+ amaRestoreScroll(state);
+}
+
 
 function refreshReportWorkers(){
  const sel=$('#reportWorker'),previous=sel.value;
@@ -1487,7 +1637,7 @@ $('#downloadHoursExcel').addEventListener('click',excelReport);
 $('#downloadHoursPdf').addEventListener('click',pdfReport);
 $('#reportMonth').addEventListener('change',reportTotal);
 $('#reportWorker').addEventListener('change',reportTotal);
-$('#backBtn').addEventListener('click',()=>{if(!session)return;setTab(amaTabHistory.pop()||'dashboard',true)});
+$('#backBtn').addEventListener('click',amaGoBack);
 $('#refreshBtn').addEventListener('click',async()=>{if(!session)return;const b=$('#refreshBtn');b.disabled=true;try{await reload();render()}catch(e){alert('Actualisation impossible : '+e.message)}finally{b.disabled=false}});
 $('#loginForm').addEventListener('submit',e=>{e.preventDefault();login()});$('#logoutBtn').addEventListener('click',logout);
 document.querySelector('#tab-dashboard').addEventListener('click',e=>{
@@ -1593,6 +1743,7 @@ $('#missionForm').addEventListener('submit',e=>{e.preventDefault();if(session.ro
  if(!u||!a||!h||h<=0)return alert('Vérifiez l’intervenant, le logement et la durée.');
  const s=$('#missionStatus').value;data.missions.push({id:uid(),date:$('#missionDate').value,workerId:u.id,workerName:u.name,apartmentId:a.id,apartmentName:a.name,hours:h,notes:$('#missionNotes').value.trim(),status:s,createdAt:new Date().toISOString(),completedAt:s==='done'?new Date().toISOString():null,completedBy:s==='done'?session.name:null});
  save();$('#missionNotes').value='';render();});
+let amaPhotoReturnState=null;
 let amaCurrentPhotoMission=null,amaSelectedPhotoFiles=[],amaPhotoUrls=[],amaCameraShots=0;
 function amaPhotoWhatsAppText(m){const logement=String(m.apartmentName||"Logement").replace(/\*/g,"");return "*"+logement+"*\nIntervention terminée ✓\nIntervenant(e) : "+(session?.name||m.workerName||"Intervenant")+"\nDate : "+dateFr(m.date);}
 function amaPhotoMessage(t){document.getElementById('amaPhotoFeedback').textContent=t;}
@@ -1608,13 +1759,13 @@ function amaRemovePhoto(i){if(i<0||i>=amaSelectedPhotoFiles.length)return;amaSel
 
 function amaOpenPhotoMission(m){
  if(!session||session.role!=='worker'||!sharedIds(m).includes(session.id)||m.status!=='planned'||m.prolonged)return;
- amaCurrentPhotoMission=m.id;amaPhotoClear();amaPhotoMessage('');document.getElementById('amaPhotoConfirm').hidden=true;
+ amaPhotoReturnState=amaCaptureView();amaCurrentPhotoMission=m.id;amaPhotoClear();amaPhotoMessage('');document.getElementById('amaPhotoConfirm').hidden=true;
  document.getElementById('amaPhotoApartment').textContent=m.apartmentName||'Logement';document.getElementById('amaPhotoDate').textContent=dateFr(m.date);document.getElementById('amaPhotoHours').textContent=hours(sharedHours(m));
  document.getElementById('amaPhotoApartmentInfo').innerHTML=apartmentInfo(m);
  document.getElementById('amaPhotoNotes').innerHTML=m.notes?'<div class="mission-note"><strong>Consignes de ménage</strong><div class="note-body">'+esc(m.notes)+'</div></div>':'';
  document.getElementById('amaPhotoModal').hidden=false;
 }
-function amaClosePhotoMission(){amaStopLiveCamera();document.getElementById('amaPhotoModal').hidden=true;amaCurrentPhotoMission=null;amaPhotoClear()}
+function amaClosePhotoMission(){amaStopLiveCamera();document.getElementById('amaPhotoModal').hidden=true;amaCurrentPhotoMission=null;amaPhotoClear();if(amaPhotoReturnState){amaRestoreScroll(amaPhotoReturnState);amaPhotoReturnState=null}}
 document.getElementById('amaPhotoClose').addEventListener('click',amaClosePhotoMission);
 document.getElementById('amaPhotoChoose').addEventListener('click',()=>document.getElementById('amaPhotoFiles').click());
 let amaLiveStream=null,amaLiveShots=0,amaLiveBusy=false;
@@ -1826,11 +1977,11 @@ $('#tab-admin').addEventListener('click',e=>{const b=e.target.closest('[data-act
  const list=document.getElementById('workerList'),panel=document.getElementById('amaWorkerEditor');
  if(!list||!panel)return;
  const by=id=>document.getElementById(id);
- const close=()=>{panel.hidden=true;by('amaWorkerEditStatus').textContent=''};
+ let returnState=null;const close=()=>{panel.hidden=true;by('amaWorkerEditStatus').textContent='';if(returnState){amaRestoreScroll(returnState);returnState=null}};
  async function open(id){
    if(!session||session.role!=='admin')return;
    const u=userById(id);if(!u||u.role!=='worker')return;
-   by('amaWorkerEditId').value=id;
+   returnState=amaCaptureView();by('amaWorkerEditId').value=id;
    by('amaWorkerEditName').value=u.name||'';
    by('amaWorkerEditPhone').value='';
    by('amaWorkerEditEmail').value=u.email||'';
@@ -1936,7 +2087,7 @@ fillSelects();
   <div class="ama-account-dialog">
     <h2 id="amaAccountTitle">Paramètres du compte</h2><p>Modifiez vos informations personnelles.</p>
     <div class="ama-profile-preview" aria-label="Photo actuelle du compte">
-      <div class="ama-profile-photo-wrap"><img id="amaProfilePreviewImg" alt="Photo de profil actuelle" hidden><span id="amaProfilePreviewFallback" aria-hidden="true">AM</span><span class="ama-profile-camera" aria-hidden="true">✎</span></div>
+      <div class="ama-profile-photo-wrap"><img id="amaProfilePreviewImg" alt="Photo de profil actuelle" hidden><span id="amaProfilePreviewFallback" aria-hidden="true">AM</span><span class="ama-profile-camera" aria-hidden="true">✎</span><button type="button" id="amaRemoveMyPhoto" class="ama-profile-remove" aria-label="Supprimer ma photo de profil" title="Supprimer ma photo de profil" hidden>×</button></div>
       <div class="ama-profile-intro"><strong id="amaProfilePreviewName">Mon profil</strong><span id="amaProfilePreviewRole">Photo de profil actuelle</span><button type="button" id="amaProfilePreviewChange" class="ama-profile-change">Modifier la photo</button></div>
     </div>
     <div class="ama-avatar-chooser">
@@ -2340,7 +2491,8 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
   if(error)return;
   const p=rows?.[0];if(!p)return;
   initials.textContent=(p.full_name||user.email||'AM').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-  if(p.avatar_url){avatarImg.src=amaAvatarSrc(p.avatar_url);avatarImg.classList.remove('hidden')}else{avatarImg.classList.add('hidden');avatarImg.removeAttribute('src')}
+  byId('amaRemoveMyPhoto').hidden=!p.avatar_url;
+ if(p.avatar_url){avatarImg.src=amaAvatarSrc(p.avatar_url);avatarImg.classList.remove('hidden')}else{avatarImg.classList.add('hidden');avatarImg.removeAttribute('src')}
   window.amaUpdateProfilePreview?.(p.avatar_url?amaAvatarSrc(p.avatar_url):'',p.full_name||user.email||'Mon profil');
  }
  avatarButton?.addEventListener('click',()=>{selectedProfile=null;const menu=document.getElementById('amaAccountMenu');if(menu){menu.hidden=!menu.hidden;avatarButton.setAttribute('aria-expanded',String(!menu.hidden));}});
@@ -2392,6 +2544,30 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
    if(target===user.id)await refreshAvatar();else updateWorkerPictures();
   }catch(e){if(ownPhoto)window.amaUpdateProfilePreview?.(priorPhoto);alert('Photo non enregistrée : '+(e.message||e)+'\nVérifiez la configuration SQL du dossier.')}finally{if(previewObject)URL.revokeObjectURL(previewObject);avatarButton.disabled=false;avatarInput.value='';selectedProfile=null}
  });
+
+ async function removeProfilePhoto(target,button,status){
+  button.disabled=true;status.textContent='Suppression de la photo…';
+  try{
+   const c=await photoClient();if(!c)throw Error('Connexion indisponible');
+   const {data:{user},error}=await c.auth.getUser();if(error||!user)throw Error('Session expirée');
+   const id=target||user.id;
+   const result=await c.rpc('ama_set_profile_avatar',{target_user_id:id,avatar_public_url:null});
+   if(result.error)throw result.error;
+   pictureUrls.delete(id);button.hidden=true;
+   if(id===user.id){await refreshAvatar();avatarGallery?.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed','false'));}
+   else{updateWorkerPictures();const box=byId('amaWorkerEditorPhoto');box.className='ama-worker-avatar-fallback';box.textContent=(byId('amaWorkerEditName').value||'').split(/\s+/).map(w=>w[0]||'').slice(0,2).join('').toUpperCase();}
+   status.textContent='Photo supprimée. Les initiales sont affichées.';
+  }catch(e){status.textContent='Suppression impossible : '+(e.message||e);}
+  finally{button.disabled=false;}
+ }
+ const removeMine=byId('amaRemoveMyPhoto'),removeWorker=byId('amaRemoveWorkerPhoto');
+ removeMine?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();removeProfilePhoto(null,removeMine,byId('amaAvatarStatus'))});
+ removeWorker?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const target=byId('amaWorkerEditId').value;if(target)removeProfilePhoto(target,removeWorker,byId('amaWorkerEditStatus'))});
+ const editorPhoto=byId('amaWorkerEditorPhoto');
+ if(editorPhoto)new MutationObserver(()=>{removeWorker.hidden=!editorPhoto.querySelector('img')}).observe(editorPhoto,{childList:true,subtree:true});
+ const profilePreview=byId('amaProfilePreviewImg');
+ if(profilePreview)new MutationObserver(()=>{removeMine.hidden=profilePreview.hidden||!profilePreview.getAttribute('src')}).observe(profilePreview,{attributes:true,attributeFilter:['hidden','src']});
+
  const workerList=byId('workerList');let busy=false;
  async function fetchWorkerPictures(){if(byId('app')?.hidden||!workerList)return;const c=await photoClient();if(!c)return;const {data,error}=await c.from('profiles').select('id,avatar_url');if(!error){pictureUrls=new Map((data||[]).filter(p=>p.avatar_url).map(p=>[p.id,p.avatar_url]));updateWorkerPictures()}}
  function updateWorkerPictures(){if(!workerList||busy)return;busy=true;try{workerList.querySelectorAll('.ama-worker-card').forEach(row=>{const id=row.dataset.workerCard;if(!id)return;const body=row.querySelector('.ama-worker-card-body');if(!body)return;let avatar=body.querySelector('.ama-worker-avatar,.ama-worker-avatar-fallback');const url=pictureUrls.get(id);if(url){if(!avatar||avatar.tagName!=='IMG'){const img=document.createElement('img');img.className='ama-worker-avatar';img.alt='Photo de profil';avatar?.replaceWith(img);avatar=img}const resolved=amaAvatarSrc(url);if(avatar.getAttribute('src')!==resolved)avatar.src=resolved}else if(avatar?.tagName==='IMG'){const fallback=document.createElement('span');fallback.className='ama-worker-avatar-fallback';fallback.textContent=(row.querySelector('strong')?.textContent||'').split(/\s+/).map(x=>x[0]||'').slice(0,2).join('').toUpperCase();avatar.replaceWith(fallback)}if(!row.querySelector('.ama-photo-action')){const action=document.createElement('button');action.type='button';action.className='ama-photo-action';action.hidden=true;action.setAttribute('aria-hidden','true');action.tabIndex=-1;action.addEventListener('click',()=>{selectedProfile=id;avatarInput.click()});row.append(action)}})}finally{busy=false}}
