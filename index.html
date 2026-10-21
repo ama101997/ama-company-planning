@@ -1614,9 +1614,10 @@ function clearApartmentEditor(){
 }
 function renderPlanning(){
  let ms=getVisibleMissions();
- // Le planning admin affiche les missions encore à traiter ; l'historique conserve les missions validées.
- if(session.role==='admin')ms=ms.filter(m=>!['done','not_entered'].includes(m.status)||m.prolonged);
- if($('#planningStatusFilter')?.value==='planned')ms=ms.filter(m=>m.status==='planned'&&!m.prolonged);
+ // Respect the selected status, including completed missions for administrators.
+ const planningStatus=$('#planningStatusFilter')?.value||'';
+ if(planningStatus==='planned')ms=ms.filter(m=>m.status==='planned'&&!m.prolonged);
+ if(planningStatus==='done')ms=ms.filter(m=>m.status==='done'&&!m.prolonged);
  const d=$('#planningDate').value,w=$('#planningWorkerFilter').value;
  if(d)ms=ms.filter(m=>m.date===d);
  if(session.role==='admin'&&w)ms=ms.filter(m=>sharedIds(m).includes(w));
@@ -1643,8 +1644,8 @@ function renderPlanning(){
   </article>`;
  }
  return `<article class="mission ama-mission-card"><div class="ama-mission-main"><div class="ama-mission-overview"><h4>${esc(m.apartmentName||'Logement')}</h4><span class="ama-mission-overview-badge">${missionBadge(m)}</span></div><div class="ama-mission-meta"><span><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>${dateFr(m.date)}</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>${esc(m.workerName||userById(m.workerId)?.name||'Intervenant')}</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${hours(m.status==='not_entered'&&session.role==='worker'?0:session.role==='worker'?sharedHours(m):m.hours)}${session.role==='worker'&&sharedIds(m).length>1?' (ma part)':''}</span></div>${fusionLabel(m)}${m.notes?`<div class="mission-note" role="note"><strong>📌 Consignes importantes pour cette mission</strong><div class="note-body">${esc(m.notes)}</div></div>`:''}${m.status==='not_entered'?`<div class="ama-non-entry-note"><strong>Voyageurs non entrés</strong><p>${esc(m.nonEntryComment||'Les voyageurs ne sont pas entrés dans le logement.')}</p><small>Intervenant : 0 h · Référence admin conservée</small></div>`:''}${apartmentInfo(m)}${m.status==='done'?`<p style="color:#15803d">Validée ${m.completedAt?`le ${dateFr(m.completedAt.slice(0,10))}`:''}${m.completedBy?` par ${esc(m.completedBy)}`:''}</p>`:''}</div><div class="right">${canValidate?`<button class="primary mini ama-validate" data-action="${session.role==='worker'?'details':'complete'}" data-id="${esc(m.id)}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg> ${session.role==='worker'?'Ouvrir la mission':'Valider la mission'}</button>`:''}${workerActions}${session.role==='admin'?`<button class="ghost mini" data-action="edit" data-id="${esc(m.id)}">Modifier</button><button class="danger mini" data-action="delete" data-id="${esc(m.id)}">Supprimer</button>`:''}</div></article>`;
- }).join(''):'<div class="empty">Aucune mission à afficher pour ce filtre. Les missions terminées restent dans l’historique.</div>';
- $('#planningTitle').textContent=session.role==='admin'?'Planning des équipes · missions à traiter':'Mon planning';
+ }).join(''):'<div class="empty">Aucune mission pour la date, l’intervenant et le statut sélectionnés.</div>';
+ $('#planningTitle').textContent=session.role==='admin'?'Planning des équipes'+(planningStatus==='done'?' · missions réalisées':planningStatus==='planned'?' · missions à réaliser':' · toutes les missions'):'Mon planning';
  $('#amaPlanningPageTitle').textContent=session.role==='admin'?'Planning des équipes':'Mon planning';
  $('#amaPlanningPageDesc').textContent=session.role==='admin'?'Organisez et suivez les interventions.':'Consultez et gérez vos missions.';
  if(session.role==='worker'){
@@ -2704,6 +2705,7 @@ amaSetupFinalUI();
 function amaSetupStatShortcuts(){
  const makeFilter=(id,label,container,render)=>{const field=document.createElement('div');field.className='field';field.innerHTML='<label for="'+id+'">Statut</label><select id="'+id+'"><option value="">Tous les statuts</option><option value="'+(id==='planningStatusFilter'?'planned':'done')+'">'+label+'</option></select>';container.appendChild(field);field.querySelector('select').onchange=render;};
  makeFilter('planningStatusFilter','À réaliser',document.querySelector('.ama-planning-filters'),renderPlanning);
+ const doneOption=document.createElement('option');doneOption.value='done';doneOption.textContent='Réalisées';document.getElementById('planningStatusFilter').appendChild(doneOption);
  makeFilter('historyStatusFilter','Réalisées',document.querySelector('#tab-history .formgrid'),renderHistory);
  const descriptions=['Ouvrir le planning du jour','Voir toutes les missions à réaliser','Voir les interventions validées du mois','Ouvrir le relevé d’heures du mois'];
  document.querySelectorAll('#stats .ama-stat').forEach((card,i)=>{card.setAttribute('role','link');card.tabIndex=0;card.setAttribute('aria-label',descriptions[i]);const chevron=document.createElement('span');chevron.className='ama-stat-chevron';chevron.setAttribute('aria-hidden','true');chevron.textContent='›';card.appendChild(chevron);
