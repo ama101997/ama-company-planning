@@ -2162,7 +2162,20 @@ function amaRevenueComparison(month){
  if(b.cents<=0)return {text:'Pas de comparaison disponible',percent:null};
  const percent=(a.cents-b.cents)/b.cents*100,value=Math.abs(percent).toLocaleString('fr-FR',{maximumFractionDigits:1});return {percent,text:(percent>0?'+':percent<0?'−':'')+value+' % par rapport à '+label+(month===current?' · du 1 au '+limit:'')};
 }
-function renderHomeComparison(month){const el=document.getElementById('amaCaCompare');if(!el)return;if(session?.role!=='admin'){el.textContent='';return;}const result=amaRevenueComparison(month);el.textContent=(result.percent===null?'':result.percent>0?'↗ ':result.percent<0?'↘ ':'→ ')+result.text;}
+function renderHomeComparison(month){
+ const el=document.getElementById('amaCaCompare');if(!el)return;
+ el.replaceChildren();if(session?.role!=='admin')return;
+ const result=amaRevenueComparison(month);el.setAttribute('aria-label',result.text);el.title=result.text;
+ if(result.percent===null){el.textContent=result.text;return;}
+ const match=result.text.match(/^([+−]?[0-9\s.,]+ %)(.*)$/u);
+ if(!match){el.textContent=result.text;return;}
+ const d=new Date(month+'-01T12:00:00');d.setMonth(d.getMonth()-1);
+ const longMonth=d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'}),shortMonth=d.toLocaleDateString('fr-FR',{month:'short',year:'numeric'});
+ const percentage=document.createElement('span');percentage.className='ama-ca-percent';percentage.textContent=match[1];
+ const detail=document.createElement('span');detail.className='ama-ca-comparison-text';detail.textContent=match[2].replace(longMonth,shortMonth);
+ el.append(percentage,detail);
+}
+
 function renderHomeSpark(){
  const svg=document.getElementById('amaHomeSpark');if(!svg)return;
  if(session?.role!=='admin'){svg.innerHTML='';return;}
@@ -3408,5 +3421,8 @@ body #tab-dashboard #stats .stat.ama-stat{min-height:112px!important;padding:12p
 </style><style id="ama-final-compact-transparent">
 body #tab-dashboard #stats .stat.ama-stat{min-height:85px!important;padding:10px 11px!important;border-radius:14px!important}body #tab-dashboard #stats .stat.ama-stat .sub{display:none!important}body #tab-dashboard #stats .stat.ama-stat .label{font-size:10px!important;line-height:1.3!important;text-transform:none!important;letter-spacing:0!important;min-height:26px}body #tab-dashboard #stats .ama-stat-main .value{font-size:26px!important;margin-top:4px!important;line-height:1.15!important}body #tab-dashboard #stats{gap:8px!important}body #tab-dashboard #stats .ama-stat-chevron{bottom:10px;right:11px}
 body #refreshBtn{background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important;outline-offset:2px}body #refreshBtn:hover,body #refreshBtn:active,body #refreshBtn:disabled{background:transparent!important}body #refreshBtn:focus-visible{outline:2px solid #398b7b}body #refreshBtn svg{background:transparent!important}
+</style><style id="ama-percentage-week-colors">
+#tab-dashboard #weekBars .wd-bar{background:#90AEBB!important}#tab-dashboard #weekBars .wd-bar.done-bar{background:#32A27D!important}#tab-dashboard .week-legend i{background:#90AEBB!important}#tab-dashboard .week-legend i.green{background:#32A27D!important}
+#tab-dashboard #amaCaCompare{color:#fff!important;max-width:100%!important;width:100%;white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;font-size:clamp(8px,2.3vw,10px);line-height:1.5;min-height:15px;margin:3px 0 6px}#amaCaCompare::-webkit-scrollbar{display:none}#amaCaCompare .ama-ca-percent{color:#80E5C5}#amaCaCompare .ama-ca-comparison-text{color:#fff}
 </style></body>
 </html>
