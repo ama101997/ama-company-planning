@@ -2171,7 +2171,7 @@ function renderHomeComparison(month){
  if(!match){el.textContent=result.text;return;}
  const d=new Date(month+'-01T12:00:00');d.setMonth(d.getMonth()-1);
  const longMonth=d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'}),shortMonth=d.toLocaleDateString('fr-FR',{month:'short',year:'numeric'});
- const percentage=document.createElement('span');percentage.className='ama-ca-percent';percentage.textContent=match[1];
+ const percentage=document.createElement('span');percentage.className='ama-ca-percent';percentage.dataset.trend=result.percent<0?'negative':result.percent>0?'positive':'neutral';percentage.textContent=(result.percent<0?'↘ ':'')+match[1];
  const detail=document.createElement('span');detail.className='ama-ca-comparison-text';detail.textContent=match[2].replace(longMonth,shortMonth);
  el.append(percentage,detail);
 }
@@ -3424,5 +3424,12 @@ body #refreshBtn{background:transparent!important;background-image:none!importan
 </style><style id="ama-percentage-week-colors">
 #tab-dashboard #weekBars .wd-bar{background:#90AEBB!important}#tab-dashboard #weekBars .wd-bar.done-bar{background:#32A27D!important}#tab-dashboard .week-legend i{background:#90AEBB!important}#tab-dashboard .week-legend i.green{background:#32A27D!important}
 #tab-dashboard #amaCaCompare{color:#fff!important;max-width:100%!important;width:100%;white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;font-size:clamp(8px,2.3vw,10px);line-height:1.5;min-height:15px;margin:3px 0 6px}#amaCaCompare::-webkit-scrollbar{display:none}#amaCaCompare .ama-ca-percent{color:#80E5C5}#amaCaCompare .ama-ca-comparison-text{color:#fff}
+</style><style id="ama-card-feedback-trend">
+#amaCaCompare .ama-ca-percent[data-trend="negative"]{color:#F2A08D}#amaCaCompare .ama-ca-percent[data-trend="neutral"]{color:#fff}
+body #tab-dashboard #stats .stat.ama-stat[role="link"]{transition:background-color 150ms ease,border-color 150ms ease,box-shadow 150ms ease,transform 150ms ease;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media(hover:hover) and (pointer:fine){body #tab-dashboard #stats .stat.ama-stat[role="link"]:hover{background:#edf6f2!important;border-color:#82b9ab!important;box-shadow:0 5px 12px #315a7214;transform:translateY(-2px)}body #tab-dashboard #stats .stat.ama-stat[role="link"]:hover .ama-stat-chevron{color:#398b7b}}
+body #tab-dashboard #stats .stat.ama-stat[role="link"]:active{background:#e3f1eb!important;border-color:#6da995!important;transform:scale(.98);box-shadow:inset 0 1px 3px #315a7210}
+body #tab-dashboard #stats .stat.ama-stat[role="link"]:focus-visible{background:#edf6f2!important;outline:2px solid #398b7b;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){body #tab-dashboard #stats .stat.ama-stat[role="link"]{transition:none!important}body #tab-dashboard #stats .stat.ama-stat[role="link"]:hover,body #tab-dashboard #stats .stat.ama-stat[role="link"]:active{transform:none!important}}
 </style></body>
 </html>
