@@ -945,7 +945,7 @@ body #tab-dashboard .ama-integrated-heading #backBtn,body #tab-dashboard .ama-in
     <span class="ama-ca-home-label">Chiffre d’affaires estimé</span>
     <button type="button" id="amaCaHomeDetails" aria-label="Voir le chiffre d’affaires détaillé dans Gestion" title="Voir les détails"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></button>
   </div>
-  <strong class="ama-ca-home-value" id="amaCaHomeValue">0 €</strong><svg id="amaHomeSpark" viewBox="0 0 120 50" role="img" aria-label="Évolution du chiffre d’affaires"></svg>
+  <strong class="ama-ca-home-value" id="amaCaHomeValue">0 €</strong><div id="amaCaCompare" aria-live="polite"></div><svg id="amaHomeSpark" viewBox="0 0 120 50" role="img" aria-label="Évolution du chiffre d’affaires"></svg>
   <div class="ama-ca-home-footer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg><select id="amaCaHomeMonth" aria-label="Choisir le mois du chiffre d’affaires"></select></div>
 </div>
 <div class="card weekly-card" id="weeklyCard">
@@ -997,16 +997,11 @@ body #tab-dashboard .ama-integrated-heading #backBtn,body #tab-dashboard .ama-in
       <div class="formgrid" style="margin-bottom:14px"><div class="field"><label for="historyMonth">Mois</label><input id="historyMonth" type="month"></div><div class="field" id="historyWorkerWrap"><label for="historyWorker">Intervenant</label><select id="historyWorker"></select></div></div>
       <div class="tablewrap"><table><thead><tr><th>Date</th><th>Intervenant</th><th>Logement</th><th>Heures</th><th>Statut</th><th>Validation</th><th id="historyActionsHead">Actions</th></tr></thead><tbody id="historyBody"></tbody></table></div>
       <div class="worker-report hidden" id="workerReport">
-        <h3 id="reportTitle">↧ Relevé mensuel des heures</h3>
-        <p id="reportDescription">Consultez les heures validées pour le mois sélectionné. Les missions en attente ne sont pas comptabilisées.</p>
-        <div class="report-controls">
-          <div class="field hidden" id="reportWorkerWrap"><label for="reportWorker">Intervenant</label><select id="reportWorker"></select></div>
-          <div class="field"><label for="reportMonth">Mois du relevé</label><input type="month" id="reportMonth"></div>
-          <button class="primary" type="button" id="downloadHoursExcel">↓ Télécharger Excel (CSV)</button>
-          <button class="ghost" type="button" id="downloadHoursPdf">↓ Enregistrer en PDF</button><button class="ghost hidden" type="button" id="emailHoursReport">✉ Préparer l’e-mail</button>
-        </div>
-        <div class="report-total" id="reportTotal">0 h validée</div><p class="muted" id="emailHoursNotice" style="font-size:.8rem;display:none">Ouvre votre messagerie avec le relevé rédigé. L’envoi automatique mensuel nécessite une configuration serveur supplémentaire.</p>
-      </div>
+ <div class="ama-report-heading"><span class="ama-report-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="6" r="3"/><path d="M2 17v-2a6 6 0 0 1 9-5M16 3a3 3 0 0 1 3 3"/><circle cx="17" cy="17" r="5"/><path d="M17 14v3l2 1"/></svg></span><div><h3 id="reportTitle">Suivi des intervenants</h3><p id="reportDescription">Heures validées et relevés mensuels.</p></div></div>
+ <div class="report-controls"><div class="field hidden" id="reportWorkerWrap"><label for="reportWorker">Intervenant</label><select id="reportWorker"></select></div><div class="field"><label for="reportMonth">Mois du relevé</label><div class="ama-report-month"><button type="button" id="amaReportPrev" aria-label="Mois précédent">‹</button><input type="month" id="reportMonth"><button type="button" id="amaReportNext" aria-label="Mois suivant">›</button></div></div></div>
+ <div class="ama-report-metrics" aria-live="polite"><div><strong id="amaReportHours">0 h</strong><span>Heures validées</span></div><div><strong id="amaReportCount">0</strong><span>Interventions</span></div></div><p id="reportTotal" class="ama-sr-only"></p>
+ <h4 class="ama-export-label">Exporter le relevé</h4><div class="ama-report-actions"><button class="primary" type="button" id="downloadHoursPdf">Télécharger le PDF</button><button class="ghost" type="button" id="downloadHoursExcel">Excel (CSV)</button><button class="ghost hidden" type="button" id="emailHoursReport">Préparer l’e-mail</button></div><p class="muted" id="emailHoursNotice" style="display:none">Ouvre votre messagerie avec le relevé rédigé.</p>
+ </div>
     </div>
   </section>
   <section id="tab-admin" class="hidden">
@@ -1553,30 +1548,23 @@ function stopAmaWelcome(){
  const layer=document.getElementById('amaWelcomeOverlay');
  if(layer){layer.classList.remove('ama-show','ama-fade');layer.style.display='none';}
 }
-function showAmaWelcome(fullName){
- stopAmaWelcome();
- const layer=document.getElementById('amaWelcomeOverlay');
- const loading=document.getElementById('amaWelcomeLoading');
- const success=document.getElementById('amaWelcomeSuccess');
- const firstName=String(fullName||'').trim().split(/\s+/)[0];
- document.getElementById('amaWelcomeName').textContent=firstName?'Bienvenue '+firstName+' !':'Bienvenue !';
- loading.hidden=false;success.hidden=true;
- // Restart both arcs on every successful explicit login.
- loading.querySelectorAll('.ama-welcome-arc').forEach(arc=>{arc.classList.remove('ama-run');void arc.getBoundingClientRect();arc.classList.add('ama-run');});
- layer.style.display='flex';layer.classList.remove('ama-fade');layer.classList.add('ama-show');
- amaWelcomeTimers.push(setTimeout(()=>{loading.hidden=true;success.hidden=false},3050));
- amaWelcomeTimers.push(setTimeout(()=>layer.classList.add('ama-fade'),3900));
- amaWelcomeTimers.push(setTimeout(stopAmaWelcome,4300));
+function showAmaWelcome(fullName,ready=false){
+ const layer=document.getElementById('amaWelcomeOverlay'),loading=document.getElementById('amaWelcomeLoading'),success=document.getElementById('amaWelcomeSuccess');
+ if(!ready){stopAmaWelcome();layer.setAttribute('role','status');layer.setAttribute('aria-live','polite');layer.setAttribute('aria-label','Connexion et chargement de votre espace');loading.hidden=false;success.hidden=true;layer.style.display='flex';layer.classList.add('ama-show');loading.querySelectorAll('.ama-welcome-arc').forEach(arc=>{arc.classList.remove('ama-run');void arc.getBoundingClientRect();arc.classList.add('ama-run');});return;}
+ document.getElementById('amaWelcomeName').textContent='Bienvenue '+(String(fullName||'').trim().split(/\s+/)[0]||'')+' !';
+ loading.hidden=true;success.hidden=false;amaWelcomeTimers.push(setTimeout(()=>layer.classList.add('ama-fade'),850));amaWelcomeTimers.push(setTimeout(stopAmaWelcome,1250));
 }
+let amaLoginBusy=false;
 async function login(){
+ if(amaLoginBusy)return;
  const email=$('#loginEmail').value.trim().toLowerCase(),password=$('#loginPin').value;
- $('#loginError').textContent='Connexion en cours…';
+ amaLoginBusy=true;document.getElementById('amaLoginSubmit').disabled=true;$('#loginError').textContent='';showAmaWelcome('',false);
  try{
   if(!client)throw Error('Bibliothèque Supabase indisponible.');
   const r=await client.auth.signInWithPassword({email,password});if(r.error)throw r.error;
-  await startSession(r.data.user);
-  showAmaWelcome(session?.name||'');
- }catch(e){$('#loginError').textContent=e.message||'Connexion impossible.';}
+  await startSession(r.data.user);showAmaWelcome(session?.name||'',true);
+ }catch(e){stopAmaWelcome();$('#loginError').textContent=e.message||'Connexion impossible.';$('#loginScreen').classList.remove('hidden');$('#app').hidden=true;}
+ finally{amaLoginBusy=false;document.getElementById('amaLoginSubmit').disabled=false;}
 }
 async function startSession(authUser){
  await reload();const u=data.users.find(x=>x.id===authUser.id);
@@ -1587,8 +1575,8 @@ async function startSession(authUser){
  $('#welcomeText').textContent=u.role==='admin'?'Gérez les plannings, les équipes et les validations.':'Voici vos missions. Après chaque intervention, validez la mission et confirmez les heures.';
  $('#workerReport').classList.remove('hidden');$('#emailHoursReport').classList.toggle('hidden',u.role!=='admin');$('#emailHoursNotice').style.display=u.role==='admin'?'block':'none';$('#reportWorkerWrap').classList.toggle('hidden',u.role!=='admin');
  $('#downloadHoursExcel').classList.toggle('hidden',u.role!=='admin');
- $('#reportTitle').textContent=u.role==='admin'?'↧ Suivi des heures des intervenants':'↧ Mon relevé d’heures';
- $('#reportDescription').textContent=u.role==='admin'?'Sélectionnez un intervenant et un mois pour suivre ses heures validées et exporter son relevé.':'Consultez vos heures validées et téléchargez votre relevé PDF.';
+ $('#reportTitle').textContent=u.role==='admin'?'Suivi des intervenants':'Mon relevé d’heures';
+ $('#reportDescription').textContent=u.role==='admin'?'Heures validées et relevés mensuels.':'Consultez vos heures validées et téléchargez votre relevé PDF.';
    $('#reportMonth').value=monthNow();$('#financeMonth').value=monthNow();$('#dashRevenueMonth').value=monthNow();refreshReportWorkers();
  $('#adminTab').classList.toggle('hidden',u.role!=='admin');$('#invoicesTab').classList.toggle('hidden',u.role!=='admin');$('#createMissionCard').classList.toggle('hidden',u.role!=='admin');
  $('#planningWorkerFilterWrap').classList.toggle('hidden',u.role!=='admin');$('#historyWorkerWrap').classList.toggle('hidden',u.role!=='admin');
@@ -2097,6 +2085,7 @@ function reportRows(){
 function reportTotal(){
  if(!session)return;
  const ms=reportRows(),total=ms.reduce((n,m)=>n+sharedHours(m),0);
+ document.getElementById('amaReportHours').textContent=hours(total);document.getElementById('amaReportCount').textContent=ms.length;
  $('#reportTotal').textContent=(session.role==='admin'&&!$('#reportWorker').value)?'Choisissez un intervenant pour afficher son relevé.':`${ms.length} intervention(s) validée(s) · ${hours(total)}`;
 }
 // Modif 1 / Modif 2: navigation and presentation, using the existing protected data.
@@ -2161,10 +2150,21 @@ function amaSetupFinalUI(){
  const oldGrid=admin.querySelector(':scope > .grid');if(oldGrid)oldGrid.hidden=true;
  amaUpdatePageHeading();
 }
+function amaRevenueComparison(month){
+ const current=monthNow(),d=new Date(month+'-01T12:00:00');d.setMonth(d.getMonth()-1);const previous=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+ if(month>current)return {text:'Comparaison disponible après réalisation',percent:null};
+ const limit=month===current?Math.min(Number(today().slice(8)),new Date(d.getFullYear(),d.getMonth()+1,0).getDate()):31;
+ const sum=period=>{let cents=0,missing=false;for(const m of data.missions){if(!m.date?.startsWith(period+'-')||m.date>today()||Number(m.date.slice(8))>limit||m.prolonged||!['done','not_entered'].includes(m.status))continue;const f=missionFinances.get(m.id),v=f?Number(f.revenue??Number(f.reference_hours)*Number(f.hourly_rate)):NaN;if(!Number.isFinite(v))missing=true;else cents+=Math.round(v*100);}return {cents,missing};};
+ const a=sum(month),b=sum(previous),label=d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+ if(a.missing||b.missing)return {text:'Comparaison indisponible : montants manquants',percent:null};
+ if(b.cents<=0)return {text:'Pas de comparaison disponible',percent:null};
+ const percent=(a.cents-b.cents)/b.cents*100,value=Math.abs(percent).toLocaleString('fr-FR',{maximumFractionDigits:1});return {percent,text:(percent>0?'+':percent<0?'−':'')+value+' % par rapport à '+label+(month===current?' · du 1 au '+limit:'')};
+}
+function renderHomeComparison(month){const el=document.getElementById('amaCaCompare');if(!el)return;if(session?.role!=='admin'){el.textContent='';return;}const result=amaRevenueComparison(month);el.textContent=(result.percent===null?'':result.percent>0?'↗ ':result.percent<0?'↘ ':'→ ')+result.text;}
 function renderHomeSpark(){
  const svg=document.getElementById('amaHomeSpark');if(!svg)return;
  if(session?.role!=='admin'){svg.innerHTML='';return;}
- const month=document.getElementById('amaCaHomeMonth').value||monthNow(),{actual,days}=amaRevenueDays(month);let sum=0;const values=actual.map(n=>(sum+=n));
+ const month=document.getElementById('amaCaHomeMonth').value||monthNow();renderHomeComparison(month);const {actual,days}=amaRevenueDays(month);let sum=0;const values=actual.map(n=>(sum+=n));
  const current=today().slice(0,7),end=month<current?days:month===current?Number(today().slice(8)):0;
  const max=Math.max(100,...values),min=Math.min(0,...values),span=max-min||1,x=d=>4+d/days*112,y=n=>44-(n-min)/span*36;
  let path=`M 4 ${y(0)}`;for(let i=0;i<end;i++)path+=` L ${x(i+1)} ${y(values[i])}`;
@@ -2283,6 +2283,7 @@ $('#emailHoursReport').addEventListener('click',prepareHoursEmail);
 $('#downloadHoursExcel').addEventListener('click',excelReport);
 $('#downloadHoursPdf').addEventListener('click',pdfReport);
 $('#reportMonth').addEventListener('change',reportTotal);
+['Prev','Next'].forEach((direction,i)=>document.getElementById('amaReport'+direction).onclick=()=>{const field=$('#reportMonth'),d=new Date((field.value||monthNow())+'-01T12:00:00');d.setMonth(d.getMonth()+(i?1:-1));field.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');field.dispatchEvent(new Event('change',{bubbles:true}));});
 $('#reportWorker').addEventListener('change',reportTotal);
 $('#backBtn').addEventListener('click',amaGoBack);
 $('#refreshBtn').addEventListener('click',async()=>{if(!session)return;const b=$('#refreshBtn');b.disabled=true;try{await reload();render()}catch(e){alert('Actualisation impossible : '+e.message)}finally{b.disabled=false}});
@@ -3372,5 +3373,10 @@ body:not(.ama-worker) #tab-dashboard .ama-home-signature{margin:20px 0 10px}
  });
 })();
 </script>
-</body>
+<style id="ama-m1234">
+body #tab-planning .ama-planning-title>.ama-planning-symbol,body #tab-history .ama-integrated-heading>.ama-heading-tile,body #tab-invoices .ama-integrated-heading>.ama-heading-tile,body #tab-admin:has(#amaManage-overview:not([hidden])) #amaManageHeadingIcon{display:none!important}
+body #stats{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px!important}body #stats .ama-stat{min-height:88px!important;padding:12px 12px 10px!important;border-radius:15px!important;display:grid;grid-template-columns:28px minmax(0,1fr);column-gap:9px;align-content:center;position:relative}body #stats .ama-stat-head{display:contents}body #stats .ama-stat-head svg{grid-column:1;grid-row:1/3;align-self:center;width:23px;height:23px;stroke:#315a72!important}body #stats .ama-stat .label{grid-column:2;grid-row:1;font-size:11px!important;letter-spacing:0;text-transform:none;line-height:1.25;color:#315a72!important}body #stats .ama-stat-main{grid-column:2;grid-row:2}body #stats .ama-stat-main .value{font-size:25px!important;line-height:1.2;margin:4px 0 0!important}body #stats .sub,body #stats .ama-stat-tag{display:none!important}
+#workerReport{background:white!important;border:1px solid #dce8ed!important;border-radius:18px!important;padding:18px!important;margin-top:18px!important}.ama-report-heading{display:flex;gap:12px;align-items:center;margin-bottom:18px}.ama-report-icon{color:#398b7b;flex:0 0 32px}.ama-report-icon svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}#workerReport h3{font-size:19px;margin:0!important}#workerReport #reportDescription{font-size:12px;margin:4px 0 0;color:#8093a5}#workerReport .report-controls{display:grid!important;grid-template-columns:1fr!important;gap:12px}#workerReport input,#workerReport select{min-width:0;width:100%;box-sizing:border-box}.ama-report-month{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;gap:7px}.ama-report-month button{padding:0;font-size:24px;background:#f5f9fa;border:1px solid #dce8ed;border-radius:10px;color:#315a72}.ama-report-month input{text-align:center}.ama-report-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.ama-report-metrics>div{background:#e8f4f1;border-radius:13px;padding:15px 8px;text-align:center}.ama-report-metrics strong{display:block;font-size:26px;color:#398b7b}.ama-report-metrics span{display:block;font-size:12px;color:#627e8d;margin-top:4px}.ama-export-label{font-size:13px;margin:18px 0 9px;color:#315a72}.ama-report-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.ama-report-actions button{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12px!important;padding:12px 7px!important;min-width:0}.ama-report-actions svg{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}#downloadHoursPdf{grid-column:1/-1;background:#315a72!important}#workerReport #emailHoursNotice{font-size:11px;line-height:1.5;margin:10px 0 0}body.ama-worker .ama-report-actions{grid-template-columns:1fr}.ama-sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#tab-dashboard #amaCaHomeMini{gap:8px}#amaCaCompare{font-size:10px;color:#c4eee5;line-height:1.35;max-width:68%;min-height:14px;margin:3px 0 6px}#refreshBtn svg,#amaBell svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}#amaBell,#refreshBtn{background:transparent!important;border-color:transparent!important;box-shadow:none!important}#refreshBtn:disabled svg{animation:ama-refresh-spin .8s linear infinite}#amaWelcomeLoading .ama-welcome-arc.ama-run{animation-iteration-count:infinite!important}#amaWelcomeOverlay[aria-busy="true"]{cursor:progress}
+</style><script id="ama-m4-icons">(()=>{const svg=p=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>',icons={calendar:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/>',list:'<path d="M9 6h12M9 12h12M9 18h12M3 6h.1M3 12h.1M3 18h.1"/>',check:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',gear:'<path d="m9 3-1 3-3 1-2 4 2 2v4l4 2 2-1 3 2 4-2v-3l3-2-1-4-3-1-1-3z"/><circle cx="12" cy="12" r="3"/>',bell:'<path d="M18 8a6 6 0 0 0-12 0v5l-2 4h16l-2-4zM10 21h4"/>',refresh:'<path d="M20 7v5h-5M4 17v-5h5M19 10A7 7 0 0 0 6 6L4 9M5 14a7 7 0 0 0 13 4l2-3"/>',file:'<path d="M14 3H5v18h14V8zM14 3v5h5M8 12h8M8 16h8"/>',sheet:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12M3 15h18"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/>'};document.querySelectorAll('#stats .label').forEach((el,i)=>el.textContent=['Missions du jour','À réaliser','Clôturées ce mois','Heures déclarées'][i]);const stat=document.querySelectorAll('#stats .ama-stat-head svg');['calendar','list','check','clock'].forEach((key,i)=>{stat[i].innerHTML=icons[key]});document.querySelector('#adminTab .ama-nav-ico').innerHTML=svg(icons.gear);document.querySelector('#amaBell>svg').innerHTML=icons.bell;document.getElementById('refreshBtn').innerHTML=svg(icons.refresh)+'<span>Actualiser</span>';document.getElementById('refreshBtn').setAttribute('aria-label','Actualiser les données');[['downloadHoursPdf','file'],['downloadHoursExcel','sheet'],['emailHoursReport','mail']].forEach(([id,key])=>{const el=document.getElementById(id);el.insertAdjacentHTML('afterbegin',svg(icons[key]))});})();</script></body>
 </html>
