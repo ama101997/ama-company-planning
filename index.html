@@ -929,6 +929,20 @@ body #tab-dashboard .ama-integrated-heading #backBtn,body #tab-dashboard .ama-in
 #amaInvoiceSettings .ama-mail-service .ama-mail-check{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 11px;margin:0;border:1px solid #d5e5e4;border-radius:9px;background:#fff;color:#3c6f7b;font-size:12px;font-weight:650}
 #amaMailConnection[hidden]{display:none!important}#amaInvoiceConfigure svg{width:19px;height:19px;stroke-width:1.8}#amaInvoiceConfigure{gap:7px}
 </style>
+<style id="ama-photo-menu-minimal">
+/* Photo actions are grouped in the overflow menu. */
+.ama-profile-options{flex-basis:44px;align-self:center}
+.ama-photo-more{display:flex!important;align-items:center;justify-content:center;gap:4px;width:44px!important;min-width:44px!important;height:44px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;letter-spacing:0;transform:none!important}
+.ama-photo-more:hover,.ama-photo-more:active{background:transparent!important;box-shadow:none!important;filter:none}
+.ama-photo-more:focus-visible{outline:2px solid #398b7b;outline-offset:2px}
+.ama-photo-dot{width:4px;height:4px;border-radius:50%;background:currentColor;display:block;flex:none}
+.ama-photo-menu{top:46px;min-width:215px;border-radius:15px;padding:6px;box-shadow:0 10px 28px #24485b16}
+.ama-photo-menu button{min-height:44px;padding:12px 11px!important;gap:12px;font-size:13px!important}
+.ama-photo-menu .ama-photo-delete{margin-top:3px;border-top:1px solid #edf1f2!important;border-radius:0!important}
+#amaAvatarChooser[hidden]{display:none!important}
+#amaAvatarStatus:empty{display:none}
+#amaAccountModal .ama-profile-preview{overflow:visible}
+</style>
 </head>
 <body>
 <div id="amaWelcomeOverlay" role="status" aria-live="polite" aria-label="Ouverture de votre espace AMA Planning">
@@ -1079,7 +1093,7 @@ body #tab-dashboard .ama-integrated-heading #backBtn,body #tab-dashboard .ama-in
       </div>
       <div id="amaWorkerEditor" class="ama-worker-editor" hidden>
         <div class="ama-worker-editor-head"><h3>Fiche intervenant</h3><button type="button" id="amaWorkerEditorClose" aria-label="Fermer">×</button></div>
-        <div class="ama-worker-editor-photo"><div id="amaWorkerEditorPhoto" class="ama-worker-avatar-fallback" aria-label="Photo de profil">👤</div><span class="ama-worker-photo-hint">Photo de profil</span><div class="ama-profile-options"><button type="button" class="ama-photo-more" data-photo-menu="amaWorkerPhotoMenu" aria-label="Options de la photo de profil" aria-controls="amaWorkerPhotoMenu" aria-expanded="false">···</button><div id="amaWorkerPhotoMenu" class="ama-photo-menu" hidden><button type="button" id="amaWorkerEditorPhotoButton"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14z"/></svg>Modifier la photo</button><button type="button" id="amaRemoveWorkerPhoto" class="ama-photo-delete" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg>Retirer la photo</button></div></div></div>
+        <div class="ama-worker-editor-photo"><div id="amaWorkerEditorPhoto" class="ama-worker-avatar-fallback" aria-label="Photo de profil">👤</div><span class="ama-worker-photo-hint">Photo de profil</span><div class="ama-profile-options"><button type="button" class="ama-photo-more" data-photo-menu="amaWorkerPhotoMenu" aria-label="Options de la photo de profil" aria-controls="amaWorkerPhotoMenu" aria-expanded="false"><span class="ama-photo-dot" aria-hidden="true"></span><span class="ama-photo-dot" aria-hidden="true"></span><span class="ama-photo-dot" aria-hidden="true"></span></button><div id="amaWorkerPhotoMenu" class="ama-photo-menu" hidden><button type="button" id="amaWorkerEditorPhotoButton"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14z"/></svg>Modifier la photo</button><button type="button" id="amaRemoveWorkerPhoto" class="ama-photo-delete" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg>Supprimer la photo</button></div></div></div>
         <form id="amaWorkerEditForm">
           <input type="hidden" id="amaWorkerEditId">
           <label for="amaWorkerEditName">Nom complet</label><input id="amaWorkerEditName" required maxlength="120">
@@ -2359,7 +2373,21 @@ function pdfReport(){
  let previousDate='';
  const body=ms.map(m=>{const date=dateFr(m.date),label=m.date===previousDate?'':date;previousDate=m.date;return `<tr data-date="${esc(date)}"><td>${esc(label)}</td><td>${esc(m.apartmentName||'')}</td><td>${esc(hours(sharedHours(m)))}</td></tr>`;}).join('');
  const period=new Date(month+'-01T12:00:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
- const html=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Relevé d’heures AMA — ${esc(month)}</title><style>@page{size:A4;margin:14mm 16mm 17mm}*{box-sizing:border-box}body{font:9pt Arial,sans-serif;color:#315a72;margin:0;padding:14mm 16mm;background:white}header{border-bottom:1px solid #398b7b;padding-bottom:7px;margin-bottom:10px}.heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:15pt;font-weight:bold}h1{font-size:12pt;margin:0;white-space:nowrap}.report-meta{margin:7px 0 0;font-size:9pt}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{padding:3px 7px;border-bottom:1px solid #dce6e9;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e9f0f3}th:first-child{width:18%}th:last-child{width:14%}td:last-child,th:last-child{text-align:right}thead{display:table-header-group}tr{break-inside:avoid}.total{display:flex;justify-content:space-between;gap:8px;background:#e9f0f3;padding:7px;font-weight:bold;margin-top:7px;break-inside:avoid}.note{font-size:8pt;color:#647884;margin-top:15px;text-align:right}@media print{body{padding:0}header{break-after:avoid}}</style></head><body><header><div class="heading"><span class="brand">AMA COMPANY</span><h1>RELEVÉ D’HEURES</h1></div><p class="report-meta">Intervenant : ${esc(workerName)} | ${esc(period)}</p></header><table><thead><tr><th>Date</th><th>Appartement</th><th>Heures</th></tr></thead><tbody>${body||'<tr><td colspan="3">Aucune intervention validée pour ce mois.</td></tr>'}</tbody></table><div class="total" data-count="${ms.length}" data-hours="${esc(hours(total))}"><span>TOTAL DU MOIS</span><span>${ms.length} intervention(s)</span><span>${esc(hours(total))}</span></div><p class="note">Interventions validées dans AMA Company</p></body></html>`;
+ const html=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Relevé d’heures AMA — ${esc(month)}</title><style>@page{size:A4;margin:14mm 16mm 17mm}*{box-sizing:border-box}body{font:9pt Arial,sans-serif;color:#315a72;margin:0;padding:14mm 16mm;background:white}header{border-bottom:1px solid #398b7b;padding-bottom:7px;margin-bottom:10px}.heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:15pt;font-weight:bold}h1{font-size:12pt;margin:0;white-space:nowrap}.report-meta{margin:7px 0 0;font-size:9pt}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{padding:3px 7px;border-bottom:1px solid #dce6e9;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e9f0f3}th:first-child{width:18%}th:last-child{width:14%}td:last-child,th:last-child{text-align:right}thead{display:table-header-group}tr{break-inside:avoid}.total{display:flex;justify-content:space-between;gap:8px;background:#e9f0f3;padding:7px;font-weight:bold;margin-top:7px;break-inside:avoid}.note{font-size:8pt;color:#647884;margin-top:15px;text-align:right}@media print{body{padding:0}header{break-after:avoid}}</style><style id="ama-photo-menu-minimal">
+/* Photo actions are grouped in the overflow menu. */
+.ama-profile-options{flex-basis:44px;align-self:center}
+.ama-photo-more{display:flex!important;align-items:center;justify-content:center;gap:4px;width:44px!important;min-width:44px!important;height:44px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;letter-spacing:0;transform:none!important}
+.ama-photo-more:hover,.ama-photo-more:active{background:transparent!important;box-shadow:none!important;filter:none}
+.ama-photo-more:focus-visible{outline:2px solid #398b7b;outline-offset:2px}
+.ama-photo-dot{width:4px;height:4px;border-radius:50%;background:currentColor;display:block;flex:none}
+.ama-photo-menu{top:46px;min-width:215px;border-radius:15px;padding:6px;box-shadow:0 10px 28px #24485b16}
+.ama-photo-menu button{min-height:44px;padding:12px 11px!important;gap:12px;font-size:13px!important}
+.ama-photo-menu .ama-photo-delete{margin-top:3px;border-top:1px solid #edf1f2!important;border-radius:0!important}
+#amaAvatarChooser[hidden]{display:none!important}
+#amaAvatarStatus:empty{display:none}
+#amaAccountModal .ama-profile-preview{overflow:visible}
+</style>
+</head><body><header><div class="heading"><span class="brand">AMA COMPANY</span><h1>RELEVÉ D’HEURES</h1></div><p class="report-meta">Intervenant : ${esc(workerName)} | ${esc(period)}</p></header><table><thead><tr><th>Date</th><th>Appartement</th><th>Heures</th></tr></thead><tbody>${body||'<tr><td colspan="3">Aucune intervention validée pour ce mois.</td></tr>'}</tbody></table><div class="total" data-count="${ms.length}" data-hours="${esc(hours(total))}"><span>TOTAL DU MOIS</span><span>${ms.length} intervention(s)</span><span>${esc(hours(total))}</span></div><p class="note">Interventions validées dans AMA Company</p></body></html>`;
 
  amaOpenPdf(html,`AMA_Releve_heures_${workerName}_${month}.pdf`,'hours');
 }
@@ -2441,7 +2469,21 @@ function printClientInvoice(clientId){
  const logo=amaInvoiceLogoData&&/^data:image\/(png|jpeg|webp);base64,/.test(amaInvoiceLogoData)?`<img class="logo" alt="Logo de l’entreprise" src="${amaInvoiceLogoData}">`:'';
  const html=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(number)} - ${esc(c.name)}</title><style>
  @page{size:A4;margin:16mm 16mm 17mm}*{box-sizing:border-box}body{margin:0;color:#171717;font:12px/1.4 Arial,Helvetica,sans-serif}.sheet{min-height:260mm;display:flex;flex-direction:column}.issuer{display:flex;justify-content:space-between;align-items:flex-start;min-height:41mm}.issuer b{font-size:15px}.issuer p{margin:3px 0}.logo{max-width:145px;max-height:72px;object-fit:contain}.rule{border-top:1px solid #999;margin:5mm 0 5mm}.meta{display:grid;grid-template-columns:58% 42%;gap:8px;min-height:36mm}.meta-row{display:flex;gap:9px}.meta-row .lbl{min-width:110px;font-weight:bold}.meta-row .val{font-weight:600;white-space:pre-line}.meta .right .lbl{min-width:111px}.invoice-table{width:100%;border-collapse:collapse;margin-top:8mm;table-layout:fixed}.invoice-table th{padding:7px 5px;text-align:left;border-bottom:1px solid #aaa;font-weight:bold}.invoice-table td{padding:8px 5px;border-bottom:1px solid #ccc;vertical-align:top}.invoice-table th:first-child{width:43%}.invoice-table th:nth-child(2){width:16%}.invoice-table th:nth-child(3){width:20%}.invoice-table th:nth-child(4){width:21%}.num{text-align:right}.detail{margin-top:3px}.totals{width:72%;margin:4mm 0 0 auto;border-top:1px solid #999}.total-row{display:flex;justify-content:space-between;gap:15px;padding:4px 7px}.total-row b{font-size:12px}.total-row.final{border-top:1px solid #aaa;margin-top:3mm;padding-top:9px;font-weight:bold}.total-row.final b{font-size:15px}.tax{margin:5mm 0 0;font-size:10px}.conditions{margin-top:13mm;max-width:100%;font-size:11px}.conditions h3{font-size:13px;margin:0 0 9px}.conditions p{margin:5px 0}.foot{margin-top:auto;text-align:center;font-size:9px;padding-top:16mm}.no-print{padding:12px;margin-bottom:20px;background:#fff7df;border:1px solid #e8cf88;border-radius:7px}.no-print button{padding:8px 12px;margin-left:10px;cursor:pointer}@media print{.no-print{display:none}.sheet{min-height:260mm}}@media screen{body{padding:18px;max-width:850px;margin:auto}.sheet{background:white;padding:15px}}
- </style></head><body><div class="no-print">Vérifiez la facture et ses mentions légales avant envoi. Ce document n'est pas archivé automatiquement. <button onclick="window.print()">Imprimer / Enregistrer en PDF</button></div><div class="sheet"><div class="issuer"><div><b>${esc(issuer)}</b><p>${esc(address).replace(/\n/g,'<br>')}</p><p>SIRET : ${esc(siret)}</p>${issuerEmail?`<p>${esc(issuerEmail)}</p>`:''}${issuerPhone?`<p>Tél. : ${esc(issuerPhone)}</p>`:''}</div>${logo}</div><div class="rule"></div><div class="meta"><div><div class="meta-row"><span class="lbl">Destinataire :</span><span class="val">${esc(c.name)}<br>${esc(c.billing_address).replace(/\n/g,'<br>')}${c.siret?'<br>SIRET : '+esc(c.siret):''}</span></div></div><div class="right"><div class="meta-row"><span class="lbl">Facture :</span><span class="val">${esc(number)}</span></div><div class="meta-row"><span class="lbl">Date de la facture :</span><span class="val">${esc(invoiceDate)}</span></div></div></div><div class="rule"></div><table class="invoice-table"><thead><tr><th>Description</th><th class="num">Quantité</th><th class="num">Prix unitaire</th><th class="num">Prix total</th></tr></thead><tbody><tr><td colspan="4"><b>Prestations de services</b></td></tr>${detail}</tbody></table><div class="totals"><div class="total-row"><b>Sous-total HT</b><b>${esc(fmt(total))} €</b></div><div class="total-row"><span>Remise</span><span>0,00 €</span></div><div class="total-row"><span>Montant payé</span><span>${esc(fmt(paid))} €</span></div><div class="total-row final"><b>Montant à payer EUR</b><b>${esc(fmt(total-paid))} €</b></div></div><p class="tax">TVA non applicable, art. 293 B du CGI — à conserver uniquement si l'émetteur bénéficie effectivement de la franchise en base de TVA.</p><div class="conditions"><h3>Conditions générales</h3><p>Paiement à effectuer de préférence par virement bancaire${payment?' ('+esc(payment)+')':''}.</p><p>Date limite de paiement : <b>${esc(dateFr(due))}</b>.</p><p>En cas de retard de paiement, les pénalités sont dues selon les conditions contractuelles applicables. Indemnité forfaitaire de 40 € pour frais de recouvrement lorsque la réglementation le prévoit (transactions entre professionnels).</p></div><div class="foot">${esc(issuer)} — ${esc(address).replace(/\n/g,' — ')} — SIRET ${esc(siret)}${issuerPhone?' — Tél. : '+esc(issuerPhone):''}</div></div></body></html>`;
+ </style><style id="ama-photo-menu-minimal">
+/* Photo actions are grouped in the overflow menu. */
+.ama-profile-options{flex-basis:44px;align-self:center}
+.ama-photo-more{display:flex!important;align-items:center;justify-content:center;gap:4px;width:44px!important;min-width:44px!important;height:44px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;letter-spacing:0;transform:none!important}
+.ama-photo-more:hover,.ama-photo-more:active{background:transparent!important;box-shadow:none!important;filter:none}
+.ama-photo-more:focus-visible{outline:2px solid #398b7b;outline-offset:2px}
+.ama-photo-dot{width:4px;height:4px;border-radius:50%;background:currentColor;display:block;flex:none}
+.ama-photo-menu{top:46px;min-width:215px;border-radius:15px;padding:6px;box-shadow:0 10px 28px #24485b16}
+.ama-photo-menu button{min-height:44px;padding:12px 11px!important;gap:12px;font-size:13px!important}
+.ama-photo-menu .ama-photo-delete{margin-top:3px;border-top:1px solid #edf1f2!important;border-radius:0!important}
+#amaAvatarChooser[hidden]{display:none!important}
+#amaAvatarStatus:empty{display:none}
+#amaAccountModal .ama-profile-preview{overflow:visible}
+</style>
+</head><body><div class="no-print">Vérifiez la facture et ses mentions légales avant envoi. Ce document n'est pas archivé automatiquement. <button onclick="window.print()">Imprimer / Enregistrer en PDF</button></div><div class="sheet"><div class="issuer"><div><b>${esc(issuer)}</b><p>${esc(address).replace(/\n/g,'<br>')}</p><p>SIRET : ${esc(siret)}</p>${issuerEmail?`<p>${esc(issuerEmail)}</p>`:''}${issuerPhone?`<p>Tél. : ${esc(issuerPhone)}</p>`:''}</div>${logo}</div><div class="rule"></div><div class="meta"><div><div class="meta-row"><span class="lbl">Destinataire :</span><span class="val">${esc(c.name)}<br>${esc(c.billing_address).replace(/\n/g,'<br>')}${c.siret?'<br>SIRET : '+esc(c.siret):''}</span></div></div><div class="right"><div class="meta-row"><span class="lbl">Facture :</span><span class="val">${esc(number)}</span></div><div class="meta-row"><span class="lbl">Date de la facture :</span><span class="val">${esc(invoiceDate)}</span></div></div></div><div class="rule"></div><table class="invoice-table"><thead><tr><th>Description</th><th class="num">Quantité</th><th class="num">Prix unitaire</th><th class="num">Prix total</th></tr></thead><tbody><tr><td colspan="4"><b>Prestations de services</b></td></tr>${detail}</tbody></table><div class="totals"><div class="total-row"><b>Sous-total HT</b><b>${esc(fmt(total))} €</b></div><div class="total-row"><span>Remise</span><span>0,00 €</span></div><div class="total-row"><span>Montant payé</span><span>${esc(fmt(paid))} €</span></div><div class="total-row final"><b>Montant à payer EUR</b><b>${esc(fmt(total-paid))} €</b></div></div><p class="tax">TVA non applicable, art. 293 B du CGI — à conserver uniquement si l'émetteur bénéficie effectivement de la franchise en base de TVA.</p><div class="conditions"><h3>Conditions générales</h3><p>Paiement à effectuer de préférence par virement bancaire${payment?' ('+esc(payment)+')':''}.</p><p>Date limite de paiement : <b>${esc(dateFr(due))}</b>.</p><p>En cas de retard de paiement, les pénalités sont dues selon les conditions contractuelles applicables. Indemnité forfaitaire de 40 € pour frais de recouvrement lorsque la réglementation le prévoit (transactions entre professionnels).</p></div><div class="foot">${esc(issuer)} — ${esc(address).replace(/\n/g,' — ')} — SIRET ${esc(siret)}${issuerPhone?' — Tél. : '+esc(issuerPhone):''}</div></div></body></html>`;
  amaOpenPdf(html,`${amaInvoiceCompany==='ldclean'?'LD_Clean':'AMA'}_Facture_${number}_${c.name}.pdf`,'invoice');amaPdfState.invoice={clientId,month,number,companyId:amaInvoiceCompany};
 }
 $('#invoiceSummary').addEventListener('click',e=>{const b=e.target.closest('[data-invoice-client]');if(b)amaPrepareInvoice(b.dataset.invoiceClient)});
@@ -2989,16 +3031,16 @@ fillSelects();
   <div class="ama-account-dialog">
     <h2 id="amaAccountTitle">Paramètres du compte</h2><p>Modifiez vos informations personnelles.</p>
     <div class="ama-profile-preview" aria-label="Photo actuelle du compte">
-      <div class="ama-profile-photo-wrap"><img id="amaProfilePreviewImg" alt="Photo de profil actuelle" hidden><span id="amaProfilePreviewFallback" aria-hidden="true">AM</span><span class="ama-profile-camera" aria-hidden="true">✎</span></div>
-      <div class="ama-profile-intro"><strong id="amaProfilePreviewName">Mon profil</strong><span id="amaProfilePreviewRole">Photo de profil actuelle</span><button type="button" id="amaProfilePreviewChange" class="ama-profile-change">Modifier la photo</button></div>
-    <div class="ama-profile-options"><button type="button" class="ama-photo-more" data-photo-menu="amaMyPhotoMenu" aria-label="Options de la photo de profil" aria-controls="amaMyPhotoMenu" aria-expanded="false">···</button><div id="amaMyPhotoMenu" class="ama-photo-menu" hidden><button type="button" id="amaMyPhotoMenuChange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14z"/></svg>Modifier la photo</button><button type="button" id="amaRemoveMyPhoto" class="ama-photo-delete" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg>Retirer la photo</button></div></div></div>
+      <div class="ama-profile-photo-wrap"><img id="amaProfilePreviewImg" alt="Photo de profil actuelle" hidden><span id="amaProfilePreviewFallback" aria-hidden="true">AM</span></div>
+      <div class="ama-profile-intro"><strong id="amaProfilePreviewName">Mon profil</strong><span id="amaProfilePreviewRole">Photo de profil actuelle</span></div>
+    <div class="ama-profile-options"><button type="button" class="ama-photo-more" data-photo-menu="amaMyPhotoMenu" aria-label="Options de la photo de profil" aria-controls="amaMyPhotoMenu" aria-expanded="false"><span class="ama-photo-dot" aria-hidden="true"></span><span class="ama-photo-dot" aria-hidden="true"></span><span class="ama-photo-dot" aria-hidden="true"></span></button><div id="amaMyPhotoMenu" class="ama-photo-menu" hidden><button type="button" id="amaMyPhotoMenuChange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14z"/></svg>Modifier la photo</button><button type="button" id="amaMyPhotoMenuAvatar" aria-expanded="false" aria-controls="amaAvatarChooser"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Choisir un avatar</button><button type="button" id="amaRemoveMyPhoto" class="ama-photo-delete" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg>Supprimer la photo</button></div></div></div>
 
-    <div class="ama-avatar-chooser">
+    <div class="ama-avatar-chooser" id="amaAvatarChooser" hidden>
     <div class="ama-avatar-heading">Avatars disponibles</div>
     <div class="ama-avatar-grid" id="amaAvatarGallery" role="group" aria-label="Avatars prédéfinis"></div>
-    <div class="ama-avatar-status" id="amaAvatarStatus" role="status" aria-live="polite"></div>
   </div>
-  <button type="button" class="ama-account-photo" id="amaChangePhoto">Importer ma propre photo</button>
+  <div class="ama-avatar-status" id="amaAvatarStatus" role="status" aria-live="polite"></div>
+
     <section class="ama-push-settings" aria-labelledby="amaPushTitle">
       <span id="amaPushTitle" class="ama-visually-hidden">État des notifications</span><p id="amaValidationReminderInfo" class="muted" hidden>Rappel à 19 h (heure de Paris) si des missions restent à valider. Hors prolongations, un rappel par jour.</p>
       <div class="ama-push-action" id="amaPushAction">
@@ -3088,13 +3130,11 @@ fillSelects();
    $('amaAccountNewEmail').readOnly=restricted;
    $('amaAccountFullName').setAttribute('aria-readonly',String(restricted));
    $('amaAccountNewEmail').setAttribute('aria-readonly',String(restricted));
-   status.textContent=''; $('amaAccountManagedHint').hidden=!restricted;modal.hidden=false;
+   status.textContent=''; $('amaAccountManagedHint').hidden=!restricted;$('amaAvatarChooser').hidden=true;$('amaMyPhotoMenuAvatar').setAttribute('aria-expanded','false');$('amaAvatarStatus').textContent='';document.querySelectorAll('[data-photo-menu]').forEach(b=>{b.setAttribute('aria-expanded','false');$(b.dataset.photoMenu).hidden=true});modal.hidden=false;
  }
  $('amaOpenSettings').addEventListener('click',openSettings);
  $('amaCloseSettings').addEventListener('click',()=>modal.hidden=true);
  modal.addEventListener('click',e=>{if(e.target===modal)modal.hidden=true});
- $('amaChangePhoto').addEventListener('click',()=>$('amaAvatarInput')?.click());
- $('amaProfilePreviewChange').addEventListener('click',()=>$('amaAvatarInput')?.click());
  $('amaMenuLogout').addEventListener('click',()=>{close();$('logoutBtn')?.click()});
  document.addEventListener('click',e=>{if(!menu.hidden&&!menu.contains(e.target)&&!avatar?.contains(e.target))close()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){close();modal.hidden=true}});
@@ -3418,7 +3458,7 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
      const result=await c.rpc('ama_set_profile_avatar',{target_user_id:user.id,avatar_public_url:'ama-avatar://'+(i+1)});
      if(result.error)throw result.error;
      avatarGallery.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
-     avatarStatus.textContent='Avatar enregistré.';
+     avatarStatus.textContent='Avatar enregistré.';byId('amaAvatarChooser').hidden=true;byId('amaMyPhotoMenuAvatar').setAttribute('aria-expanded','false');
      await refreshAvatar();
     }catch(e){window.amaUpdateProfilePreview?.(priorSrc);avatarStatus.textContent='Erreur : '+(e.message||e)+'. Exécutez la migration avatars dans Supabase.'}
     finally{button.disabled=false}
@@ -3470,10 +3510,11 @@ document.getElementById('amaQuickActions')?.addEventListener('click', function(e
  });
  document.addEventListener('click',e=>{if(!e.target.closest('.ama-profile-options'))closePhotoMenus()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){const active=document.querySelector('[data-photo-menu][aria-expanded="true"]');if(active){e.stopImmediatePropagation();closePhotoMenus();active.focus()}}},true);
- byId('amaMyPhotoMenuChange').onclick=()=>{closePhotoMenus();selectedProfile=null;avatarInput.click()};
+ byId('amaMyPhotoMenuChange').onclick=()=>{closePhotoMenus();byId('amaAvatarChooser').hidden=true;byId('amaMyPhotoMenuAvatar').setAttribute('aria-expanded','false');selectedProfile=null;avatarInput.click()};
+ byId('amaMyPhotoMenuAvatar').onclick=()=>{closePhotoMenus();const chooser=byId('amaAvatarChooser');chooser.hidden=!chooser.hidden;byId('amaMyPhotoMenuAvatar').setAttribute('aria-expanded',String(!chooser.hidden));if(!chooser.hidden)chooser.querySelector('button')?.focus()};
  byId('amaWorkerEditorPhotoButton').addEventListener('click',closePhotoMenus);
  const removeMine=byId('amaRemoveMyPhoto'),removeWorker=byId('amaRemoveWorkerPhoto');
- removeMine?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();closePhotoMenus();removeProfilePhoto(null,removeMine,byId('amaAvatarStatus'))});
+ removeMine?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();closePhotoMenus();byId('amaAvatarChooser').hidden=true;byId('amaMyPhotoMenuAvatar').setAttribute('aria-expanded','false');removeProfilePhoto(null,removeMine,byId('amaAvatarStatus'))});
  removeWorker?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();closePhotoMenus();const target=byId('amaWorkerEditId').value;if(target)removeProfilePhoto(target,removeWorker,byId('amaWorkerEditStatus'))});
  const editorPhoto=byId('amaWorkerEditorPhoto');
  if(editorPhoto)new MutationObserver(()=>{removeWorker.hidden=!editorPhoto.querySelector('img')}).observe(editorPhoto,{childList:true,subtree:true});
