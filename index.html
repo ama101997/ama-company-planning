@@ -1641,6 +1641,12 @@ async function startSession(authUser){
  $('#planningWorkerFilterWrap').classList.toggle('hidden',u.role!=='admin');$('#historyWorkerWrap').classList.toggle('hidden',u.role!=='admin');
  if(u.role==='worker'){$('#planningWorkerFilter').value=u.id;$('#historyWorker').value=u.id}
  amaTabHistory=[];amaManageView='overview';amaWalletHidden=true;document.getElementById('amaWalletEye').innerHTML=AMA_WALLET_EYE_OFF;document.getElementById('amaWalletEye').setAttribute('aria-label','Afficher le montant');document.getElementById('amaWalletEye').setAttribute('aria-pressed','false');render();setTab('dashboard',true);if(u.role==='worker')amaRefreshWallet();
+ const reminderUrl=new URL(location.href);
+ if(u.role==='worker'&&reminderUrl.searchParams.get('ama_view')==='pending'){
+  setTab('planning');$('#planningDate').value='';$('#planningStatusFilter').value='planned';renderPlanning();
+  reminderUrl.searchParams.delete('ama_view');history.replaceState(null,'',reminderUrl);
+ }
+
 }
 async function logout(){amaClosePdf();stopAmaWelcome();await client?.auth.signOut();session=null;amaWalletHidden=true;amaWalletRequest++;amaWalletLastAmount=null;renderRevenueCurve();document.getElementById('amaWorkerEarnings').hidden=true;document.getElementById('financePanel').hidden=true;document.body.classList.remove('ama-worker');$('#app').hidden=true;$('#loginScreen').classList.remove('hidden');$('#loginPin').value='';$('#loginPin').type='password';document.getElementById('amaLoginEye').setAttribute('aria-pressed','false');document.getElementById('amaLoginEye').setAttribute('aria-label','Afficher le mot de passe');$('#loginEmail').value='';}
 function canSee(m){return session.role==='admin'||m.workerId===session.id||sharedIds(m).includes(session.id)}
@@ -1742,7 +1748,17 @@ async function loadNotifications(){
  if(h.error)throw h.error;
  const hidden=new Set((h.data||[]).map(x=>x.notification_id));
  missionNotifications=(r.data||[]).filter(n=>!hidden.has(n.id));
+ if(session.role==='worker'){
+  const owner=session.id;
+  const reminders=await client.from('ama_validation_reminders').select('id,title,message,is_read,created_at').eq('user_id',owner).order('created_at',{ascending:false}).limit(1);
+  if(session?.id!==owner)return;
+  if(!reminders.error && data.missions.some(m=>m.workerId===owner&&m.status==='planned'&&!m.prolonged&&m.date<=today())){
+   missionNotifications=[...(reminders.data||[]).map(n=>({...n,validationReminder:true})),...missionNotifications];
+  }
+ }
+
 }
+document.addEventListener('click',e=>{if(!e.target.closest('[data-validation-planning]')||session?.role!=='worker')return;setTab('planning');$('#planningDate').value='';$('#planningStatusFilter').value='planned';renderPlanning();});
 function renderNotifications(){
  const panel=$('#notificationCard');if(!panel)return;
  panel.classList.toggle('hidden',!session);
@@ -1751,13 +1767,13 @@ function renderNotifications(){
  $('#notificationCount').textContent=unread?`(${unread} non lue${unread>1?'s':''})`:'';$('#notificationUnreadText').textContent=unread?`${unread} non lue${unread>1?'s':''}`:'Tout est lu';
  $('#notificationList').innerHTML=missionNotifications.length?missionNotifications.map(n=>{
  const title=String(n.title||'Notification');
- const isDone=/réalis|termin|valid/i.test(title);
+ const isDone=!n.validationReminder&&/réalis|termin|valid/i.test(title);
  const isTransfer=/transf|fusion/i.test(title);
- const isWarning=/report|prolong|non entr|annul/i.test(title);
+ const isWarning=n.validationReminder||/report|prolong|non entr|annul/i.test(title);
  const type=isDone?'done':isTransfer?'team':isWarning?'warning':'info';
  const icon=type==='done'?'<path d="M20 6 9 17l-5-5"/><circle cx="12" cy="12" r="10"/>':type==='team'?'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 9h5m-2.5-2.5V12"/>':type==='warning'?'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/>':'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>';
  const svg=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg>`;
- return `<div class="ama-swipe-shell ama-ios-notification ${n.is_read?'ama-is-read':'ama-is-unread'}" data-notification-id="${esc(n.id)}"><div class="ama-swipe-content"><span class="ama-ios-icon ama-ios-${type}">${svg}</span><div class="ama-swipe-copy"><div class="ama-ios-title"><strong>${esc(title)}</strong>${n.is_read?'':'<span class="ama-ios-unread-dot" aria-label="Non lue"></span>'}</div><p>${esc(n.message)}</p><small>${new Date(n.created_at).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'})}</small></div><div class="ama-swipe-tools">${n.is_read?'':`<button class="soft mini" data-notification-read="${esc(n.id)}">Lue</button>`}<button class="ama-reveal-delete" data-notification-reveal="${esc(n.id)}" aria-label="Afficher Supprimer">‹</button></div></div><button class="ama-swipe-delete" data-notification-delete="${esc(n.id)}" aria-label="Supprimer cette notification"><span>♧</span>Supprimer</button></div>`;
+ return `<div class="ama-swipe-shell ama-ios-notification ${n.is_read?'ama-is-read':'ama-is-unread'}" data-notification-id="${esc(n.id)}"><div class="ama-swipe-content"><span class="ama-ios-icon ama-ios-${type}">${svg}</span><div class="ama-swipe-copy"><div class="ama-ios-title"><strong>${esc(title)}</strong>${n.is_read?'':'<span class="ama-ios-unread-dot" aria-label="Non lue"></span>'}</div><p>${esc(n.message)}</p><small>${new Date(n.created_at).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'})}</small></div><div class="ama-swipe-tools">${n.is_read?'':`<button class="soft mini" data-notification-read="${esc(n.id)}">Lue</button>`}${n.validationReminder?'<button class="soft mini" data-validation-planning>Voir les missions</button>':`<button class="ama-reveal-delete" data-notification-reveal="${esc(n.id)}" aria-label="Afficher Supprimer">‹</button>`}</div></div>${n.validationReminder?'':`<button class="ama-swipe-delete" data-notification-delete="${esc(n.id)}" aria-label="Supprimer cette notification"><span>♧</span>Supprimer</button>`}</div>`;
  }).join(''):'<div class="empty">Aucune notification pour le moment.</div>';
 }
 $('#notificationToggle').addEventListener('click',()=>{
@@ -1828,7 +1844,8 @@ $('#notificationList').addEventListener('click',async e=>{
   return;
  }
  const btn=e.target.closest('[data-notification-read]');if(!btn||!session)return;
- const r=await client.from('mission_notifications').update({is_read:true}).eq('id',btn.dataset.notificationRead);
+ const reminder=missionNotifications.find(n=>n.id===btn.dataset.notificationRead)?.validationReminder;
+ const r=await client.from(reminder?'ama_validation_reminders':'mission_notifications').update({is_read:true}).eq('id',btn.dataset.notificationRead);
  if(r.error)return alert(r.error.message);
  await loadNotifications();renderNotifications();
 });
@@ -2819,16 +2836,21 @@ async function amaMailCall(action,extra={}){
 async function amaMailLoad(){
  if(session?.role!=='admin')return;
  const owner=session.id,company=amaInvoiceCompany,request=++amaMailRequest;amaMailOwner=owner;amaMailLoading=true;
- $('#amaMailFeedback').textContent='Chargement de la configuration…';
+ $('#amaMailFeedback').textContent='Chargement de la configuration…';$('#amaGmailBox').hidden=false;$('#amaGmailState').textContent='Vérification du service…';$('#amaGmailBox').classList.remove('ama-mail-ready');$('#amaMailServiceSender').textContent='Vérification…';$('#amaMailConnection').hidden=true;$('#amaMailSender').textContent='';
  try{
   const r=await amaMailCall('status');if(session?.id!==owner||company!==amaInvoiceCompany||request!==amaMailRequest)return;
   amaMailReady=!!r.ready;amaMailScheduler=!!r.scheduler_ready;amaMailConfig=r.config;if(Array.isArray(r.companies)){amaCompanyRows=r.companies;amaCompaniesOwner=owner;}amaIssuerRemote=r.config.settings;amaIssuerRemoteOwner=owner;
   const s=r.config.settings;$('#amaAutoDay').value=s.day;$('#amaAutoTime').value=s.time;$('#amaAutoPrefix').value=s.prefix;$('#amaAutoNumber').value=r.config.next_number;$('#amaAutoDue').value=s.due_days;$('#amaAutoMessage').value=s.message;$('#amaAutoEnabled').checked=s.enabled;
   for(const id of amaIssuerIds)$('#'+id).value=s.issuer?.[id]??$('#'+id).value;
   $('#amaAutoClients').innerHTML=orderClients.map(c=>{const other=amaCompanyRows.find(x=>x.id!==amaInvoiceCompany&&x.settings.client_ids.includes(c.id));return '<label class="ama-auto-client"><input type="checkbox" value="'+esc(c.id)+'" '+(s.client_ids.includes(c.id)?'checked ':'')+(other?'disabled':'')+'><span><strong>'+esc(c.name)+'</strong><small>'+esc(other?'Attribué à '+other.name:(c.email||'E-mail à compléter dans Gestion'))+'</small></span></label>';}).join('')||'<p class="muted">Ajoutez vos clients dans Gestion.</p>';
-  $('#amaGmailBox').hidden=!(amaInvoiceCompany==='ldclean'&&r.provider==='gmail');$('#amaGmailState').textContent=r.ready?'Service opérationnel':'Service indisponible';$('#amaGmailBox').classList.toggle('ama-mail-ready',!!r.ready);
-  $('#amaMailConnection').textContent=amaInvoiceCompany==='ldclean'?( !amaMailScheduler?'Programmation automatique à configurer':'') : (!amaMailReady?'Service e-mail à connecter':!amaMailScheduler?'Service e-mail connecté · programmation à installer':'Service e-mail et programmation configurés');$('#amaMailConnection').hidden=amaInvoiceCompany==='ldclean'&&amaMailScheduler;
-  $('#amaMailSender').textContent=amaInvoiceCompany==='ldclean'?'':(r.sender?'Expéditeur : '+r.sender:'');
+  $('#amaGmailBox').hidden=false;
+  $('#amaGmailState').textContent=r.ready?'Service opérationnel':'Service indisponible';
+  $('#amaGmailBox').classList.toggle('ama-mail-ready',!!r.ready);
+  // The provider's effective sender is authoritative for each company.
+  $('#amaMailServiceSender').textContent=r.sender||s.issuer?.invoiceIssuerEmail||'Adresse non renseignée';
+  $('#amaMailConnection').hidden=false;
+  $('#amaMailConnection').textContent=!amaMailReady?'Service e-mail à connecter':!amaMailScheduler?'Service e-mail connecté · programmation à installer':'Service e-mail et programmation configurés';
+  $('#amaMailSender').textContent='';$('#amaMailSender').hidden=true;
   $('#amaAutoEnabled').disabled=!amaMailReady||!amaMailScheduler;
   $('#amaMailTest').disabled=!amaMailReady;$('#amaMailSave').disabled=false;
   $('#amaAutoSummaryState').textContent=s.enabled?'Activé':'Désactivé';
@@ -2837,7 +2859,7 @@ async function amaMailLoad(){
   $('#amaMailFeedback').textContent='';
   $('#amaMailJournal').innerHTML=(r.jobs||[]).map(j=>'<article class="ama-mail-event"><div><strong>'+esc(j.number)+'</strong><small>'+esc(orderClients.find(c=>c.id===j.client_id)?.name||'Client')+' · '+esc(j.period.slice(0,7))+'</small></div><span class="ama-mail-status '+esc(j.status)+'">'+esc(amaMailLabels[j.status]||j.status)+'</span>'+(j.error?'<p>'+esc(j.error)+'</p>':'')+'</article>').join('')||'<p class="muted">Aucun envoi pour le moment.</p>';
   $('#amaMailEvents').innerHTML=(r.events||[]).map(e=>'<p class="ama-warning">'+esc(orderClients.find(c=>c.id===e.client_id)?.name||'Client')+' · '+esc(e.period?.slice(0,7)||'')+' : '+esc(e.message)+'</p>').join('');
- }catch(e){if(session?.id!==owner||company!==amaInvoiceCompany||request!==amaMailRequest)return;amaMailConfig=null;amaMailReady=false;amaMailScheduler=false;$('#amaMailConnection').textContent='Service e-mail à connecter';$('#amaMailFeedback').textContent=e.message;$('#amaAutoEnabled').disabled=true;$('#amaMailSave').disabled=true;$('#amaMailTest').disabled=true;}
+ }catch(e){if(session?.id!==owner||company!==amaInvoiceCompany||request!==amaMailRequest)return;amaMailConfig=null;amaMailReady=false;amaMailScheduler=false;$('#amaGmailState').textContent='État indisponible';$('#amaGmailBox').classList.remove('ama-mail-ready');$('#amaMailServiceSender').textContent='Vérification impossible';$('#amaMailConnection').hidden=false;$('#amaMailConnection').textContent='Service e-mail à vérifier';$('#amaMailFeedback').textContent=e.message;$('#amaAutoEnabled').disabled=true;$('#amaMailSave').disabled=true;$('#amaMailTest').disabled=true;}
  finally{if(request===amaMailRequest)amaMailLoading=false;}
 }
 function amaMailValues(){return {enabled:$('#amaAutoEnabled').checked,day:Number($('#amaAutoDay').value),time:$('#amaAutoTime').value,client_ids:$$('#amaAutoClients input:checked').map(x=>x.value),prefix:$('#amaAutoPrefix').value.trim().toUpperCase(),due_days:Number($('#amaAutoDue').value),issuer:Object.fromEntries(amaIssuerIds.map(id=>[id,$('#'+id).value.trim()])),message:$('#amaAutoMessage').value.trim()};}
@@ -2856,7 +2878,7 @@ function amaMailSetup(){
  const settings=$('#amaInvoiceSettings');settings.innerHTML=`<form id="amaMailForm">
  <div class="ama-auto-heading"><span class="ama-auto-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></span><div><h3>Envoi automatique</h3><p class="muted">Factures du mois précédent · PDF joint</p></div></div>
  <label class="ama-auto-toggle">Activer l’envoi automatique <span><input type="checkbox" role="switch" id="amaAutoEnabled" disabled><i aria-hidden="true"></i></span></label><p id="amaAutoState">Désactivé</p>
- <div id="amaGmailBox" class="ama-gmail-card ama-mail-service" hidden><div class="ama-mail-service-top"><span class="ama-mail-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/><path d="m16 16 2 2 3-4"/></svg></span><div><h4>Service d’envoi des factures</h4><p id="amaGmailState" role="status">Vérification du service…</p></div></div><div class="ama-mail-service-address"><span>Adresse d’expédition</span><strong>ldclean06@gmail.com</strong></div><button type="button" id="amaGmailRefresh" class="ama-mail-check">Actualiser l’état</button></div><p id="amaMailConnection" class="ama-mail-connection">Service e-mail à connecter</p><small id="amaMailSender"></small>
+ <div id="amaGmailBox" class="ama-gmail-card ama-mail-service" hidden><div class="ama-mail-service-top"><span class="ama-mail-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/><path d="m16 16 2 2 3-4"/></svg></span><div><h4>Service d’envoi des factures</h4><p id="amaGmailState" role="status">Vérification du service…</p></div></div><div class="ama-mail-service-address"><span>Adresse d’expédition</span><strong id="amaMailServiceSender">Vérification…</strong></div><button type="button" id="amaGmailRefresh" class="ama-mail-check">Actualiser l’état</button></div><p id="amaMailConnection" class="ama-mail-connection">Service e-mail à connecter</p><small id="amaMailSender"></small>
  <div class="ama-auto-grid"><div class="field"><label for="amaAutoDay">Jour du mois</label><input id="amaAutoDay" type="number" min="1" max="28" required value="1"></div><div class="field"><label for="amaAutoTime">Heure</label><input id="amaAutoTime" type="time" required value="09:00"></div></div><p class="muted">Chaque mois · heure de Paris · délai de passage jusqu’à 5 minutes</p><p id="amaAutoNext" class="muted">Aucun envoi programmé</p>
  <h4>Clients de cette société</h4><p class="muted">Les factures automatiques concernent uniquement ces clients. Pour changer leur société, décochez-les d’abord dans l’autre configuration. Les associations servent uniquement aux envois automatiques. En facturation manuelle, tous les clients restent disponibles avec les deux sociétés.</p><div id="amaAutoClients"></div><p class="muted">Les adresses ou montants incomplets sont exclus et signalés dans le journal. Prolongations exclues.</p>
  <div id="amaMailIssuerSlot"></div>
@@ -2904,7 +2926,7 @@ function amaSetupCompanies(){
   if(session?.role!=='admin'||amaMailBusy){e.target.value=amaInvoiceCompany;return;}
   const id=e.target.value;if(!['ama','ldclean'].includes(id))return;
   if(amaInvoiceStep==='settings'&&!confirm('Changer de société ? Les modifications non enregistrées seront abandonnées.')){e.target.value=amaInvoiceCompany;return;}
-  const settings=amaInvoiceStep==='settings';amaInvoiceCompany=id;amaMailRequest++;amaMailLoading=false;amaMailConfig=null;amaMailReady=false;$('#amaAutoEnabled').checked=false;$('#amaAutoEnabled').disabled=true;$('#amaMailSave').disabled=true;$('#amaMailTest').disabled=true;$('#amaAutoClients').textContent='';$('#amaGmailBox').hidden=id!=='ldclean';amaInvoiceClient=null;amaInvoiceMailState=null;$('#invoiceNumber').value='';$('#invoicePaid').value=0;amaCompanyFillIssuer();$('#amaMailJournal').textContent='';$('#amaMailEvents').textContent='';$('#amaAutoSummaryState').textContent=amaCompanyRows.find(c=>c.id===id)?.settings.enabled?'Activé':'Désactivé';
+  const settings=amaInvoiceStep==='settings';amaInvoiceCompany=id;amaMailRequest++;amaMailLoading=false;amaMailConfig=null;amaMailReady=false;$('#amaAutoEnabled').checked=false;$('#amaAutoEnabled').disabled=true;$('#amaMailSave').disabled=true;$('#amaMailTest').disabled=true;$('#amaAutoClients').textContent='';$('#amaGmailBox').hidden=false;$('#amaGmailState').textContent='Vérification du service…';$('#amaMailServiceSender').textContent='Vérification…';$('#amaMailSender').textContent='';amaInvoiceClient=null;amaInvoiceMailState=null;$('#invoiceNumber').value='';$('#invoicePaid').value=0;amaCompanyFillIssuer();$('#amaMailJournal').textContent='';$('#amaMailEvents').textContent='';$('#amaAutoSummaryState').textContent=amaCompanyRows.find(c=>c.id===id)?.settings.enabled?'Activé':'Désactivé';
   amaInvoiceShow(settings?'settings':'overview');amaRenderInvoiceSummary();
  };
  $('#amaGmailRefresh').onclick=()=>{if(!amaMailBusy&&session?.role==='admin')amaMailLoad();};
@@ -2978,7 +3000,7 @@ fillSelects();
   </div>
   <button type="button" class="ama-account-photo" id="amaChangePhoto">Importer ma propre photo</button>
     <section class="ama-push-settings" aria-labelledby="amaPushTitle">
-      <span id="amaPushTitle" class="ama-visually-hidden">État des notifications</span>
+      <span id="amaPushTitle" class="ama-visually-hidden">État des notifications</span><p id="amaValidationReminderInfo" class="muted" hidden>Rappel à 19 h (heure de Paris) si des missions restent à valider. Hors prolongations, un rappel par jour.</p>
       <div class="ama-push-action" id="amaPushAction">
         <div class="ama-push-action-copy"><strong id="amaPushDeviceTitle">Vérification…</strong><small id="amaPushStatus" role="status" aria-live="polite"></small></div>
         <button type="button" id="amaPushEnable" class="ama-push-enable">Activer</button>
@@ -3184,7 +3206,7 @@ amaPushHelpToggle.addEventListener('click',()=>{amaPushHelp.hidden=!amaPushHelp.
 document.getElementById('amaPushHelpClose').addEventListener('click',()=>{amaPushHelp.hidden=true;amaPushHelpToggle.setAttribute('aria-expanded','false')});
 function amaPushUpdateRole(){
  const isAdmin=document.getElementById('amaAccountModal')?.dataset.role==='admin';
- document.getElementById('amaPushAdminChoices').hidden=!isAdmin;
+ document.getElementById('amaPushAdminChoices').hidden=!isAdmin;document.getElementById('amaValidationReminderInfo').hidden=isAdmin;
  refreshNotificationButton();
 }
 window.amaPushUpdateRole=amaPushUpdateRole;

@@ -6,6 +6,7 @@ self.addEventListener('push', event => {
 });
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  const target = new URL(event.notification.data?.url || './', self.registration.scope).href;
+  const proposed = new URL(event.notification.data?.url || './', self.registration.scope);
+  const target = proposed.href.startsWith(self.registration.scope) ? proposed.href : self.registration.scope;
   event.waitUntil((async()=>{const windows=await clients.matchAll({type:'window',includeUncontrolled:true});for(const w of windows){if(w.url.startsWith(self.registration.scope)){await w.focus();if('navigate' in w)await w.navigate(target);return;}}await clients.openWindow(target)})());
 });
