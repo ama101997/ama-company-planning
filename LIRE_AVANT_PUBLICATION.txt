@@ -1,0 +1,1 @@
+Version PRODUCTION préparée le 22/10/2026. Publier uniquement APRÈS la migration SQL 01 réussie. Lire le guide à la racine. Les photos nécessitent le stockage privé et les politiques associées. Ne pas publier les dossiers SQL, e-mail, tests ou audit sur GitHub Pages. Conserver les fichiers CSS, PNG, manifest et sw.js avec index.html. Aucun mot de passe ni clé serveur inclus.
