@@ -1176,7 +1176,7 @@ body #tab-dashboard .ama-integrated-heading #backBtn,body #tab-dashboard .ama-in
 <div class="field full"><label for="clientAddress">Adresse de facturation</label><textarea id="clientAddress" rows="2"></textarea></div>
 <div class="field"><label for="clientEmail">E-mail</label><input id="clientEmail" type="email"></div>
 <div class="field"><label for="clientPhone">Téléphone</label><input id="clientPhone"></div>
-<div class="field full"><label for="clientSiret">SIRET (facultatif)</label><input id="clientSiret" maxlength="14" inputmode="numeric"></div>
+<div class="field full"><label for="clientSiret">SIRET (facultatif)</label><input id="clientSiret" maxlength="32" inputmode="numeric"></div>
 <div class="full actions"><button class="primary" type="submit" id="clientSaveBtn">＋ Ajouter le donneur d’ordre</button><button class="ghost hidden" type="button" id="clientCancelBtn">Annuler</button></div>
 </form><div id="clientList" style="margin-top:15px"></div></div>
 <div class="card ama-apartments-panel"><h3>🏠 Logements et durées</h3><p class="desc">La durée sert de valeur proposée lors de la programmation.</p>
@@ -3217,9 +3217,9 @@ $('#clientForm').addEventListener('submit',async e=>{
  e.preventDefault();if(session.role!=='admin')return;
  const id=$('#clientEditId').value;
  const payload={name:$('#clientName').value.trim(),billing_address:$('#clientAddress').value.trim(),
- email:$('#clientEmail').value.trim()||null,phone:$('#clientPhone').value.trim()||null,siret:$('#clientSiret').value.trim()||null};
+ email:$('#clientEmail').value.trim()||null,phone:$('#clientPhone').value.trim()||null,siret:$('#clientSiret').value.replace(/\s/g,'')||null};
  if(!payload.name)return alert('Nom du donneur d’ordre obligatoire.');
- if(payload.siret&&!/^\\d{14}$/.test(payload.siret))return alert('Le SIRET doit contenir 14 chiffres.');
+ if(payload.siret&&!/^[0-9]{14}$/.test(payload.siret))return alert('Le SIRET doit contenir 14 chiffres.');
  const r=id?await client.from('order_clients').update(payload).eq('id',id):await client.from('order_clients').insert(payload);
  if(r.error)return alert('Enregistrement refusé : '+r.error.message);
  await reload();clearClientEditor();render();alert('Donneur d’ordre enregistré.');
