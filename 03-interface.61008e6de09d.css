@@ -1,0 +1,13 @@
+/* style-3 */
+
+  #activer-notifications {
+    position:fixed; right:16px; bottom:16px; z-index:19;
+    display:none; align-items:center; justify-content:center;
+    width:40px; height:40px; padding:0;
+    border:1px solid #e8edf4; border-radius:50%;
+    background:#fff; color:#65758e;
+    box-shadow:0 3px 12px rgba(18,35,58,.12);
+    font-size:18px; line-height:1;
+  }
+  #activer-notifications:hover { background:#fff8e8; color:#805600; }
+  @media(max-width:700px) { #activer-notifications { right:12px; bottom:12px; width:36px; height:36px; font-size:16px; } }
