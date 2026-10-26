@@ -1,0 +1,16 @@
+/* ama-admin-final-home */
+
+/* Admin-only presentation, preserving worker layout and business logic. */
+body:not(.ama-worker) #tab-dashboard .ama-admin-program{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 15px;padding:0 2px;color:#315a72;font-size:14px;font-weight:600}
+.ama-program-button{background:#e4f0ed;color:#237b69;border:0;border-radius:12px;padding:11px 15px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ama-program-button:hover{background:#d5e8e3}
+body.ama-worker #amaQuickActions{display:none!important}
+body:not(.ama-worker) #tab-dashboard .ama-ca-home-mini{margin:0 0 16px}
+body:not(.ama-worker) #tab-dashboard .dashboard-grid{display:flex;flex-direction:column;gap:16px}
+body:not(.ama-worker) #tab-dashboard .dashboard-main{width:100%;min-width:0}
+body:not(.ama-worker) #tab-dashboard .dashboard-side{width:100%;min-width:0}
+body:not(.ama-worker) #tab-dashboard .dashboard-main .section-title{align-items:center;gap:12px}
+body:not(.ama-worker) #tab-dashboard .dashboard-main .section-title .soft.mini{background:#e4f0ed;color:#237b69;border:0;border-radius:12px}
+body:not(.ama-worker) #tab-dashboard .dashboard-main .dash-table .dash-row:nth-of-type(n+5){display:none}
+body:not(.ama-worker) #tab-dashboard .ama-home-signature{margin:20px 0 10px}
+@media(max-width:600px){body:not(.ama-worker) #tab-dashboard .ama-admin-program{font-size:13px} .ama-program-button{padding:10px 12px}body:not(.ama-worker) #tab-dashboard .dashboard-main .section-title{flex-wrap:wrap}}
